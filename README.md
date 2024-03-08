@@ -1,5 +1,5 @@
 # DM_Group6
-5586227
+5586227 Edmund Tan
 5544129
 5515177
 5588102 Pavel Savoskin
