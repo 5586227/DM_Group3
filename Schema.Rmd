@@ -1,5 +1,3 @@
-
-
 ---
 title: "Schema"
 output: html_document
@@ -16,7 +14,7 @@ library(DBI)
 library(RSQLite)
 
 #install.packages("DBI")
-#nstall.packages("RSQLite")
+#install.packages("RSQLite")
 ```
 
 
