@@ -1,0 +1,157 @@
+---
+title: "Schema"
+output: html_document
+date: "2024-03-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(DBI)
+library(RSQLite)
+
+#install.packages("DBI")
+#nstall.packages("RSQLite")
+```
+
+
+##Connect to database
+```{r}
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
+```
+
+
+## Create CUSTOMER Table #Already run
+```{sql connection=connect}
+CREATE TABLE 'CUSTOMERS' (
+  'customer_id' INT PRIMARY KEY, 
+  'first_name' VARCHAR(250) NOT NULL,
+  'last_name' VARCHAR(250) NOT NULL,
+  'email' VARCHAR(250) NOT NULL,
+  'mobile_no' INT NOT NULL,
+  'street' VARCHAR (50) NOT NULL,
+  'city' TEXT NOT NULL,
+  'state' TEXT NOT NULL,
+  'country' TEXT NOT NULL,
+  'postcode' VARCHAR (50) NOT NULL
+) ;  
+
+```
+
+## Create PRODUCT table
+```{sql connection=connect}
+CREATE TABLE 'PRODUCT' (
+  'product_id' INT PRIMARY KEY, 
+  'product_name' VARCHAR(250) NOT NULL,
+  'product_description' VARCHAR(250),
+  'unit_price' VARCHAR(250) NOT NULL,
+  'stock_on_hand' INT NOT NULL,
+  'main_product_id' INT,
+  'category_id' INT NOT NULL,
+  'supplier_id' INT NOT NULL,
+  FOREIGN KEY (supplier_id)
+    REFERENCES SUPPLIER (supplier_id),
+  FOREIGN KEY (category_id)
+    REFERENCES CATEGORY (category_id)
+) ;  
+
+```
+
+
+
+##Create ORDER table for CUSTOMER-PRODUCT relationship
+```{sql connection=connect}
+CREATE TABLE 'ORDER' (
+  'order_id' INT PRIMARY KEY,
+  'customer_id' INT, 
+  'product_id' INT,
+  'order_date' DATE NOT NULL,
+  'order_status' TEXT NOT NULL, 
+  'order_quantity' INT NOT NULL,
+  'promo_code' VARCHAR(10),
+  'discount_percent' NUMERIC DEFAULT 0,
+  'payment_detail' TEXT NOT NULL,
+  'delivery_fee' NUMERIC DEFAULT 0,
+  FOREIGN KEY (customer_id)
+    REFERENCES CUSTOMER (customer_id),
+  FOREIGN KEY (product_id)
+    REFERENCES PRODUCT (product_id)
+) ;  
+
+```
+
+
+## Create ADVERTISEMENTS table
+```{sql connection=connect}
+CREATE TABLE 'ADVERTISEMENTS' (
+  'ad_id' INT PRIMARY KEY, 
+  'ad_number' INT NOT NULL,
+  'ad_price' NUMERIC NOT NULL, 
+  'ad_place' VARCHAR (50) NOT NULL
+) ;
+
+```
+
+
+##Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
+```{sql connection=connect}
+CREATE TABLE 'ADVERTISE_IN' (
+  'product_id' INT PRIMARY KEY, 
+  'ad_id' INT PRIMARY KEY, 
+  FOREIGN KEY (product_id)
+    REFERENCES PRODUCT (product_id),
+  FOREIGN KEY (ad_id)
+    REFERENCES ADVERTISEMENTS (ad_id)
+) ;
+
+```
+
+## Create SUPPLIER table
+```{sql connection=connect}
+CREATE TABLE 'SUPPLIER' (
+  'supplier_id' INT PRIMARY KEY, 
+  'first_name' VARCHAR(250) NOT NULL,
+  'last_name' VARCHAR(250) NOT NULL, 
+  'email' VARCHAR(250) NOT NULL,
+  'mobile_no' INT NOT NULL,
+) ;  
+
+```
+
+## Create CATEGORY table
+```{sql connection=connect}
+CREATE TABLE 'CATEGORY' (
+  'category_id' INT PRIMARY KEY, 
+  'category_name' VARCHAR(250) NOT NULL
+) ;
+
+```
+
+
+#Import to each Entity
+## Loading using ``read_csv`` and ``dbWriteTable()``
+
+
+##This is not our version, I just copy it from the workshop 
+```{r dataloading,message=FALSE,warning=FALSE}
+PurchasesDec <- readr::read_csv("bibitor/PurchasesFINAL12312016a.csv")
+BegInvDec <- readr::read_csv("bibitor/BegInvFINAL12312016a.csv")
+EndInvDec <- readr::read_csv("bibitor/EndInvFINAL12312016a.csv")
+
+# in a similar way we can read and load the other tables and give the names  
+# that are in the PWC data case study - see slide 9 from the uploaded pdf
+VendorInvoicesDec <- readr::read_csv("bibitor/InvoicePurchases12312016a.csv")
+```
+
+## Write them to the database 
+```{r writebacktodb}
+RSQLite::dbWriteTable(my_connection,"PurchasesDec",PurchasesDec,overwrite=TRUE)
+RSQLite::dbWriteTable(my_connection,"BegInvDec",BegInvDec,overwrite=TRUE)
+RSQLite::dbWriteTable(my_connection,"EndInvDec",EndInvDec,overwrite=TRUE)
+RSQLite::dbWriteTable(my_connection,"VendorInvoicesDec",VendorInvoicesDec,overwrite=TRUE)
+
+```
+
