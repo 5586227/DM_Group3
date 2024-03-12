@@ -8,7 +8,6 @@ date: "2024-03-08"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r}
 library(DBI)
 library(RSQLite)
@@ -17,14 +16,14 @@ library(RSQLite)
 #install.packages("RSQLite")
 ```
 
-
 ##Connect to database
+
 ```{r}
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-
 ## Create CUSTOMER Table #Already run
+
 ```{sql connection=connect}
 CREATE TABLE 'CUSTOMERS' (
   'customer_id' INT PRIMARY KEY, 
@@ -42,6 +41,7 @@ CREATE TABLE 'CUSTOMERS' (
 ```
 
 ## Create PRODUCT table
+
 ```{sql connection=connect}
 CREATE TABLE 'PRODUCT' (
   'product_id' INT PRIMARY KEY, 
@@ -60,9 +60,8 @@ CREATE TABLE 'PRODUCT' (
 
 ```
 
-
-
 ##Create ORDER table for CUSTOMER-PRODUCT relationship
+
 ```{sql connection=connect}
 CREATE TABLE 'ORDER' (
   'order_id' INT PRIMARY KEY,
@@ -83,8 +82,8 @@ CREATE TABLE 'ORDER' (
 
 ```
 
-
 ## Create ADVERTISEMENTS table
+
 ```{sql connection=connect}
 CREATE TABLE 'ADVERTISEMENTS' (
   'ad_id' INT PRIMARY KEY, 
@@ -95,8 +94,8 @@ CREATE TABLE 'ADVERTISEMENTS' (
 
 ```
 
-
 ##Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
+
 ```{sql connection=connect}
 CREATE TABLE 'ADVERTISE_IN' (
   'product_id' INT PRIMARY KEY, 
@@ -110,6 +109,7 @@ CREATE TABLE 'ADVERTISE_IN' (
 ```
 
 ## Create SUPPLIER table
+
 ```{sql connection=connect}
 CREATE TABLE 'SUPPLIER' (
   'supplier_id' INT PRIMARY KEY, 
@@ -122,6 +122,7 @@ CREATE TABLE 'SUPPLIER' (
 ```
 
 ## Create CATEGORY table
+
 ```{sql connection=connect}
 CREATE TABLE 'CATEGORY' (
   'category_id' INT PRIMARY KEY, 
@@ -130,12 +131,10 @@ CREATE TABLE 'CATEGORY' (
 
 ```
 
+#Import to each Entity \## Loading using `read_csv` and `dbWriteTable()`
 
-#Import to each Entity
-## Loading using ``read_csv`` and ``dbWriteTable()``
+##This is not our version, I just copy it from the workshop
 
-
-##This is not our version, I just copy it from the workshop 
 ```{r dataloading,message=FALSE,warning=FALSE}
 PurchasesDec <- readr::read_csv("bibitor/PurchasesFINAL12312016a.csv")
 BegInvDec <- readr::read_csv("bibitor/BegInvFINAL12312016a.csv")
@@ -146,7 +145,8 @@ EndInvDec <- readr::read_csv("bibitor/EndInvFINAL12312016a.csv")
 VendorInvoicesDec <- readr::read_csv("bibitor/InvoicePurchases12312016a.csv")
 ```
 
-## Write them to the database 
+## Write them to the database
+
 ```{r writebacktodb}
 RSQLite::dbWriteTable(my_connection,"PurchasesDec",PurchasesDec,overwrite=TRUE)
 RSQLite::dbWriteTable(my_connection,"BegInvDec",BegInvDec,overwrite=TRUE)
@@ -154,4 +154,3 @@ RSQLite::dbWriteTable(my_connection,"EndInvDec",EndInvDec,overwrite=TRUE)
 RSQLite::dbWriteTable(my_connection,"VendorInvoicesDec",VendorInvoicesDec,overwrite=TRUE)
 
 ```
-
