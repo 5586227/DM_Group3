@@ -16,24 +16,27 @@ library(RSQLite)
 #install.packages("RSQLite")
 ```
 
+##Adjustment 14/3/2024: delete state (focus only address in the UK), Change datatype of all primary key to varchar, create DISCOUNT table to be in  compliance with 3NF
+
+
 ##Connect to database
 
 ```{r}
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-## Create CUSTOMER Table #Already run
+## Create CUSTOMER Table 
 
+        
 ```{sql connection=connect}
 CREATE TABLE CUSTOMERS (
-  customer_id INT PRIMARY KEY, 
+  customer_id VARCHAR(250) PRIMARY KEY, 
   first_name VARCHAR(250) NOT NULL,
   last_name VARCHAR(250) NOT NULL,
   email VARCHAR(250) NOT NULL,
   mobile_no VARCHAR(15) NOT NULL,
   street VARCHAR(50) NOT NULL,
   city VARCHAR(100) NOT NULL,
-  state VARCHAR(100) NOT NULL,
   country VARCHAR(100) NOT NULL,
   postcode VARCHAR(20) NOT NULL
 );
@@ -43,7 +46,7 @@ CREATE TABLE CUSTOMERS (
 
 ```{sql connection=connect}
 CREATE TABLE PRODUCT (
-  product_id INT PRIMARY KEY, 
+  product_id VARCHAR(250) PRIMARY KEY, 
   product_name VARCHAR(250) NOT NULL,
   product_description VARCHAR(250),
   unit_price DECIMAL(10,2) NOT NULL,
@@ -58,24 +61,37 @@ CREATE TABLE PRODUCT (
 );
 ```
 
+##Create DISCOUNT table
+
+````{sql connection=connect}
+CREATE TABLE DISCOUNT (
+  promo_code VARCHAR(20) PRIMARY KEY, 
+  discount_amount INT NOT NULL
+);
+```
+
+
+
+
 ##Create ORDER table for CUSTOMER-PRODUCT relationship
 
 ```{sql connection=connect}
-CREATE TABLE `ORDER` (
-  order_id INT PRIMARY KEY,
-  customer_id INT, 
-  product_id INT,
+CREATE TABLE 'ORDER' (
+  order_id VARCHAR(250) PRIMARY KEY,
+  customer_id VARCHAR(250), 
+  product_id VARCHAR(250),
   order_date DATE NOT NULL,
   order_status VARCHAR(50) NOT NULL, 
   order_quantity INT NOT NULL,
-  promo_code VARCHAR(10),
-  discount_percent DECIMAL(5,2) DEFAULT 0,
+  promo_code VARCHAR(20),
   payment_detail TEXT NOT NULL,
   delivery_fee DECIMAL(10,2) DEFAULT 0,
   FOREIGN KEY (customer_id)
     REFERENCES CUSTOMER (customer_id),
   FOREIGN KEY (product_id)
-    REFERENCES PRODUCT (product_id)
+    REFERENCES PRODUCT (product_id),
+  FOREIGN KEY (promo_code)
+    REFERENCES DISCOUNT (promo_code)
 );
 ```
 
@@ -83,7 +99,7 @@ CREATE TABLE `ORDER` (
 
 ```{sql connection=connect}
 CREATE TABLE ADVERTISEMENTS (
-  ad_id INT PRIMARY KEY, 
+  ad_id VARCHAR(250) PRIMARY KEY, 
   ad_number INT NOT NULL,
   ad_price DECIMAL(10, 2) NOT NULL, 
   ad_place VARCHAR(50) NOT NULL
@@ -94,8 +110,8 @@ CREATE TABLE ADVERTISEMENTS (
 
 ```{sql connection=connect}
 CREATE TABLE ADVERTISE_IN (
-  product_id INT,
-  ad_id INT,
+  product_id VARCHAR(250),
+  ad_id VARCHAR(250),
   PRIMARY KEY (product_id, ad_id),
   FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
   FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
@@ -106,7 +122,7 @@ CREATE TABLE ADVERTISE_IN (
 
 ```{sql connection=connect}
 CREATE TABLE SUPPLIER (
-  supplier_id INT PRIMARY KEY, 
+  supplier_id VARCHAR(250) PRIMARY KEY, 
   first_name VARCHAR(250) NOT NULL,
   last_name VARCHAR(250) NOT NULL, 
   email VARCHAR(250) NOT NULL,
@@ -118,7 +134,7 @@ CREATE TABLE SUPPLIER (
 
 ```{sql connection=connect}
 CREATE TABLE CATEGORY (
-  category_id INT PRIMARY KEY, 
+  category_id VARCHAR(250) PRIMARY KEY, 
   category_name VARCHAR(250) NOT NULL
 );
 ```
