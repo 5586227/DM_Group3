@@ -17,6 +17,7 @@ library(RSQLite)
 ```
 
 ##Adjustment 14/3/2024: delete state (focus only address in the UK), Change datatype of all primary key to varchar, create DISCOUNT table to be in  compliance with 3NF
+##Adjustment 15/3/2024: delete SUPPLIER first_name and last_name, and change to supplier_name
 
 
 ##Connect to database
@@ -123,8 +124,7 @@ CREATE TABLE ADVERTISE_IN (
 ```{sql connection=connect}
 CREATE TABLE SUPPLIER (
   supplier_id VARCHAR(250) PRIMARY KEY, 
-  first_name VARCHAR(250) NOT NULL,
-  last_name VARCHAR(250) NOT NULL, 
+  supplier_name VARCHAR(250) NOT NULL,
   email VARCHAR(250) NOT NULL,
   mobile_no VARCHAR(20) NOT NULL
 );
