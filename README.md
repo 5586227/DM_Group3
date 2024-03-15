@@ -1,4 +1,4 @@
-# DM_Group6
+# DM_Group3
 5586227 Edmund Tan
 5544129 Dhanush Krishnan
 5515177 Ajima Pluempiyatham
