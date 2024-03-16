@@ -1,0 +1,21 @@
+ad_id,ad_frequency,ad_price,ad_place
+AD1,87,0.15,Homepage banner
+AD2,32,0.59,Homepage banner
+AD3,67,0.32,Pop-up ad
+AD4,52,0.25,Pop-up ad
+AD5,5,0.6,Sidebar ad
+AD6,57,0.42,Sidebar ad
+AD7,86,0.02,Sponsored content section
+AD8,12,0.27,Homepage banner
+AD9,21,0.69,Sidebar ad
+AD10,17,0.86,Footer ad
+AD11,36,0.24,Sidebar ad
+AD12,98,0.03,Pop-up ad
+AD13,21,0.01,Footer ad
+AD14,20,0.77,Footer ad
+AD15,99,0.51,Footer ad
+AD16,60,0.9,Sponsored content section
+AD17,61,0.9,Sidebar ad
+AD18,9,0.08,Sidebar ad
+AD19,60,0.21,Sponsored content section
+AD20,18,0.98,Pop-up ad
