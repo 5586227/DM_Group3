@@ -1,0 +1,51 @@
+product_id,category_id,supplier_id,product_name,unit_price,stock_on_hand,main_product_id
+PROD1,CATG4,SUP5,Outdoor Adventure Backpack,31.42,5,PROD36
+PROD2,CATG1,SUP1,Smartwatch Pro,32.85,87,
+PROD3,CATG3,SUP8,Fragrant Reed Diffuser,22.34,77,PROD11
+PROD4,CATG2,SUP4,Stellar Threads,36.8,63,PROD47
+PROD5,CATG5,SUP3,Anti-aging Night Cream,57.73,36,
+PROD6,CATG3,SUP10,Fragrant Reed Diffuser,10.99,54,PROD3
+PROD7,CATG4,SUP2,Durable Camping Tent,79.07,55,
+PROD8,CATG5,SUP9,Anti-aging Night Cream,44.72,53,PROD37
+PROD9,CATG1,SUP7,Ultra HD Smart TV,63.45,99,PROD5
+PROD10,CATG2,SUP6,Cozy Couture,89.29,59,PROD46
+PROD11,CATG1,SUP6,Ultra HD Smart TV,50.4,94,PROD9
+PROD12,CATG4,SUP4,High-performance Running Shoes,75.81,32,
+PROD13,CATG2,SUP3,EcoChic Attire,80.59,47,PROD33
+PROD14,CATG3,SUP5,Fragrant Reed Diffuser,62.74,13,PROD12
+PROD15,CATG5,SUP7,Nourishing Argan Oil Shampoo,15.56,98,PROD39
+PROD16,CATG2,SUP10,Urban Vogue,5.76,20,PROD30
+PROD17,CATG4,SUP8,Fitness Tracker Band,5.46,97,
+PROD18,CATG5,SUP9,Refreshing Aloe Vera Gel,27.59,73,PROD32
+PROD19,CATG1,SUP2,Portable Bluetooth Speaker,7.89,56,
+PROD20,CATG3,SUP1,Modern Wall Art Canvas,66.12,48,PROD24
+PROD21,CATG1,SUP4,Gaming Laptop Elite,24.7,97,
+PROD22,CATG3,SUP6,Decorative Throw Pillow Set,84.48,61,PROD21
+PROD23,CATG2,SUP8,Stellar Threads,84.19,4,
+PROD24,CATG5,SUP2,Hydrating Facial Moisturizer,24.57,83,PROD41
+PROD25,CATG4,SUP9,High-performance Running Shoes,26.52,30,
+PROD26,CATG4,SUP10,Fitness Tracker Band,1.86,64,PROD42
+PROD27,CATG1,SUP5,Smartwatch Pro,74.55,18,PROD44
+PROD28,CATG2,SUP7,Chic Haven,72.79,3,PROD38
+PROD29,CATG3,SUP1,Rustic Wood Picture Frame,14.19,2,
+PROD30,CATG5,SUP3,Nourishing Argan Oil Shampoo,92.98,84,
+PROD31,CATG1,SUP3,Ultra HD Smart TV,77.02,76,PROD4
+PROD32,CATG2,SUP2,EcoChic Attire,79.64,99,
+PROD33,CATG5,SUP10,Exfoliating Body Scrub,97.64,48,
+PROD34,CATG4,SUP5,High-performance Running Shoes,75.13,45,PROD28
+PROD35,CATG3,SUP7,Modern Wall Art Canvas,10.89,38,
+PROD36,CATG2,SUP9,Chic Haven,90.04,25,PROD26
+PROD37,CATG1,SUP4,Gaming Laptop Elite,47.29,66,PROD1
+PROD38,CATG4,SUP6,Durable Camping Tent,71.47,11,PROD40
+PROD39,CATG5,SUP1,Hydrating Facial Moisturizer,33.62,5,
+PROD40,CATG3,SUP8,Fragrant Reed Diffuser,81.71,34,
+PROD41,CATG5,SUP9,Nourishing Argan Oil Shampoo,50.13,5,PROD18
+PROD42,CATG3,SUP2,Fragrant Reed Diffuser,57.29,11,
+PROD43,CATG4,SUP7,Outdoor Adventure Backpack,76.29,47,PROD45
+PROD44,CATG2,SUP6,EcoChic Attire,43.06,81,PROD8
+PROD45,CATG1,SUP10,Gaming Laptop Elite,88.5,92,PROD2
+PROD46,CATG3,SUP8,Rustic Wood Picture Frame,9.34,16,
+PROD47,CATG4,SUP4,High-performance Running Shoes,26.67,93,PROD43
+PROD48,CATG2,SUP5,Urban Vogue,81.35,72,PROD48
+PROD49,CATG1,SUP1,Gaming Laptop Elite,54.03,5,
+PROD50,CATG5,SUP3,Exfoliating Body Scrub,14.05,15,
