@@ -34,6 +34,7 @@ CREATE TABLE CUSTOMERS (
   customer_id VARCHAR(250) PRIMARY KEY, 
   first_name VARCHAR(250) NOT NULL,
   last_name VARCHAR(250) NOT NULL,
+  gender VARCHAR(10),
   email VARCHAR(250) NOT NULL,
   mobile_no VARCHAR(15) NOT NULL,
   street VARCHAR(50) NOT NULL,
@@ -101,7 +102,7 @@ CREATE TABLE 'ORDER' (
 ```{sql connection=connect}
 CREATE TABLE ADVERTISEMENTS (
   ad_id VARCHAR(250) PRIMARY KEY, 
-  ad_number INT NOT NULL,
+  ad_frequency INT NOT NULL,
   ad_price DECIMAL(10, 2) NOT NULL, 
   ad_place VARCHAR(50) NOT NULL
 );
