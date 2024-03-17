@@ -44,6 +44,21 @@ CREATE TABLE CUSTOMERS (
 );
 ```
 
+## Create ADDRESS table
+
+```{sql connection=connect}
+CREATE TABLE ADDRESS (
+  postcode VARCHAR(20) PRIMARY KEY, 
+  customer_id INT NOT NULL,
+  street VARCHAR(50) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  FOREIGN KEY (customer_id)
+    REFERENCES CUSTOMER (customer_id)
+);
+```
+
+
 ## Create PRODUCT table
 
 ```{sql connection=connect}
