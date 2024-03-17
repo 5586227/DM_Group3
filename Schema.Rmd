@@ -151,7 +151,8 @@ CREATE TABLE SUPPLIER (
 ```{sql connection=connect}
 CREATE TABLE CATEGORY (
   category_id VARCHAR(250) PRIMARY KEY, 
-  category_name VARCHAR(250) NOT NULL
+  category_name VARCHAR(250) NOT NULL,
+  category_fee INT NOT NULL,
 );
 ```
 
