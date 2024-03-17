@@ -1,8 +1,6 @@
 name: ETL workflow for group 3
 
 on:
-#  schedule:
-#    - cron: '0 */3 * * *' # Run every 3 hours
   push:
     branches: [ main ]
     
@@ -21,35 +19,33 @@ jobs:
         with:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
-          restore-keys: |
-            ${{ runner.os }}-r-
+          restore-keys: ${{ runner.os }}-r-
+
+          
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          Rscript -e 'install.packages(c("ggplot2", "dplyr", "readr", "RSQLite"))'
-          
+        run: Rscript -e 'install.packages(c("ggplot2", "dplyr", "readr", "RSQLite"))'
 
+          
       - name: Delete database file
-        run: |
-          del /Q mydatabase.db
+        run: del /Q database.db
       - name: Create database schema
-        run: |
-          Rscript database_schema.R
-      - name: Data validation and load
-        run: |
-          Rscript data_validation_and_load.R
+        run: Rscript database_schema.R
+      - name: Validate and load data into database
+        run: Rscript data_validation_and_load.R
+      - name: Run R analysis
+        run: Rscript xxx.R
 
-          
+
       - name: Add files
         run: |
-          git config --global user.email "5586227@live.warwick.ac.uk"
+          git config --global user.email "u5586227@live.warwick.ac.uk"
           git config --global user.name "5586227"
           git add --all figures/
       - name: Commit files
-        run: |
-          git commit -m "Add regression plot figure"          
+        run: git commit -m "Add visualization plot figure"          
+
           
-     
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
