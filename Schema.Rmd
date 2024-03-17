@@ -115,8 +115,8 @@ CREATE TABLE 'ORDER' (
 CREATE TABLE ADVERTISEMENT (
   ad_id VARCHAR(250) PRIMARY KEY, 
   ad_frequency INT NOT NULL,
+  ad_place VARCHAR(50) NOT NULL,
   ad_price DECIMAL(10, 2) NOT NULL, 
-  ad_place VARCHAR(50) NOT NULL
 );
 ```
 
