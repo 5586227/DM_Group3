@@ -86,28 +86,36 @@ CREATE TABLE DISCOUNT (
 
 
 
-
 ##Create ORDER table for CUSTOMER-PRODUCT relationship
+```{sql connection=connect}
+CREATE TABLE ORDER_ITEM (
+  order_id VARCHAR(250) PRIMARY KEY,
+  product_id VARCHAR(250), 
+  order_quantity INT NOT NULL,
+  FOREIGN KEY (product_id)
+    REFERENCES PRODUCT (product_id)
+);
+
+```
+
 
 ```{sql connection=connect}
-CREATE TABLE 'ORDER' (
+CREATE TABLE ORDER_DETAIL (
   order_id VARCHAR(250) PRIMARY KEY,
   customer_id VARCHAR(250), 
-  product_id VARCHAR(250),
   order_date DATE NOT NULL,
   order_status VARCHAR(50) NOT NULL, 
-  order_quantity INT NOT NULL,
   promo_code VARCHAR(20),
   payment_method TEXT NOT NULL,
-  delivery_fee DECIMAL(10,2) DEFAULT 0,
   FOREIGN KEY (customer_id)
     REFERENCES CUSTOMER (customer_id),
-  FOREIGN KEY (product_id)
-    REFERENCES PRODUCT (product_id),
+  FOREIGN KEY (order_id)
+    REFERENCES CUSTOMER (customer_id),
   FOREIGN KEY (promo_code)
     REFERENCES DISCOUNT (promo_code)
 );
 ```
+
 
 ## Create ADVERTISEMENT table
 
