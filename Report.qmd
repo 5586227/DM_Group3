@@ -241,7 +241,7 @@ The synthetic data of each table was created using Mockaroo,
 
 ### Task 3.1: Synthetic Data Generation
 
-### Task 3.2: Data Import and Quality Assurance
+### Task 3.2: GitHub Actions for Continuous Integration
 
 ## Part 4: Data Analysis and Reporting with Quarto in R
 
