@@ -246,6 +246,9 @@ negative_zero_quantity <- order[order$order_quantity < 1, c("order_id", "order_q
 #Check for negative delivery fee
 negative_delivery_fee <- order[order$delivery_fee < 0, c("order_id", "delivery_fee")]
 
+#Check if total order quantity for a product in all orders exceed stock on hand
+
+
 #Check for missing data (remove?)
 na_order_order_id <- order[is.na(order$order_id), "order_id"]
 na_order_customer_id <- order[is.na(order$customer_id), c("order_id", "customer_id")]
