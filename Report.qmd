@@ -4,23 +4,247 @@ format: pdf
 editor: visual
 ---
 
+## 
+
 ## Part 1: Database Design and Implementation
 
-### 1.1: E-R Diagram Design
+### Task 1.1: E-R Diagram
 
-## Running Code
+#### Entities
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Our E-R Diagram for an E-commerce database consisted of seven main entities:
 
-```{r}
-1 + 1
+1.  CUSTOMER: Represents details of individuals or entities who purchase products, including attributes such as customer ID, customer name, contact information, and gender. 
+2.  ADDRESS: Represent details of the address of each customer, including attributes such as postcode, street, city, and country.
+3.  PRODUCT: Represents details of items available for sale, including attributes such as product ID, product name, description, rating, price, and available stock. 
+4.  DISCOUNT: Represents details of discounts that customers can apply to their purchases, including attributes such as promotion code and discount amount as a percentage.
+5.  ADVERTISEMENT: Represents details of promotional activities used to advertise products, including attributes such as advertisement ID, number of times the advertisement is shown, cost of the advertisement, and the place the advertisement was placed. 
+6.  SUPPLIER: Represents details of entities providing products to businesses or customers, including attributes such as supplier ID, supplier name, and contact information. 
+7.  CATEGORY: Represents product classifications or groupings, including attributes such as category unique ID, name, and fee amount as a percentage.
+
+#### Relationships + \<paste relationship set + create relationship set for DISCOUNT\>
+
+The relationships among these entities are as follows: 
+
+-   CUSTOMER and PRODUCT have an M-N relationship meaning one customer can order many products, and one product can be ordered by many customers.
+
+    The relationship is shown as ORDER, representing a customer placing an order to purchase products. It also contains some attributes to store the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee.
+
+-   CUSTOMER and ADDRESS have a 1-N relationship, indicating that a customer can have multiple addresses for shipment. However, an address can belong to only one customer.
+
+-   **\<?????\>**PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
+
+-   PRODUCT and ADVERTISEMENT have an M-N relationship. This relationship is shown as ADVERTIIE_IN to reflect products presented in the advertisements, meaning multiple advertisements can promote one product, and one advertisement can promote multiple products. 
+
+-   PRODUCT and SUPPLIER have an N-1 relationship, indicating that one product can be supplied by only one supplier, but one supplier can provide multiple products. 
+
+-   PRODUCT and CATEGORY have an N-1 relationship, meaning one product can belong to only one category, but one category can contain multiple products. 
+
+-   **\<Relationship of discount with.....\>**
+
+As a result, this is our E-R diagram.
+
+![](images/E-R%20Diagram.drawio.png)
+
+### Task 1.2: SQL Database Schema Creation
+
+#### Logical Schema
+
+According to the E-R diagram, we can list logical schema as follows:
+
+-   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no) 
+
+-   ADDRESS([postcode]{.underline}, street, city, country)
+
+-   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
+
+-   ADVERTISEMENT([ad_id]{.underline}, ad_number, ad_place, ad_price, product_ID) 
+
+-   SUPPLIER([supplier_id]{.underline}, supplier_name, email, mobile_no) 
+
+-   CATEGORY([category_id,]{.underline} category_name, category_fee)
+
+-   DISCOUNT[(promo_code,]{.underline} discount_amount)
+
+#### Physical Schema \<Repaste schema code\>
+
+```{r, echo=FALSE}
+
+library(DBI)
+library(RSQLite)
+
+#install.packages("DBI")
+#install.packages("RSQLite")
 ```
 
-You can add options to executable code like this
+Firstly, we created a connection to our database named "database.db"
 
 ```{r}
-#| echo: false
-2 * 2
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEMENT, SUPPLIER, and CATEGORY.
+
+1.  Create CUSTOMER entity
+
+    ```{sql connection=connect}
+    CREATE TABLE CUSTOMERS (
+      customer_id VARCHAR(250) PRIMARY KEY, 
+      first_name VARCHAR(250) NOT NULL,
+      last_name VARCHAR(250) NOT NULL,
+      gender VARCHAR(10), 
+      email VARCHAR(250) NOT NULL,
+      mobile_no VARCHAR(15) NOT NULL,
+      street VARCHAR(50) NOT NULL,
+      city VARCHAR(100) NOT NULL,
+      country VARCHAR(100) NOT NULL,
+      postcode VARCHAR(20) NOT NULL
+    );
+    ```
+
+2.  Create ADDRESS table
+
+    ```{sql connection=connect}
+    CREATE TABLE ADDRESS (
+      postcode VARCHAR(20) PRIMARY KEY, 
+      customer_id INT NOT NULL,
+      street VARCHAR(50) NOT NULL,
+      city VARCHAR(100) NOT NULL,
+      country VARCHAR(100) NOT NULL,
+      FOREIGN KEY (customer_id)
+        REFERENCES CUSTOMER (customer_id)
+    );
+    ```
+
+3.  Create DISCOUNT entity
+
+    ```{sql connection=connect}
+    CREATE TABLE DISCOUNT (
+      promo_code VARCHAR(20) PRIMARY KEY, 
+      discount_amount INT NOT NULL
+    );
+    ```
+
+4.  Create ADVERTISEMENT entity
+
+    ```{sql connection=connect}
+    CREATE TABLE ADVERTISEMENTS (
+      ad_id VARCHAR(250) PRIMARY KEY, 
+      ad_number INT NOT NULL,
+      ad_price DECIMAL(10, 2) NOT NULL, 
+      ad_place VARCHAR(50) NOT NULL
+    );
+    ```
+
+5.  Create SUPPLIER entity
+
+    ```{sql connection=connect}
+    CREATE TABLE SUPPLIER (
+      supplier_id VARCHAR(250) PRIMARY KEY, 
+      supplier_name VARCHAR(250) NOT NULL,
+      email VARCHAR(250) NOT NULL,
+      mobile_no VARCHAR(20) NOT NULL
+    );
+    ```
+
+6.  Create CATEGORY entity
+
+    ```{sql connection=connect}
+    CREATE TABLE CATEGORY (
+      category_id VARCHAR(250) PRIMARY KEY, 
+      category_name VARCHAR(250) NOT NULL,
+      category_fee INT NOT NULL
+    );
+    ```
+
+Then, we created children entities, which are PRODUCT
+
+6.  Create PRODUCT entity
+
+    ```{sql connection=connect}
+    CREATE TABLE PRODUCT (
+      product_id VARCHAR(250) PRIMARY KEY, 
+      product_name VARCHAR(250) NOT NULL,
+      product_description VARCHAR(250),
+      product_rating DECIMAL(5,2),
+      unit_price DECIMAL(10,2) NOT NULL,
+      stock_on_hand INT NOT NULL,
+      main_product_id INT,
+      category_id INT NOT NULL,
+      supplier_id INT NOT NULL,
+      FOREIGN KEY (supplier_id)
+        REFERENCES SUPPLIER (supplier_id),
+      FOREIGN KEY (category_id)
+        REFERENCES CATEGORY (category_id)
+    );
+    ```
+
+We also created new entities that are from many-to-many relationships, including ORDER and ADVERTISE_IN
+
+7.  Create ORDER entity for CUSTOMER-PRODUCT relationship
+
+    ```{sql connection=connect}
+    CREATE TABLE 'ORDER' (
+      order_id VARCHAR(250) PRIMARY KEY,
+      customer_id VARCHAR(250), 
+      product_id VARCHAR(250),
+      order_date DATE NOT NULL,
+      order_status VARCHAR(50) NOT NULL, 
+      order_quantity INT NOT NULL,
+      promo_code VARCHAR(20),
+      payment_detail TEXT NOT NULL,
+      delivery_fee DECIMAL(10,2) DEFAULT 0,
+      FOREIGN KEY (customer_id)
+        REFERENCES CUSTOMER (customer_id),
+      FOREIGN KEY (product_id)
+        REFERENCES PRODUCT (product_id),
+      FOREIGN KEY (promo_code)
+        REFERENCES DISCOUNT (promo_code)
+    );
+    ```
+
+8.  Create ADVERTISE_IN entity for PRODUCT-ADVERTISEMENT relationship
+
+    ```{sql connection=connect}
+    CREATE TABLE ADVERTISE_IN (
+      product_id VARCHAR(250),
+      ad_id VARCHAR(250),
+      PRIMARY KEY (product_id, ad_id),
+      FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
+      FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
+    );
+    ```
+
+#### Normalization:
+
+According to our first draft of the E-R diagram, two main adjustments were made in order to comply with 3NF
+
+The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF.
+
+Previous logical schema:
+
+By considering
+
+## Part 2: Data Generation and Implementation
+
+### Task 2.1: Synthetic Data Generation
+
+The synthetic data of each table was created using Mockaroo,
+
+### Task 2.2: Data Import and Quality Assurance
+
+#### Data Import
+
+#### Quality Assurance
+
+## Part 3: Data Pipeline Generation
+
+### Task 3.1: Synthetic Data Generation
+
+### Task 3.2: Data Import and Quality Assurance
+
+## Part 4: Data Analysis and Reporting with Quarto in R
+
+### Task 4.1: Advanced Data Analysis in R
+
+### Task 4.2: Comprehensive Reporting with Quarto
