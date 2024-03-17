@@ -44,7 +44,7 @@ The relationships among these entities are as follows: 
 
 As a result, this is our E-R diagram.
 
-![](images/E-R%20Diagram.drawio.png)
+![](images/E-R Diagram.drawio.png)
 
 ### Task 1.2: SQL Database Schema Creation
 
