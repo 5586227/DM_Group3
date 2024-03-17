@@ -1,6 +1,6 @@
-category_id,category_name
-CATG1,Electronics
-CATG2,Clothing
-CATG3,Home Decor
-CATG4,Sports Equipment
-CATG5,Beauty Products
+category_id,category_name,category_fee
+CATG1,Electronics,0.02
+CATG2,Clothing,0.83
+CATG3,Home Decor,0.62
+CATG4,Sports Equipment,0.37
+CATG5,Beauty Products,0.82

@@ -1,51 +1,51 @@
-product_id,category_id,supplier_id,product_name,unit_price,stock_on_hand,main_product_id
-PROD1,CATG4,SUP5,Outdoor Adventure Backpack,31.42,5,PROD36
-PROD2,CATG1,SUP1,Smartwatch Pro,32.85,87,
-PROD3,CATG3,SUP8,Fragrant Reed Diffuser,22.34,77,PROD11
-PROD4,CATG2,SUP4,Stellar Threads,36.8,63,PROD47
-PROD5,CATG5,SUP3,Anti-aging Night Cream,57.73,36,
-PROD6,CATG3,SUP10,Fragrant Reed Diffuser,10.99,54,PROD3
-PROD7,CATG4,SUP2,Durable Camping Tent,79.07,55,
-PROD8,CATG5,SUP9,Anti-aging Night Cream,44.72,53,PROD37
-PROD9,CATG1,SUP7,Ultra HD Smart TV,63.45,99,PROD5
-PROD10,CATG2,SUP6,Cozy Couture,89.29,59,PROD46
-PROD11,CATG1,SUP6,Ultra HD Smart TV,50.4,94,PROD9
-PROD12,CATG4,SUP4,High-performance Running Shoes,75.81,32,
-PROD13,CATG2,SUP3,EcoChic Attire,80.59,47,PROD33
-PROD14,CATG3,SUP5,Fragrant Reed Diffuser,62.74,13,PROD12
-PROD15,CATG5,SUP7,Nourishing Argan Oil Shampoo,15.56,98,PROD39
-PROD16,CATG2,SUP10,Urban Vogue,5.76,20,PROD30
-PROD17,CATG4,SUP8,Fitness Tracker Band,5.46,97,
-PROD18,CATG5,SUP9,Refreshing Aloe Vera Gel,27.59,73,PROD32
-PROD19,CATG1,SUP2,Portable Bluetooth Speaker,7.89,56,
-PROD20,CATG3,SUP1,Modern Wall Art Canvas,66.12,48,PROD24
-PROD21,CATG1,SUP4,Gaming Laptop Elite,24.7,97,
-PROD22,CATG3,SUP6,Decorative Throw Pillow Set,84.48,61,PROD21
-PROD23,CATG2,SUP8,Stellar Threads,84.19,4,
-PROD24,CATG5,SUP2,Hydrating Facial Moisturizer,24.57,83,PROD41
-PROD25,CATG4,SUP9,High-performance Running Shoes,26.52,30,
-PROD26,CATG4,SUP10,Fitness Tracker Band,1.86,64,PROD42
-PROD27,CATG1,SUP5,Smartwatch Pro,74.55,18,PROD44
-PROD28,CATG2,SUP7,Chic Haven,72.79,3,PROD38
-PROD29,CATG3,SUP1,Rustic Wood Picture Frame,14.19,2,
-PROD30,CATG5,SUP3,Nourishing Argan Oil Shampoo,92.98,84,
-PROD31,CATG1,SUP3,Ultra HD Smart TV,77.02,76,PROD4
-PROD32,CATG2,SUP2,EcoChic Attire,79.64,99,
-PROD33,CATG5,SUP10,Exfoliating Body Scrub,97.64,48,
-PROD34,CATG4,SUP5,High-performance Running Shoes,75.13,45,PROD28
-PROD35,CATG3,SUP7,Modern Wall Art Canvas,10.89,38,
-PROD36,CATG2,SUP9,Chic Haven,90.04,25,PROD26
-PROD37,CATG1,SUP4,Gaming Laptop Elite,47.29,66,PROD1
-PROD38,CATG4,SUP6,Durable Camping Tent,71.47,11,PROD40
-PROD39,CATG5,SUP1,Hydrating Facial Moisturizer,33.62,5,
-PROD40,CATG3,SUP8,Fragrant Reed Diffuser,81.71,34,
-PROD41,CATG5,SUP9,Nourishing Argan Oil Shampoo,50.13,5,PROD18
-PROD42,CATG3,SUP2,Fragrant Reed Diffuser,57.29,11,
-PROD43,CATG4,SUP7,Outdoor Adventure Backpack,76.29,47,PROD45
-PROD44,CATG2,SUP6,EcoChic Attire,43.06,81,PROD8
-PROD45,CATG1,SUP10,Gaming Laptop Elite,88.5,92,PROD2
-PROD46,CATG3,SUP8,Rustic Wood Picture Frame,9.34,16,
-PROD47,CATG4,SUP4,High-performance Running Shoes,26.67,93,PROD43
-PROD48,CATG2,SUP5,Urban Vogue,81.35,72,PROD48
-PROD49,CATG1,SUP1,Gaming Laptop Elite,54.03,5,
-PROD50,CATG5,SUP3,Exfoliating Body Scrub,14.05,15,
+product_id,category_id,supplier_id,product_name,product_description,product_rating,unit_price,stock_on_hand,main_product_id
+PROD1,CATG3,SUP20,Decorative Throw Pillow Set,Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.,4.3,8.76,91,
+PROD2,CATG5,SUP16,Anti-aging Night Cream,"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien.",3.2,87.82,58,
+PROD3,CATG4,SUP40,Fitness Tracker Band,Sed vel enim sit amet nunc viverra dapibus.,3.2,77.06,74,
+PROD4,CATG1,SUP3,Gaming Laptop Elite,Proin at turpis a pede posuere nonummy. Integer non velit.,3.9,45.41,66,
+PROD5,CATG1,SUP25,Smartwatch Pro,Etiam vel augue. Vestibulum rutrum rutrum neque.,4.5,58.24,4,
+PROD6,CATG1,SUP10,Ultra HD Smart TV,Duis bibendum.,3.3,60.69,1,
+PROD7,CATG1,SUP1,Smartwatch Pro,Nunc rhoncus dui vel sem.,3.6,70.14,83,
+PROD8,CATG1,SUP20,Smartwatch Pro,Nulla nisl.,4.6,31.59,12,
+PROD9,CATG4,SUP1,Fitness Tracker Band,Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.,4.7,79.3,11,
+PROD10,CATG5,SUP45,Hydrating Facial Moisturizer,Donec quis orci eget orci vehicula condimentum.,4.6,75.83,84,
+PROD11,CATG2,SUP36,Urban Vogue,"Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum.",4.9,42.45,24,
+PROD12,CATG3,SUP30,Cozy Knit Blanket,Cras non velit nec nisi vulputate nonummy.,3.9,40.76,31,
+PROD13,CATG3,SUP26,Rustic Wood Picture Frame,Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.,4.5,34.96,75,
+PROD14,CATG5,SUP25,Nourishing Argan Oil Shampoo,Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.,3.4,80.38,76,
+PROD15,CATG2,SUP32,Stellar Threads,Duis aliquam convallis nunc.,3.3,55.29,2,
+PROD16,CATG1,SUP41,Smartwatch Pro,Sed accumsan felis.,4.3,67.25,66,
+PROD17,CATG3,SUP4,Modern Wall Art Canvas,Aenean auctor gravida sem.,3.9,54.83,63,
+PROD18,CATG4,SUP2,Outdoor Adventure Backpack,Phasellus in felis. Donec semper sapien a libero.,3.1,70.12,29,
+PROD19,CATG3,SUP29,Fragrant Reed Diffuser,Duis mattis egestas metus. Aenean fermentum.,3.7,87.58,73,
+PROD20,CATG3,SUP26,Rustic Wood Picture Frame,In sagittis dui vel nisl. Duis ac nibh.,4.3,48.12,93,
+PROD21,CATG5,SUP32,Anti-aging Night Cream,Nullam varius. Nulla facilisi.,4.6,47.7,48,
+PROD22,CATG3,SUP30,Rustic Wood Picture Frame,"Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio.",4.9,3.89,84,
+PROD23,CATG3,SUP36,Decorative Throw Pillow Set,"Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam. Nam tristique tortor eu pede.",3.3,83.21,51,
+PROD24,CATG2,SUP25,Chic Haven,"In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.",4.1,22.61,58,
+PROD25,CATG4,SUP16,Waterproof Hiking Jacket,"Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl.",4.7,44.6,91,
+PROD26,CATG2,SUP1,Chic Haven,Nulla tellus.,3.8,11.99,65,
+PROD27,CATG2,SUP28,Urban Vogue,"Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus.",4.8,86.11,15,
+PROD28,CATG4,SUP14,Outdoor Adventure Backpack,Aenean sit amet justo. Morbi ut odio.,3.8,33.65,22,
+PROD29,CATG4,SUP21,High-performance Running Shoes,Nulla ut erat id mauris vulputate elementum.,4.3,63.18,16,
+PROD30,CATG5,SUP21,Anti-aging Night Cream,"Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante.",4.3,22.65,85,
+PROD31,CATG4,SUP44,Fitness Tracker Band,"Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi.",3.9,79.08,53,
+PROD32,CATG4,SUP15,High-performance Running Shoes,Pellentesque eget nunc.,4.3,26.6,11,
+PROD33,CATG5,SUP39,Refreshing Aloe Vera Gel,Nulla ut erat id mauris vulputate elementum.,3.2,40.46,23,
+PROD34,CATG3,SUP19,Fragrant Reed Diffuser,"Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.",3.8,12.2,1,
+PROD35,CATG1,SUP38,Ultra HD Smart TV,Nam tristique tortor eu pede.,3.4,22.42,46,
+PROD36,CATG2,SUP44,Urban Vogue,Pellentesque eget nunc.,3.5,78.57,52,
+PROD37,CATG5,SUP12,Refreshing Aloe Vera Gel,Donec ut mauris eget massa tempor convallis.,3.3,27.65,95,
+PROD38,CATG2,SUP6,Chic Haven,Sed ante. Vivamus tortor.,3.2,77.64,88,
+PROD39,CATG4,SUP1,Outdoor Adventure Backpack,Vivamus vestibulum sagittis sapien.,3.5,55.05,41,
+PROD40,CATG1,SUP16,Portable Bluetooth Speaker,Sed vel enim sit amet nunc viverra dapibus. Nulla suscipit ligula in lacus.,3.2,23.73,67,
+PROD41,CATG3,SUP17,Fragrant Reed Diffuser,Integer non velit.,3.8,73.39,75,
+PROD42,CATG2,SUP23,EcoChic Attire,Sed ante.,4.3,54.27,35,
+PROD43,CATG4,SUP27,High-performance Running Shoes,Praesent blandit.,3.4,81.11,89,
+PROD44,CATG3,SUP30,Decorative Throw Pillow Set,Donec semper sapien a libero.,4.5,98.71,33,
+PROD45,CATG5,SUP32,Nourishing Argan Oil Shampoo,Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum.,3.5,90.24,65,
+PROD46,CATG1,SUP22,Smartwatch Pro,"Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci.",4.9,56.79,55,
+PROD47,CATG3,SUP26,Modern Wall Art Canvas,Sed ante.,3.4,14.46,52,
+PROD48,CATG5,SUP7,Anti-aging Night Cream,Nulla ut erat id mauris vulputate elementum.,5.0,25.67,82,
+PROD49,CATG1,SUP13,Gaming Laptop Elite,"Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum.",3.9,64.23,57,
+PROD50,CATG2,SUP25,Cozy Couture,In quis justo.,3.7,31.63,92,
