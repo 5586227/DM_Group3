@@ -32,12 +32,12 @@ jobs:
           Rscript R/load_data.R
       - name: Add files
         run: |
-          git config --global user.email ""
-          git config --global user.name ""
+          git config --global user.email "5586227@live.warwick.ac.uk"
+          git config --global user.name "5586227"
           git add --all figures/
       - name: Commit files
         run: |
-          git commit -m ""
+          git commit -m "commit files"
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
