@@ -90,7 +90,7 @@ CREATE TABLE DISCOUNT (
 ```{sql connection=connect}
 CREATE TABLE ORDER_ITEM (
   order_id VARCHAR(250) PRIMARY KEY,
-  product_id VARCHAR(250), 
+  product_id VARCHAR(250) PRIMARY KEY, 
   order_quantity INT NOT NULL,
   FOREIGN KEY (product_id)
     REFERENCES PRODUCT (product_id)
