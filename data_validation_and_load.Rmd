@@ -258,16 +258,15 @@ invalid_order_date <- order_detail[!grepl("^\\d{2}/\\d{2}/\\d{4}$", order_detail
 negative_delivery_fee <- order_detail[order_detail$delivery_fee < 0, c("order_id", "delivery_fee")]
 
 #Check for missing data
-na_order_order_id <- order[is.na(order$order_id), "order_id"]
-na_order_customer_id <- order[is.na(order$customer_id), c("order_id", "customer_id")]
-na_order_order_status <- order[is.na(order$order_status), c("order_id", "order_status")]
-na_order_order_date <- order[is.na(order$order_date), c("order_id", "order_date")]
-na_order_payment_method <- order[is.na(order$payment_method), c("order_id", "payment_method")]
-na_order_delivery_fee <- order[is.na(order$delivery_fee), c("order_id", "delivery_fee")]
+na_order_order_id <- order_detail[is.na(order_detail$order_id), "order_id"]
+na_order_customer_id <- order_detail[is.na(order_detail$customer_id), c("order_id", "customer_id")]
+na_order_order_status <- order_detail[is.na(order_detail$order_status), c("order_id", "order_status")]
+na_order_order_date <- order_detail[is.na(order_detail$order_date), c("order_id", "order_date")]
+na_order_payment_method <- order_detail[is.na(order_detail$payment_method), c("order_id", "payment_method")]
+na_order_delivery_fee <- order_detail[is.na(order_detail$delivery_fee), c("order_id", "delivery_fee")]
 
 #Remove unclean data
 bad_order_record <- unique(c(invalid_customer_fk$order_id,
-                             invalid_order_fk$order_id,
                              invalid_promo_fk$order_id,
                              invalid_order_status$order_id,
                              invalid_payment_method$order_id,
@@ -279,7 +278,7 @@ bad_order_record <- unique(c(invalid_customer_fk$order_id,
                              na_order_order_date$order_id,
                              na_order_payment_method$order_id,
                              na_order_delivery_fee$order_id))
-order <- order[!(order$order_id %in% bad_order_record), ]
+order_detail <- order_detail[!(order_detail$order_id %in% bad_order_record), ]
 
 ```
 
