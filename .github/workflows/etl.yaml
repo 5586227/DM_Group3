@@ -36,18 +36,20 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         # Install packages if cache is not hit
-        run: Rscript -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"))'
+        run: run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"), dependencies=TRUE, repos="https://cloud.r-project.org")'
         # Run R script to install required R packages
 
       - name: test
-        run: Rscript -e 'rmarkdown::render("test.Rmd")'
+        run: Rscript test.R
       
       - name: Create database schema
-        run: Rscript -e 'rmarkdown::render("database_schema.Rmd")'
+        run: |
+         Rscript database_schema.R
         # Run R Markdown to render database schema
 
       - name: Validate and load data into database
-        run: Rscript -e 'rmarkdown::render("data_validation_and_load.Rmd")'
+        run: |
+         Rscript data_validation_and_load.R
         # Run R Markdown to render validation and load data into database
 
       - name: data analysis
