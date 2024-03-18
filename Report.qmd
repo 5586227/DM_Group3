@@ -56,7 +56,7 @@ According to the E-R diagram, we can list logical schema as follows:
 
 -   CATEGORY([category_id,]{.underline} category_name, category_fee)
 
-#### Physical Schema 
+#### Physical Schema
 
 ```{r, echo=FALSE}
 
@@ -269,9 +269,9 @@ advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
 
 #### Quality Assurance
 
-The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema.
+The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema. Parent entities, which are CUSTOMER, SUPPLIER, CATEGORY, ADVERTISEMENT, and DISCOUNT, would be validated first. Once all parent entities were validated, we would continue validating child entities consisting of PRODUCT, ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
 
-We would first start by validating parent entities
+**Parent Entities Validation**
 
 1.  CUSTOMER
 
@@ -461,7 +461,7 @@ We would first start by validating parent entities
         #Check percent
         invalid_discount_percent <- discount[!grepl("^[0-9]+$", discount$discount_percent), c("promo_code", "discount_percent")]
 
-        #Check for missing data (remove?)
+        #Check for missing data
         na_discount_promo_code <- discount[is.na(discount$promo_code), "promo_code"]
         na_discount_discount_percent <- discount[is.na(discount$discount_percent), c("promo_code", "discount_percent")]
 
@@ -472,12 +472,80 @@ We would first start by validating parent entities
 
         ```
 
-Once all parent entities were validated, we would continue validating child entities
+**Child Entities Validation**
 
-6.  PRODUCT
-7.  ORDER_ITEM
-8.  ORDER_DETAIL
-9.  ADVERTISE_IN
+1.  PRODUCT
+
+    Validation processes for PRODUCT entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the datatype of product_name
+
+    -   Check if there is any negative value in unit_price where the values should only be positive
+
+    -   Check on the validity of stock_on_hand to see if there are any missing or negative values
+
+    -   Check if there are any values of foreign keys, including supplier_id and category_id, in the PRODUCT table that do not exist in the SUPPLIER and CATEGORY table.
+
+    -   Check if the values in main_product_id are self-referential to product_id and ensure that the values differ from those of product_id.
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data value
+
+        ```{r}
+        #Check for duplicate primary key
+        duplicate_product_id <- product[duplicated(product$product_id), "product_id"]
+
+        #Check product name (can contain alphabets, comma, hyphen, dot)
+        invalid_product_name <- product[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", product$product_name), c("product_id", "product_name")]
+
+        #Check for negative prices
+        negative_unit_prices <- product[product$unit_price < 0, c("product_id", "unit_price")]
+
+        #Check invalid stock
+        invalid_stock <- product[!grepl("^[0-9]+$", product$stock_on_hand), c("product_id", "stock_on_hand")]
+        negative_stock <- product[product$stock_on_hand < 0, c("product_id", "stock_on_hand")]
+
+        #Check if supplier_id exists in the SUPPLIER table
+        invalid_supplier_fk <- product[!product$supplier_id %in% supplier$supplier_id, c("product_id", "supplier_id")]
+
+        #Check if category_id exists in the CATEGORY table
+        invalid_category_fk <- product[!product$category_id %in% category$category_id, c("product_id", "category_id")]
+
+        #Check if main product is self referential and it cannot be the same as product_id
+        invalid_main_product_ids <- product[!is.na(product$main_product_id) & 
+                                              !(product$main_product_id %in% product$product_id & 
+                                                  product$main_product_id != product$product_id), c("product_id", "main_product_id")]
+
+        #Check for missing data
+        na_product_product_id <- product[is.na(product$product_id), "product_id"]
+        na_product_category_id <- product[is.na(product$category_id), c("product_id", "category_id")]
+        na_product_supplier_id <- product[is.na(product$supplier_id), c("product_id", "supplier_id")]
+        na_product_product_name <- product[is.na(product$product_name), c("product_id", "product_name")]
+        na_product_unit_price <- product[is.na(product$unit_price), c("product_id", "unit_price")]
+        na_product_stock_on_hand <- product[is.na(product$stock_on_hand), c("product_id", "stock_on_hand")]
+        na_product_main_product_id <- product[is.na(product$main_product_id), c("product_id", "main_product_id")] #not all order have discount
+
+        #Remove unclean data
+        bad_product_record <- unique(c(duplicate_product_id$product_id, 
+                                       invalid_product_name$product_id,
+                                       negative_unit_prices$product_id,
+                                       invalid_stock$product_id,
+                                       negative_stock$product_id,
+                                       invalid_supplier_fk$product_id,
+                                       invalid_category_fk$product_id,
+                                       invalid_main_product_ids$product_id))
+        product <- product[!(product$product_id %in% bad_product_record), ]
+
+        ```
+
+2.  ORDER_ITEM
+
+3.  ORDER_DETAIL
+
+4.  ADVERTISE_IN
 
 ## Part 3: Data Pipeline Generation
 
