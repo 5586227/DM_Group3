@@ -300,7 +300,7 @@ order_item_composite <- paste(order_item$order_id, order_item$product_id)
 duplicate_order_item_composite <- order_item[duplicated(order_item_composite), c("order_id", "product_id")]
 
 #Check if order_id exists in the ORDER_ITEM table
-invalid_order_fk <- order_item[!order_item$order_id %in% order_detail$order_id, "order_id"]
+invalid_order_fk <- order_item[!order_item$order_id %in% order_detail$order_id, c("order_id", "product_id")]
 
 #Check if product_id exists in the PRODUCT table
 invalid_product_fk <- order_item[!order_item$product_id %in% product$product_id, c("order_id", "product_id")]
@@ -321,13 +321,13 @@ order_item <- order_item[!(order_item$order_id %in% bad_order_item_record), ]
 #Remove unclean data
 # Combine all unclean data
 bad_order_item_record <- rbind(duplicate_order_item_composite,
-                                  invalid_order_fk,
-                                  invalid_product_fk,
-                                  invalid_quantity,
-                                  negative_zero_quantity,
-                                  na_order_item_order_id,
-                                  na_order_item_product_id,
-                                  na_order_item_order_quantity)
+                               invalid_order_fk,
+                               invalid_product_fk,
+                               invalid_quantity,
+                               negative_zero_quantity,
+                               na_order_item_order_id,
+                               na_order_item_product_id,
+                               na_order_item_order_quantity)
 
 # Remove duplicates from bad records
 bad_order_item_record <- unique(bad_order_item_record)
