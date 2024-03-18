@@ -213,13 +213,19 @@ We also created new entities that are from many-to-many relationships, including
 
 According to our first draft of the E-R diagram, two main adjustments were made in order to comply with 3NF
 
-The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF. **\<will continue explain later\>**
+The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF.
+
+{order_id, customer_id, product_id } -\> { order_date , order_status, order_quantity, promo_code, discount amount, payment_method, delivery_fee}
+
+{promo_code} -\> { discount_amount}
+
+As we assumed that order_id could be duplicated to represent products ordered by the same customer simultaneously, there would be UPDATE anomalies. If there is an update on any attributes, such as payment_methods, we must alter more than one row in case there is more than one product in that order_id.
 
 The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based on its function dependency, street, city, and country can also be determined by postcode and customer_id.
 
 {customer_id} -\>{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -\> { street, city , country }
 
-This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and store street, city, and country as other attributes
+This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and store street, city, and country as other attributes.
 
 ## Part 2: Data Generation and Implementation
 
@@ -257,6 +263,7 @@ Loading all generated data sets using read_csv to each entity
 
 ```{r}
 customer <- readr::read_csv("CUSTOMER.csv")
+address <- readr::read_csv("ADDRESS.csv")
 supplier <- readr::read_csv("SUPPLIER.csv")
 category <- readr::read_csv("CATEGORY.csv")
 advertisement <- readr::read_csv("ADVERTISEMENT.csv")
