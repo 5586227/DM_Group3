@@ -4,7 +4,11 @@ format: pdf
 editor: visual
 ---
 
-## 
+There are two common workflows for data integration: ELT(Extract, Load, Transform) and ETL (Extract, Transform, Load)
+
+The major difference between ELT and ETL is that in the ELT stage, normalization is performed after the datasets are imported into the database. In the ETL stage, the data is normalized and transformed before it is loaded into the database.
+
+In our work, we chose ETL (Extract, Transform, Load) instead of ELT as our workflow and used SQL and R interchangeably to perform transformations. This is because we have found that ETL workflow is more suitable for small data sets, so we thought that it would be more compromised with our work.
 
 ## Part 1: Database Design and Implementation
 
@@ -74,9 +78,11 @@ In summary, four new entities were created from the Normalisation, which were OR
 
 #### Logical Schema \<update\>
 
-According to the E-R diagram, we can list logical schema as follows:
+According to the E-R diagram and the normalization stage, we can list the logical schema as follows:
 
 -   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
+
+-   ADDRESS(
 
 -   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
 
@@ -118,7 +124,7 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
     );
     ```
 
-2.  Create ADDRESS table
+2.  Create ADDRESS entity
 
     ```{sql connection=connect}
     CREATE TABLE ADDRESS (
@@ -288,7 +294,7 @@ advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
 
 #### Quality Assurance
 
-The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema. Parent entities, which are CUSTOMER, SUPPLIER, CATEGORY, ADVERTISEMENT, and DISCOUNT, would be validated first. Once all parent entities were validated, we would continue validating child entities consisting of PRODUCT, ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
+The imported data sets were validated before being added to the database to ensure they aligned with the nature of the keys and data type specified in the physical schema. First, we validated parent entities CUSTOMER, SUPPLIER, CATEGORY, ADVERTISEMENT, and DISCOUNT. Once all parent entities were validated, we continued validating child entities PRODUCT, ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
 
 **Parent Entities Validation**
 
@@ -601,12 +607,6 @@ The imported data sets were validated before being added to the database to ensu
     ```
 
 ## Part 3: Data Pipeline Generation
-
-There are two common workflows for data integration: ELT(Extract, Load, Transform) and ETL (Extract, Transform, Load)
-
-The major difference between ELT and ETL is that in the ELT stage, normalization is performed after the datasets are imported into the database. In the ETL stage, any normalization and transformation of the data is done before it is loaded into the database.
-
-In our work, we chose ETL (Extract, Transform, Load) instead of ELT as our workflow and used SQL and R interchangeably to perform transformations. This is because we have found that ETL workflow is more suitable for small data sets, so we thought that it would be more compromised with our work.
 
 ### Task 3.1: GitHub Repository and Workflow Setup
 
