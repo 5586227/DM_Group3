@@ -370,10 +370,34 @@ connect <- dbConnect(RSQLite::SQLite(), "database.db")
 tables <- c("CUSTOMER", "ADDRESS", "CATEGORY", "SUPPLIER", "PRODUCT", "DISCOUNT", 
             "ORDER_ITEM", "ORDER_DETAIL", "ADVERTISEMENT", "ADVERTISE_IN")
 
-for (table in tables) {
+table_new <- list(customer, address, category, supplier, product, discount, 
+                  order_item, order_detail, advertisement, advertise_in)
+
+# Loop through each table
+for (i in seq_along(tables)) {
+  table <- tables[i]
+  new_records <- table_new[[i]]
+  
+  # Read existing records from the table
   existing <- dbGetQuery(connect, paste("SELECT * FROM", table))
-  new <- anti_join(get(table), existing)
-  dbWriteTable(connect, table, new, append=TRUE)
+  
+  # Find new records not present in existing table
+  new <- anti_join(new_records, existing)
+  
+  # Append new records to the table
+  if (nrow(new) > 0) {
+    dbWriteTable(connect, table, new, append = TRUE)
+  }
 }
 
 dbDisconnect(connect)
+```
+
+
+```{r}
+
+tables <- dbListTables(connect)
+
+# Display the tables
+print(tables)
+```
