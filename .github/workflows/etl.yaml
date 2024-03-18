@@ -24,26 +24,17 @@ jobs:
           
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
-        run: Rscript -e 'install.packages(c("ggplot2", "dplyr", "readr", "RSQLite"))'
+        run: Rscript -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", 'plotly', 'tidyr'))'
 
           
       - name: Delete database file
         run: del /Q database.db
       - name: Create database schema
-        run: Rscript database_schema.R
+        run: Rscript -e 'rmarkdown::render("database_schema.Rmd")'
       - name: Validate and load data into database
-        run: Rscript data_validation_and_load.R
-      - name: Run R analysis
-        run: Rscript xxx.R
-
-
-      - name: Add files
-        run: |
-          git config --global user.email "u5586227@live.warwick.ac.uk"
-          git config --global user.name "5586227"
-          git add --all figures/
-      - name: Commit files
-        run: git commit -m "Add visualization plot figure"          
+        run: Rscript -e 'rmarkdown::render("data_validation_and_load.Rmd")'
+      - name: data analysis
+        run: Rscript -e 'rmarkdown::render("data_analysis.Rmd")'
 
           
       - name: Push changes
