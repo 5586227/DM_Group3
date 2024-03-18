@@ -325,42 +325,22 @@ print(avg_rating_by_category)
 
 ```{r}
 
-ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_name)) +
-  geom_bar(width = 1, stat = "identity", color = "white") +
-  coord_polar(theta = "y") + # Convert the bar chart to a pie chart
-  labs(fill = "Category Name", # Legend title
-       title = "Average Rating by Category") + # Chart title
-  theme_minimal() + 
-  theme(axis.line = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        panel.grid = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-```
-
-```{r}
-
 # Add a cumulative sum of Average_Rating to calculate position for labels
-avg_rating_by_category$label_position <- cumsum(avg_rating_by_category$Average_Rating) - 
-                                         (0.5 * avg_rating_by_category$Average_Rating)
+avg_rating_by_category <- avg_rating_by_category[order(-avg_rating_by_category$Average_Rating), ]
 
 # Define your custom color palette
 custom_colors <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b")
 
-ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_name)) +
-  geom_bar(width = 1, stat = "identity", color = "white") +
-  geom_text(aes(label = sprintf("%.2f", Average_Rating), 
-                y = label_position), 
-            color = "black", size = 4) + # Adjust size as needed
-  coord_polar(theta = "y") +
-  scale_fill_manual(values = custom_colors) + # Apply custom colors
+ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name, Average_Rating), fill = category_name)) +
+  geom_bar(stat = "identity", color = "white") +
+  geom_text(aes(label = sprintf("%.2f", Average_Rating), x = Average_Rating, y = category_name), 
+            color = "black", size = 4, hjust = 2) +
+  scale_fill_manual(values = custom_colors) +
   labs(fill = "Category Name",
        title = "Average Rating by Category") +
   theme_minimal() +
   theme(axis.line = element_blank(),
-        axis.text = element_blank(),
+        axis.text = element_text(size = 9),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
         panel.grid = element_blank(),
