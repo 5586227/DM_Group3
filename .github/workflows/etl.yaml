@@ -3,57 +3,60 @@ name: ETL workflow for group 3
 on:
   push:
     branches: [ main ]
+# Trigger this workflow when code is pushed to the main branch
 
 jobs:
-  install-packages:
+  build:
     runs-on: ubuntu-latest
+    # Run the job on the latest version of Ubuntu operating system
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Check for skip install flag
-        run: echo "${{ github.event.head_commit.message }}"
-        id: skip-install
-        continue-on-error: true
+        # Use GitHub Actions checkout action to check out code into the working directory
 
       - name: Setup R environment
         uses: r-lib/actions/setup-r@v2
+        # Use setup-r action provided by R team to set up R environment
         with:
           r-version: '4.3.3'
+          # Specify R version as 4.3.3
 
       - name: Cache R packages
-        if: ${{ steps.skip-install.outputs.code == 0 && steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/cache@v2
+        # Use GitHub Actions caching feature to cache R packages
         with:
           path: ${{ env.R_LIBS_USER }}
+          # Specify cache path as R package path from environment variable
           key: ${{ runner.os }}-r-packages
           restore-keys: ${{ runner.os }}-r-packages
 
       - name: Install packages
-        if: ${{ steps.skip-install.outputs.code == 0 && steps.cache.outputs.cache-hit != 'true' }}
-        run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"), dependencies=TRUE, repos="https://cloud.r-project.org")'
+        if: steps.cache.outputs.cache-hit != 'true'
+        # Install packages if cache is not hit
+        run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"))'
+        # Install required R packages
 
-  run-tests-and-data-processing:
-    needs: [install-packages]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Test
+      - name: test
         run: Rscript test.R
       
       - name: Create database schema
-        run: R database_schema.R
+        run: Rscript database_schema.R
+        # Render database schema
 
       - name: Validate and load data into database
-        run: R data_validation_and_load.R
+        run: Rscript data_validation_and_load.R
+        # Run R Markdown to render validation and load data into database
 
-      - name: Data analysis
-        run: R data_analysis.R
+      - name: data analysis
+        run: Rscript data_analysis.R
+        # Render data analysis
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
+        # Use ad-m/github-push-action action to push changes
         with:
           github_token: ${{ secrets.TOKEN}}
+          # Authenticate with GitHub token
           branch: main
+          # Push to the main branch
