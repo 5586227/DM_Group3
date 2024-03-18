@@ -3,42 +3,63 @@ name: ETL workflow for group 3
 on:
   push:
     branches: [ main ]
-    
+# Trigger this workflow when code is pushed to the main branch
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Run the job on the latest version of Ubuntu operating system
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        # Use GitHub Actions checkout action to check out code into the working directory
+
       - name: Setup R environment
         uses: r-lib/actions/setup-r@v2
+        # Use setup-r action provided by R team to set up R environment
         with:
           r-version: '4.3.3'
+          # Specify R version as 4.3.3
+
       - name: Cache R packages
         uses: actions/cache@v2
+        # Use GitHub Actions caching feature to cache R packages
         with:
           path: ${{ env.R_LIBS_USER }}
+          # Specify cache path as R package path from environment variable
           key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
+          # Use operating system and hash files as cache key
           restore-keys: ${{ runner.os }}-r-
+          # Keys used when restoring cache
 
-          
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
+        # Install packages if cache is not hit
         run: Rscript -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", 'plotly', 'tidyr'))'
+        # Run R script to install required R packages
 
-          
       - name: Delete database file
         run: del /Q database.db
+        # Delete the database file
+
       - name: Create database schema
         run: Rscript -e 'rmarkdown::render("database_schema.Rmd")'
+        # Run R Markdown to render database schema
+
       - name: Validate and load data into database
         run: Rscript -e 'rmarkdown::render("data_validation_and_load.Rmd")'
+        # Run R Markdown to render validation and load data into database
+
       - name: data analysis
         run: Rscript -e 'rmarkdown::render("data_analysis.Rmd")'
+        # Run R Markdown to render data analysis
 
-          
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
+        # Use ad-m/github-push-action action to push changes
         with:
-            github_token: ${{ secrets.TOKEN}}
-            branch: main
+          github_token: ${{ secrets.TOKEN}}
+          # Authenticate with GitHub token
+          branch: main
+          # Push to the main branch
