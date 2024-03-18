@@ -15,22 +15,18 @@ editor: visual
 Our E-R Diagram for an E-commerce database consisted of seven main entities:
 
 1.  CUSTOMER: Represents details of individuals or entities who purchase products, including attributes such as customer ID, customer name, contact information, and gender. 
-2.  ADDRESS: Represent details of the address of each customer, including attributes such as postcode, street, city, and country.
-3.  PRODUCT: Represents details of items available for sale, including attributes such as product ID, product name, description, rating, price, and available stock. 
-4.  DISCOUNT: Represents details of discounts that customers can apply to their purchases, including attributes such as promotion code and discount amount as a percentage.
-5.  ADVERTISEMENT: Represents details of promotional activities used to advertise products, including attributes such as advertisement ID, number of times the advertisement is shown, cost of the advertisement, and the place the advertisement was placed. 
-6.  SUPPLIER: Represents details of entities providing products to businesses or customers, including attributes such as supplier ID, supplier name, and contact information. 
-7.  CATEGORY: Represents product classifications or groupings, including attributes such as category unique ID, name, and fee amount as a percentage.
+2.  PRODUCT: Represents details of items available for sale, including attributes such as product ID, product name, description, rating, price, and available stock. 
+3.  ADVERTISEMENT: Represents details of promotional activities used to advertise products, including attributes such as advertisement ID, number of times the advertisement is shown, cost of the advertisement, and the place the advertisement was placed. 
+4.  SUPPLIER: Represents details of entities providing products to businesses or customers, including attributes such as supplier ID, supplier name, and contact information. 
+5.  CATEGORY: Represents product classifications or groupings, including attributes such as category unique ID, name, and fee amount as a percentage.
 
-#### Relationships + \<paste relationship set + create relationship set for DISCOUNT\>
+#### Relationships + \<paste relationship set\>
 
 The relationships among these entities are as follows: 
 
 -   CUSTOMER and PRODUCT have an M-N relationship meaning one customer can order many products, and one product can be ordered by many customers.
 
     The relationship is shown as ORDER, representing a customer placing an order to purchase products. It also contains some attributes to store the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee.
-
--   CUSTOMER and ADDRESS have a 1-N relationship, indicating that a customer can have multiple addresses for shipment. However, an address can belong to only one customer.
 
 -   **\<?????\>**PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
 
@@ -39,8 +35,6 @@ The relationships among these entities are as follows: 
 -   PRODUCT and SUPPLIER have an N-1 relationship, indicating that one product can be supplied by only one supplier, but one supplier can provide multiple products. 
 
 -   PRODUCT and CATEGORY have an N-1 relationship, meaning one product can belong to only one category, but one category can contain multiple products. 
-
--   **\<Relationship of discount with.....\>**
 
 As a result, this is our E-R diagram.
 
@@ -52,9 +46,7 @@ As a result, this is our E-R diagram.
 
 According to the E-R diagram, we can list logical schema as follows:
 
--   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no) 
-
--   ADDRESS([postcode]{.underline}, street, city, country)
+-   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
 
 -   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
 
@@ -64,9 +56,7 @@ According to the E-R diagram, we can list logical schema as follows:
 
 -   CATEGORY([category_id,]{.underline} category_name, category_fee)
 
--   DISCOUNT[(promo_code,]{.underline} discount_amount)
-
-#### Physical Schema \<Repaste schema code\>
+#### Physical Schema 
 
 ```{r, echo=FALSE}
 
@@ -88,17 +78,13 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 1.  Create CUSTOMER entity
 
     ```{sql connection=connect}
-    CREATE TABLE CUSTOMERS (
+    CREATE TABLE CUSTOMER (
       customer_id VARCHAR(250) PRIMARY KEY, 
       first_name VARCHAR(250) NOT NULL,
       last_name VARCHAR(250) NOT NULL,
-      gender VARCHAR(10), 
-      email VARCHAR(250) NOT NULL,
-      mobile_no VARCHAR(15) NOT NULL,
-      street VARCHAR(50) NOT NULL,
-      city VARCHAR(100) NOT NULL,
-      country VARCHAR(100) NOT NULL,
-      postcode VARCHAR(20) NOT NULL
+      gender VARCHAR(10),
+      customer_email VARCHAR(250) NOT NULL,
+      customer_mobile VARCHAR(15) NOT NULL
     );
     ```
 
@@ -128,11 +114,11 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 4.  Create ADVERTISEMENT entity
 
     ```{sql connection=connect}
-    CREATE TABLE ADVERTISEMENTS (
+    CREATE TABLE ADVERTISEMENT (
       ad_id VARCHAR(250) PRIMARY KEY, 
-      ad_number INT NOT NULL,
+      ad_frequency INT NOT NULL,
+      ad_place VARCHAR(50) NOT NULL,
       ad_price DECIMAL(10, 2) NOT NULL, 
-      ad_place VARCHAR(50) NOT NULL
     );
     ```
 
@@ -142,8 +128,8 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
     CREATE TABLE SUPPLIER (
       supplier_id VARCHAR(250) PRIMARY KEY, 
       supplier_name VARCHAR(250) NOT NULL,
-      email VARCHAR(250) NOT NULL,
-      mobile_no VARCHAR(20) NOT NULL
+      supplier_email VARCHAR(250) NOT NULL,
+      supplier_mobile VARCHAR(20) NOT NULL
     );
     ```
 
@@ -153,7 +139,7 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
     CREATE TABLE CATEGORY (
       category_id VARCHAR(250) PRIMARY KEY, 
       category_name VARCHAR(250) NOT NULL,
-      category_fee INT NOT NULL
+      category_fee INT NOT NULL,
     );
     ```
 
@@ -179,25 +165,33 @@ Then, we created children entities, which are PRODUCT
     );
     ```
 
-We also created new entities that are from many-to-many relationships, including ORDER and ADVERTISE_IN
+We also created new entities that are from many-to-many relationships, including ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN
 
-7.  Create ORDER entity for CUSTOMER-PRODUCT relationship
+7.  Create ORDER_ITEM and ORDER_DETAIL entities for CUSTOMER-PRODUCT relationship
 
     ```{sql connection=connect}
-    CREATE TABLE 'ORDER' (
+    CREATE TABLE ORDER_ITEM (
+      order_id VARCHAR(250) PRIMARY KEY,
+      product_id VARCHAR(250), 
+      order_quantity INT NOT NULL,
+      FOREIGN KEY (product_id)
+        REFERENCES PRODUCT (product_id)
+    );
+
+    ```
+
+    ```{sql connection=connect}
+    CREATE TABLE ORDER_DETAIL (
       order_id VARCHAR(250) PRIMARY KEY,
       customer_id VARCHAR(250), 
-      product_id VARCHAR(250),
       order_date DATE NOT NULL,
       order_status VARCHAR(50) NOT NULL, 
-      order_quantity INT NOT NULL,
       promo_code VARCHAR(20),
-      payment_detail TEXT NOT NULL,
-      delivery_fee DECIMAL(10,2) DEFAULT 0,
+      payment_method TEXT NOT NULL,
       FOREIGN KEY (customer_id)
         REFERENCES CUSTOMER (customer_id),
-      FOREIGN KEY (product_id)
-        REFERENCES PRODUCT (product_id),
+      FOREIGN KEY (order_id)
+        REFERENCES CUSTOMER (customer_id),
       FOREIGN KEY (promo_code)
         REFERENCES DISCOUNT (promo_code)
     );
@@ -219,13 +213,13 @@ We also created new entities that are from many-to-many relationships, including
 
 According to our first draft of the E-R diagram, two main adjustments were made in order to comply with 3NF
 
-The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF.
+The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF. **\<will continue explain later\>**
 
 The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based on its function dependency, street, city, and country can also be determined by postcode and customer_id.
 
 {customer_id} -\>{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -\> { street, city , country }
 
-This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and store street, city , and country as other attributes
+This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and store street, city, and country as other attributes
 
 ## Part 2: Data Generation and Implementation
 
@@ -259,7 +253,231 @@ The number of observation data generated for each entity was as followed:
 
 #### Data Import
 
+Loading all generated data sets using read_csv to each entity
+
+```{r}
+customer <- readr::read_csv("CUSTOMER.csv")
+supplier <- readr::read_csv("SUPPLIER.csv")
+category <- readr::read_csv("CATEGORY.csv")
+advertisement <- readr::read_csv("ADVERTISEMENT.csv")
+discount <- readr::read_csv("DISCOUNT.csv")
+product <- readr::read_csv("PRODUCT.csv")
+order_item <- readr::read_csv("ORDER_ITEM.csv")
+order_detail <- readr::read_csv("ORDER_DETAIL.csv")
+advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
+```
+
 #### Quality Assurance
+
+The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema.
+
+We would first start by validating parent entities
+
+1.  CUSTOMER
+
+    Validation processes for CUSTOMER entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the format of the customers' first and last names. The format is expected to be first uppercase alphabet followed by lowercase alphabet.
+
+    -   Check the format of the email
+
+    -   Check the format of the mobile number, which should start with a plus sign followed by 12 integer values
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data values
+
+    ```{r}
+    #Check for duplicate primary key
+    duplicate_customer_id <- customer[duplicated(customer$customer_id), "customer_id"] 
+
+    #Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
+    invalid_customer_firstname <- customer[!grepl("^[A-Z][a-z]*$", customer$first_name), c("customer_id", "first_name")]
+    invalid_customer_lastname <- customer[!grepl("^[A-Z][a-z]*$", customer$last_name), c("customer_id", "last_name")]
+
+    #Check email format
+    invalid_customer_email <- customer[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), c("customer_id", "customer_email")]
+
+    #Check format of mobile number (+xx xxx xxx xxxx)
+    invalid_customer_number <- customer[!grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", customer$customer_phone), c("customer_id", "customer_phone")]
+
+    #Check for missing data
+    na_customer_customer_id <- customer[is.na(customer$customer_id), "customer_id"]
+    na_customer_first_name <- customer[is.na(customer$first_name), c("customer_id", "first_name")]
+    na_customer_last_name <- customer[is.na(customer$last_name), c("customer_id", "last_name")]
+    na_customer_gender <- customer[is.na(customer$gender), c("customer_id", "gender")]
+    na_customer_customer_email <- customer[is.na(customer$customer_email), c("customer_id", "customer_email")]
+    na_customer_customer_phone <- customer[is.na(customer$customer_phone), c("customer_id", "customer_phone")]
+    na_customer_street <- customer[is.na(customer$street), c("customer_id", "street")]
+    na_customer_city <- customer[is.na(customer$city), c("customer_id", "city")]
+    na_customer_country <- customer[is.na(customer$country), c("customer_id", "country")]
+    na_customer_postcode <- customer[is.na(customer$postcode), c("customer_id", "postcode")]
+
+    #Remove unclean data
+    bad_customer_record <- unique(c(duplicate_customer_id, 
+                                    invalid_customer_firstname$customer_id, 
+                                    invalid_customer_lastname$customer_id, 
+                                    invalid_customer_email$customer_id, 
+                                    invalid_customer_number$customer_id))
+    customer <- customer[!(customer$customer_id %in% bad_customer_record), ]
+
+    ```
+
+2.  SUPPLIER
+
+    Validation processes for SUPPLIER entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the format of suppliers' names.
+
+    -   Check the format of the email
+
+    -   Check the format of the mobile number, which should start with a plus sign followed by 12 integer values
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data value
+
+    ```{r}
+    #Check for duplicate primary key
+    duplicate_supplier_id <- supplier[duplicated(supplier$supplier_id), "supplier_id"] 
+
+    #Check supplier (can contain alphabets, comma, hyphen, dot)
+    invalid_supplier_name <- supplier[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", supplier$supplier_name), c("supplier_id", "supplier_name")]
+
+    #Check email format
+    invalid_supplier_email <- supplier[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), c("supplier_id", "supplier_email")]
+
+    #Check format of mobile number (+xx xxx xxx xxxx)
+    invalid_supplier_number <- supplier[!grepl("^^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", supplier$supplier_phone), c("supplier_id", "supplier_phone")]
+
+    #Check for missing data 
+    na_supplier_supplier_id <- supplier[is.na(supplier$supplier_id), "supplier_id"]
+    na_supplier_supplier_name <- supplier[is.na(supplier$supplier_name), c("supplier_id", "supplier_name")]
+    na_supplier_supplier_email <- supplier[is.na(supplier$supplier_email), c("supplier_id", "supplier_email")]
+    na_supplier_supplier_phone <- supplier[is.na(supplier$supplier_phone), c("supplier_id", "supplier_phone")]
+
+    #Remove unclean data
+    bad_supplier_record <- unique(c(duplicate_supplier_id$supplier_id, 
+                                    invalid_supplier_name$supplier_id,
+                                    invalid_supplier_email$supplier_id,
+                                    invalid_supplier_number$supplier_id))
+    supplier <- supplier[!(supplier$supplier_id %in% bad_supplier_record), ]
+    ```
+
+3.  CATEGORY
+
+    Validation processes for CATEGORY entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the datatype of categories' names.
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data value
+
+        ```{r}
+        #Check for duplicate primary key
+        duplicate_category_id <- category[duplicated(category$category_id), "category_id"] 
+
+        #Check category (can contain alphabets)
+        invalid_category_name <- category[!grepl("^[A-Za-z]+( [A-Za-z]+)*$", category$category_name), c("category_id", "category_name")]
+
+        #Check for duplicate category name
+        duplicate_category_name <- category[duplicated(category$category_name), c("category_id", "category_name")]
+
+        #Check for missing data 
+        na_category_category_id <- category[is.na(category$category_id), "category_id"]
+        na_category_category_name <- category[is.na(category$category_name), c("category_id", "category_name")]
+
+        #Remove unclean data
+        bad_category_record <- unique(c(duplicate_category_id$category_id, 
+                                        invalid_category_name$category_id,
+                                        duplicate_category_name$category_id))
+        category <- category[!(category$category_id %in% bad_category_record), ]
+        ```
+
+4.  ADVERTISEMENT
+
+    Validation processes for the ADVERTISEMENT entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the datatype of ad_frequency, which should be integers
+
+    -   Check if there is any negative value in the attributes that the values should only be positive
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data value
+
+        ```{r}
+        #Check for duplicate primary key
+        duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), "ad_id"]
+
+        #Check ad frequency (can only contain integer)
+        invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", advertisement$ad_frequency), c("ad_id", "ad_frequency")]
+
+        #Check for negative ad frequency
+        negative_ad_frequency <- advertisement[advertisement$ad_frequency < 0, c("ad_id", "ad_frequency")]
+
+        #Check for negative prices
+        negative_ad_prices <- advertisement[advertisement$ad_price < 0, c("ad_id", "ad_price")]
+
+        #Check for missing data 
+        na_advertisement_ad_id <- advertisement[is.na(advertisement$ad_id), "ad_id"]
+        na_advertisement_ad_frequency <- advertisement[is.na(advertisement$ad_frequency), c("ad_id", "ad_frequency")]
+        na_advertisement_ad_price <- advertisement[is.na(advertisement$ad_price), c("ad_id", "ad_price")]
+        na_advertisement_ad_place <- advertisement[is.na(advertisement$ad_place), c("ad_id", "ad_place")]
+
+        #Remove unclean data
+        bad_advertisement_record <- unique(c(duplicate_ad_id$ad_id, 
+                                        invalid_ad_frequency$ad_id,
+                                        negative_ad_frequency$ad_id,
+                                        negative_ad_prices$ad_id))
+        advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_record), ]
+        ```
+
+5.  DISCOUNT
+
+    Validation processes for DISCOUNT entity included:
+
+    -   Check if the values of the primary key are unique
+
+    -   Check the datatype of discount_amount, which should be integers
+
+    -   Check if there is any missing data in the attributes that should not have missing values
+
+    -   Remove unqualified data value
+
+        ```{r}
+        #Check for duplicate primary key
+        duplicate_promo_code <- discount[duplicated(discount$promo_code), "promo_code"]
+
+        #Check percent
+        invalid_discount_percent <- discount[!grepl("^[0-9]+$", discount$discount_percent), c("promo_code", "discount_percent")]
+
+        #Check for missing data (remove?)
+        na_discount_promo_code <- discount[is.na(discount$promo_code), "promo_code"]
+        na_discount_discount_percent <- discount[is.na(discount$discount_percent), c("promo_code", "discount_percent")]
+
+        #Remove unclean data
+        bad_discount_record <- unique(c(duplicate_promo_code$promo_code, 
+                                        invalid_discount_percent$promo_code))
+        discount <- discount[!(discount$promo_code %in% bad_discount_record), ]
+
+        ```
+
+Once all parent entities were validated, we would continue validating child entities
+
+6.  PRODUCT
+7.  ORDER_ITEM
+8.  ORDER_DETAIL
+9.  ADVERTISE_IN
 
 ## Part 3: Data Pipeline Generation
 
