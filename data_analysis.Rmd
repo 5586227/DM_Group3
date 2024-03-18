@@ -384,5 +384,55 @@ ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_n
         plot.title = element_text(hjust = 0.5))
 
 ```
+```{r}
+library(lubridate)
+time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
+
+time_period_sales$order_date <- as.Date(time_period_sales$order_date, format="%d/%m/%Y")
+
+time_period_sales$order_date_mnth_yr <- format(time_period_sales$order_date,'%Y/%m')
+
+time_period_sales$order_date_mnth_yr <- factor(time_period_sales$order_date_mnth_yr, levels=c('2022/06','2022/07','2022/08','2022/09','2022/10','2022/11','2022/12','2023/01','2023/02','2023/03','2023/04','2023/05','2023/06','2023/07','2023/08','2023/09','2023/10','2023/11','2023/12'))
+
+time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%>%summarise(quantity=sum(order_quantity))
+
+(ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/mpnth)')+ylab('Quantity Sold'))
+```
+```{r}
+#salesvsregion
+cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id')
+
+#cust_order_join<- inner_join(Customer,Order,by="customer_id")
+
+sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))
+
+top_5_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
+
+top_5_sales_per_region <- head(top_5_sales_per_region,10)
+
+ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
+```
+
+```{r}
+#revenuevsregion
+library(gridExtra)
+cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity,unit_price FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+
+
+
+cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price
+
+revenue_per_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+
+top_5_revenue_per_region <- revenue_per_region[order(-revenue_per_region$rev),]
+
+top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
+
+revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+
+ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
+
+grid.arrange(ggplot1,ggplot2,nrow(1))
+```
 
 
