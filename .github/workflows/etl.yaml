@@ -36,13 +36,13 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         # Install packages if cache is not hit
-        run: Rscript -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", 'plotly', 'tidyr'))'
+        run: Rscript -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"))'
         # Run R script to install required R packages
 
-      - name: Delete database file
-        run: del /Q database.db
-        # Delete the database file
-
+      - name: Check if database file exists
+        run: if exist database.db del /Q database.db
+        # Delete the database file if it exists
+      
       - name: Create database schema
         run: Rscript -e 'rmarkdown::render("database_schema.Rmd")'
         # Run R Markdown to render database schema
