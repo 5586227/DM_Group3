@@ -396,6 +396,8 @@ time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%
 #salesvsregion
 cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id')
 
+#Test
+
 #cust_order_join<- inner_join(Customer,Order,by="customer_id")
 
 sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))
