@@ -143,3 +143,7 @@ CREATE TABLE IF NOT EXISTS CATEGORY (
   category_fee INT NOT NULL
 );
 ```
+
+```{r}
+dbDisconnect(connect)
+```
