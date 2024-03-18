@@ -26,8 +26,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
-          restore-keys: ${{ runner.os }}-r-
+          key: ${{ runner.os }}-r-packages
+          restore-keys: ${{ runner.os }}-r-packages
 
       - name: Install packages
         if: ${{ steps.skip-install.outputs.code == 0 && steps.cache.outputs.cache-hit != 'true' }}
