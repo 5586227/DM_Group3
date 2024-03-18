@@ -405,11 +405,3 @@ for (i in seq_along(tables)) {
 
 dbDisconnect(connect)
 ```
-
-```{r}
-
-tables <- dbListTables(connect)
-
-# Display the tables
-print(tables)
-```
