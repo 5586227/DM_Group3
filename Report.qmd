@@ -76,29 +76,29 @@ This indicated that street, city, and country were transitively dependent on pos
 
 In summary, four new entities were created from the Normalisation, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS.
 
-#### Logical Schema \<update\>
+#### Logical Schema 
 
 According to the E-R diagram and the normalization stage, we can list the logical schema as follows:
 
--   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
+-   CUSTOMER([customer_id]{.underline}, first_name, last_name, gender, email, mobile_no, address_id)
 
--   ADDRESS(address_id, postcode, street, city, country)
+-   ADDRESS([address_id]{.underline}, postcode, street, city, country)
 
--   DISCOUNT(promo_code, discount_amount)
+-   DISCOUNT([promo_code]{.underline}, discount_amount)
 
--   ADVERTISEMENT([ad_id]{.underline}, ad_number, ad_place, ad_price, product_ID) 
+-   ADVERTISEMENT([ad_id]{.underline}, ad_prequency, ad_place, ad_price) 
 
 -   SUPPLIER([supplier_id]{.underline}, supplier_name, email, mobile_no) 
 
 -   CATEGORY([category_id,]{.underline} category_name, category_fee)
 
--   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
+-   PRODUCT([product_id]{.underline}, product_name, product_description, product_rating, unit_price, stock_at_hand, main_product_id, category_id, supplier_id) 
 
--   ORDER_DETAIL(order_id, customer_id, order_date
+-   ORDER_DETAIL([order_id,]{.underline} customer_id, order_date, order_status, promo_code, payment_method, delivery_fee)
 
--   ORDER_ITEM(
+-   ORDER_ITEM([order_id]{.underline}, product_id, quantity)
 
--   ADVERTISE_IN(
+-   ADVERTISE_IN([product_id]{.underline}, ad_id)
 
 #### Physical Schema \<update\>
 
