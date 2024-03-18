@@ -36,25 +36,23 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         # Install packages if cache is not hit
-        run: run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"), dependencies=TRUE, repos="https://cloud.r-project.org")'
-        # Run R script to install required R packages
+        run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"), dependencies=TRUE, repos="https://cloud.r-project.org")'
+        # Install required R packages
 
       - name: test
-        run: Rscript test.R
+        run: R test.R
       
       - name: Create database schema
-        run: |
-         Rscript database_schema.R
-        # Run R Markdown to render database schema
+        run: R database_schema.R
+        # Render database schema
 
       - name: Validate and load data into database
-        run: |
-         Rscript data_validation_and_load.R
+        run: R data_validation_and_load.R
         # Run R Markdown to render validation and load data into database
 
       - name: data analysis
-        run: Rscript -e 'rmarkdown::render("data_analysis.Rmd")'
-        # Run R Markdown to render data analysis
+        run: R data_analysis.R
+        # Render data analysis
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
