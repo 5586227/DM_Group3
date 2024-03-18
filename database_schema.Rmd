@@ -11,32 +11,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(DBI)
 library(RSQLite)
-
-#install.packages("DBI")
-#install.packages("RSQLite")
 ```
 
-##Adjustment 14/3/2024: delete state (focus only address in the UK), Change datatype of all primary key to varchar, create DISCOUNT table to be in  compliance with 3NF
-##Adjustment 15/3/2024: delete SUPPLIER first_name and last_name, and change to supplier_name
-## added category fee, product review, rename attributes
-
-##Connect to database
+## Connect to database
 
 ```{r}
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-## Create CUSTOMER Table 
+## Create CUSTOMER Table
 
-        
 ```{sql connection=connect}
 CREATE TABLE CUSTOMER (
-  customer_id VARCHAR(250) PRIMARY KEY, 
-  first_name VARCHAR(250) NOT NULL,
-  last_name VARCHAR(250) NOT NULL,
+  customer_id VARCHAR(50) PRIMARY KEY, 
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
   gender VARCHAR(10),
-  customer_email VARCHAR(250) NOT NULL,
-  customer_mobile VARCHAR(15) NOT NULL
+  customer_email VARCHAR(50) NOT NULL UNIQUE,
+  customer_mobile VARCHAR(15) NOT NULL UNIQUE
 );
 ```
 
@@ -49,94 +41,83 @@ CREATE TABLE ADDRESS (
   street VARCHAR(50) NOT NULL,
   city VARCHAR(100) NOT NULL,
   country VARCHAR(100) NOT NULL,
-  FOREIGN KEY (customer_id)
-    REFERENCES CUSTOMER (customer_id)
+  FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
 );
 ```
-
 
 ## Create PRODUCT table
 
 ```{sql connection=connect}
 CREATE TABLE PRODUCT (
-  product_id VARCHAR(250) PRIMARY KEY, 
-  product_name VARCHAR(250) NOT NULL,
-  product_description VARCHAR(250),
+  product_id VARCHAR(50) PRIMARY KEY, 
+  product_name VARCHAR(50) NOT NULL,
+  product_description VARCHAR(50),
   product_rating DECIMAL(5,2),
   unit_price DECIMAL(10,2) NOT NULL,
   stock_on_hand INT NOT NULL,
   main_product_id INT,
   category_id INT NOT NULL,
   supplier_id INT NOT NULL,
-  FOREIGN KEY (supplier_id)
-    REFERENCES SUPPLIER (supplier_id),
-  FOREIGN KEY (category_id)
-    REFERENCES CATEGORY (category_id)
+  FOREIGN KEY (supplier_id) REFERENCES SUPPLIER (supplier_id),
+  FOREIGN KEY (category_id) REFERENCES CATEGORY (category_id)
 );
 ```
 
-##Create DISCOUNT table
+## Create DISCOUNT table
 
-````{sql connection=connect}
+```{sql connection=connect}
 CREATE TABLE DISCOUNT (
   promo_code VARCHAR(20) PRIMARY KEY, 
   discount_amount INT NOT NULL
 );
 ```
 
+## Create ORDER table for CUSTOMER-PRODUCT relationship
 
-
-##Create ORDER table for CUSTOMER-PRODUCT relationship
 ```{sql connection=connect}
 CREATE TABLE ORDER_ITEM (
-  order_id VARCHAR(250) PRIMARY KEY,
-  product_id VARCHAR(250) PRIMARY KEY, 
+  order_id VARCHAR(50),
+  product_id VARCHAR(50),
   order_quantity INT NOT NULL,
-  FOREIGN KEY (product_id)
-    REFERENCES PRODUCT (product_id)
+  PRIMARY KEY (order_id, product_id),
+  FOREIGN KEY (order_id)   REFERENCES ORDER_DETAIL (order_id)
+  FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id)
 );
-
 ```
-
 
 ```{sql connection=connect}
 CREATE TABLE ORDER_DETAIL (
-  order_id VARCHAR(250) PRIMARY KEY,
-  customer_id VARCHAR(250), 
+  order_id VARCHAR(50) PRIMARY KEY,
+  customer_id VARCHAR(50), 
   order_date DATE NOT NULL,
   order_status VARCHAR(50) NOT NULL, 
   promo_code VARCHAR(20),
   payment_method TEXT NOT NULL,
-  FOREIGN KEY (customer_id)
-    REFERENCES CUSTOMER (customer_id),
-  FOREIGN KEY (order_id)
-    REFERENCES CUSTOMER (customer_id),
-  FOREIGN KEY (promo_code)
-    REFERENCES DISCOUNT (promo_code)
+  FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id),
+  FOREIGN KEY (promo_code)  REFERENCES DISCOUNT (promo_code)
 );
 ```
-
 
 ## Create ADVERTISEMENT table
 
 ```{sql connection=connect}
 CREATE TABLE ADVERTISEMENT (
-  ad_id VARCHAR(250) PRIMARY KEY, 
+  ad_id VARCHAR(50) PRIMARY KEY, 
   ad_frequency INT NOT NULL,
   ad_place VARCHAR(50) NOT NULL,
-  ad_price DECIMAL(10, 2) NOT NULL, 
+  ad_price DECIMAL(10, 2) NOT NULL
 );
 ```
 
-##Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
+## Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
 
 ```{sql connection=connect}
 CREATE TABLE ADVERTISE_IN (
-  product_id VARCHAR(250),
-  ad_id VARCHAR(250),
+  product_id VARCHAR(50),
+  ad_id VARCHAR(50),
   PRIMARY KEY (product_id, ad_id),
   FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
-  FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
+  FOREIGN KEY (ad_id)      REFERENCES ADVERTISEMENTS (ad_id)
 );
 ```
 
@@ -144,9 +125,9 @@ CREATE TABLE ADVERTISE_IN (
 
 ```{sql connection=connect}
 CREATE TABLE SUPPLIER (
-  supplier_id VARCHAR(250) PRIMARY KEY, 
-  supplier_name VARCHAR(250) NOT NULL,
-  supplier_email VARCHAR(250) NOT NULL,
+  supplier_id VARCHAR(50) PRIMARY KEY, 
+  supplier_name VARCHAR(50) NOT NULL,
+  supplier_email VARCHAR(50) NOT NULL,
   supplier_mobile VARCHAR(20) NOT NULL
 );
 ```
@@ -155,32 +136,8 @@ CREATE TABLE SUPPLIER (
 
 ```{sql connection=connect}
 CREATE TABLE CATEGORY (
-  category_id VARCHAR(250) PRIMARY KEY, 
-  category_name VARCHAR(250) NOT NULL,
-  category_fee INT NOT NULL,
+  category_id VARCHAR(50) PRIMARY KEY, 
+  category_name VARCHAR(50) NOT NULL,
+  category_fee INT NOT NULL
 );
-```
-
-#Import to each Entity \## Loading using `read_csv` and `dbWriteTable()`
-
-##This is not our version, I just copy it from the workshop
-
-```{r dataloading,message=FALSE,warning=FALSE}
-PurchasesDec <- readr::read_csv("bibitor/PurchasesFINAL12312016a.csv")
-BegInvDec <- readr::read_csv("bibitor/BegInvFINAL12312016a.csv")
-EndInvDec <- readr::read_csv("bibitor/EndInvFINAL12312016a.csv")
-
-# in a similar way we can read and load the other tables and give the names  
-# that are in the PWC data case study - see slide 9 from the uploaded pdf
-VendorInvoicesDec <- readr::read_csv("bibitor/InvoicePurchases12312016a.csv")
-```
-
-## Write them to the database
-
-```{r writebacktodb}
-RSQLite::dbWriteTable(my_connection,"PurchasesDec",PurchasesDec,overwrite=TRUE)
-RSQLite::dbWriteTable(my_connection,"BegInvDec",BegInvDec,overwrite=TRUE)
-RSQLite::dbWriteTable(my_connection,"EndInvDec",EndInvDec,overwrite=TRUE)
-RSQLite::dbWriteTable(my_connection,"VendorInvoicesDec",VendorInvoicesDec,overwrite=TRUE)
-
 ```

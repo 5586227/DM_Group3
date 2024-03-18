@@ -3,6 +3,7 @@ title: "Data Analysis"
 output: html_document
 date: "2024-03-17"
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -21,15 +22,14 @@ library(plotly)
 #install.packages("RSQLite")
 ```
 
-##Connect to database
+## Connect to database
 
 ```{r}
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-## Create CUSTOMER Table 
+## Create CUSTOMER Table
 
-        
 ```{sql connection=connect}
 CREATE TABLE CUSTOMER (
   customer_id VARCHAR(250) PRIMARY KEY, 
@@ -55,7 +55,6 @@ CREATE TABLE ADDRESS (
 );
 ```
 
-
 ## Create PRODUCT table
 
 ```{sql connection=connect}
@@ -76,18 +75,17 @@ CREATE TABLE PRODUCT (
 );
 ```
 
-##Create DISCOUNT table
+## Create DISCOUNT table
 
-````{sql connection=connect}
+```{sql connection=connect}
 CREATE TABLE DISCOUNT (
   promo_code VARCHAR(20) PRIMARY KEY, 
   discount_amount INT NOT NULL
 );
 ```
 
+## Create ORDER table for CUSTOMER-PRODUCT relationship
 
-
-##Create ORDER table for CUSTOMER-PRODUCT relationship
 ```{sql connection=connect}
 CREATE TABLE ORDER_ITEM (
   order_id VARCHAR(250) PRIMARY KEY,
@@ -98,7 +96,6 @@ CREATE TABLE ORDER_ITEM (
 );
 
 ```
-
 
 ```{sql connection=connect}
 CREATE TABLE ORDER_DETAIL (
@@ -117,7 +114,6 @@ CREATE TABLE ORDER_DETAIL (
 );
 ```
 
-
 ## Create ADVERTISEMENT table
 
 ```{sql connection=connect}
@@ -129,7 +125,7 @@ CREATE TABLE ADVERTISEMENTS (
 );
 ```
 
-##Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
+## Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
 
 ```{sql connection=connect}
 CREATE TABLE ADVERTISE_IN (
@@ -176,7 +172,6 @@ category <- readr::read_csv ("data_upload/CATEGORY.csv")
 
 ```
 
-
 ## Write them to the database
 
 ```{r writebacktodb}
@@ -193,7 +188,7 @@ RSQLite::dbWriteTable(connect,"CATEGORY",category,overwrite=TRUE)
 
 ```
 
-1. Top 5 Suppliers (quantity of products supplied/ stock on hand)
+1.  Top 5 Suppliers (quantity of products supplied/ stock on hand)
 
 ```{r}
 top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
@@ -214,9 +209,7 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
          showlegend = FALSE)
 ```
 
-
-
-2. Top 10 products based on the revenue generated
+2.  Top 10 products based on the revenue generated
 
 ```{r}
 profit_data <- order_item %>%
@@ -256,7 +249,7 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 ```
 
-3. Comparing the effectiveness of each Advertisement Type
+3.  Comparing the effectiveness of each Advertisement Type
 
 ```{r}
 # Joining Product with advertise_in and advertisement to get advertisement details
@@ -304,7 +297,6 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 
 ```
 
-
 ```{r}
 
 ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
@@ -323,7 +315,7 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 
 ```
 
-4. Average Review for each category
+4.  Average Review for each category
 
 ```{r}
 # Join product_df with category_df to include category names
@@ -384,6 +376,7 @@ ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_n
         plot.title = element_text(hjust = 0.5))
 
 ```
+
 ```{r}
 library(lubridate)
 time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
@@ -398,6 +391,7 @@ time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%
 
 (ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/mpnth)')+ylab('Quantity Sold'))
 ```
+
 ```{r}
 #salesvsregion
 cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id')
@@ -434,5 +428,3 @@ ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev
 
 grid.arrange(ggplot1,ggplot2,nrow(1))
 ```
-
-
