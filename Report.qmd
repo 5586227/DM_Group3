@@ -269,7 +269,9 @@ advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
 
 #### Quality Assurance
 
-The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema. Parent entities, which are CUSTOMER, SUPPLIER, CATEGORY, ADVERTISEMENT, and DISCOUNT, would be validated first. Once all parent entities were validated, we would continue validating child entities consisting of PRODUCT, ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
+The imported data sets were validated before being added to the database to ensure that they aligned with the nature of the keys and data type specified in the physical schema. Parent entities, which are CUSTOMER, SUPPLIER, CATEGORY, ADVERTISEMENT, and DISCOUNT, would be validated first. Once all parent entities were validated, we would continue validating child entities consisting of PRODUCT,
+
+ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
 
 **Parent Entities Validation**
 
