@@ -14,12 +14,6 @@ library(RSQLite)
 library(readr)
 library(dplyr)
 library(plotly)
-
-#install.packages("plotly")
-#install.packages("dplyr")
-#install.packages("readr")
-#install.packages("DBI")
-#install.packages("RSQLite")
 ```
 
 ## Connect to database
@@ -135,7 +129,6 @@ effective_ad_type <- merged_data %>%
   arrange(desc(effectiveness))
 
 ```
-
 
 ```{r}
 

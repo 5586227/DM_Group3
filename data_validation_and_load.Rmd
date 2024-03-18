@@ -15,6 +15,7 @@ library(RSQLite)
 ```
 
 ## Read Files
+
 ```{r}
 customer <- readr::read_csv("data_upload/CUSTOMER.csv")
 address <- readr::read_csv("data_upload/ADDRESS.csv")
@@ -60,6 +61,7 @@ for (table_name in names(table_pk)) {
 ```
 
 ## CUSTOMER
+
 ```{r}
 #Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
 invalid_customer_firstname <- customer[!grepl("^[A-Z][a-z]*$", customer$first_name), c("customer_id", "first_name")]
@@ -93,6 +95,7 @@ customer <- customer[!(customer$customer_id %in% bad_customer_record), ]
 ```
 
 ## ADDRESS
+
 ```{r}
 #Check for missing data
 na_address_postcode <- address[is.na(address$postcode), "postcode"]
@@ -115,6 +118,7 @@ address <- address[!(address$postcode %in% bad_address_record), ]
 ```
 
 ## CATEGORY
+
 ```{r}
 #Check category (can contain alphabets)
 invalid_category_name <- category[!grepl("^[A-Za-z]+( [A-Za-z]+)*$", category$category_name), c("category_id", "category_name")]
@@ -142,6 +146,7 @@ category <- category[!(category$category_id %in% bad_category_record), ]
 ```
 
 ## SUPPLIER
+
 ```{r}
 #Check supplier (can contain alphabets, comma, hyphen, dot)
 invalid_supplier_name <- supplier[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", supplier$supplier_name), c("supplier_id", "supplier_name")]
@@ -171,6 +176,7 @@ supplier <- supplier[!(supplier$supplier_id %in% bad_supplier_record), ]
 ```
 
 ## DISCOUNT
+
 ```{r}
 #Check percent
 invalid_discount_percent <- discount[!grepl("^[0-9]+$", discount$discount_percent), c("promo_code", "discount_percent")]
@@ -188,6 +194,7 @@ discount <- discount[!(discount$promo_code %in% bad_discount_record), ]
 ```
 
 ## PRODUCT
+
 ```{r}
 #Check product name (can contain alphabets, comma, hyphen, dot)
 invalid_product_name <- product[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", product$product_name), c("product_id", "product_name")]
@@ -237,6 +244,7 @@ product <- product[!(product$product_id %in% bad_product_record), ]
 ```
 
 ## ORDER_DETAIL
+
 ```{r}
 #Check if customer_id exists in the CUSTOMER table
 invalid_customer_fk <- order_detail[!order_detail$customer_id %in% customer$customer_id, "order_id"]
@@ -285,6 +293,7 @@ order_detail <- order_detail[!(order_detail$order_id %in% bad_order_record), ]
 ```
 
 ## ORDER_ITEM
+
 ```{r}
 #Check if order_id exists in the ORDER_ITEM table
 invalid_order_fk <- order_item[!order_item$order_id %in% order_detail$order_id, "order_id"]
@@ -314,6 +323,7 @@ order_item <- order_item[!(order_item$order_id %in% bad_order_item_record), ]
 ```
 
 ## ADVERTISEMENT
+
 ```{r}
 #Check ad frequency (can only contain integer)
 invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", advertisement$ad_frequency), c("ad_id", "ad_frequency")]
@@ -343,6 +353,7 @@ advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_reco
 ```
 
 ## ADVERTISE_IN
+
 ```{r}
 #Check if ad_id exists in the ADVERTISEMENT table
 invalid_advertisement_fk <- advertise_in[!advertise_in$ad_id %in% advertisement$ad_id, "ad_id"]
@@ -392,7 +403,6 @@ for (i in seq_along(tables)) {
 
 dbDisconnect(connect)
 ```
-
 
 ```{r}
 
