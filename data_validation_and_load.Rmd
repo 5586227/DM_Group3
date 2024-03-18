@@ -9,6 +9,8 @@ editor_options:
 ```{r}
 library(dplyr)
 library(tidyr)
+library(DBI)
+library(RSQLite)
 
 ```
 
@@ -360,7 +362,6 @@ bad_advertise_in_record <- unique(c(invalid_advertisement_fk$ad_id,
 advertise_in <- advertise_in[!(advertise_in$ad_id %in% bad_advertise_in_record), ]
 
 ```
-
 
 ```{r}
 #add new records into table
