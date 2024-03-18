@@ -82,15 +82,23 @@ According to the E-R diagram and the normalization stage, we can list the logica
 
 -   CUSTOMER([customer_ID]{.underline}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
 
--   ADDRESS(
+-   ADDRESS(address_id, postcode, street, city, country)
 
--   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
+-   DISCOUNT(promo_code, discount_amount)
 
 -   ADVERTISEMENT([ad_id]{.underline}, ad_number, ad_place, ad_price, product_ID) 
 
 -   SUPPLIER([supplier_id]{.underline}, supplier_name, email, mobile_no) 
 
 -   CATEGORY([category_id,]{.underline} category_name, category_fee)
+
+-   PRODUCT([product_ID]{.underline}, product_name, product_description, unit_price, stock_at_hand) 
+
+-   ORDER_DETAIL(order_id, customer_id, order_date
+
+-   ORDER_ITEM(
+
+-   ADVERTISE_IN(
 
 #### Physical Schema \<update\>
 
