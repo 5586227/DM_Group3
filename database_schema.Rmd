@@ -23,8 +23,7 @@ connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
 ```{sql connection=connect}
 CREATE TABLE IF NOT EXISTS ADDRESS (
-  address_id VARCHAR(50) PRIMARY KEY, 
-  customer_id VARCHAR(50) NOT NULL,
+  address_id VARCHAR(50) PRIMARY KEY,
   postcode VARCHAR(20) NOT NULL, 
   street VARCHAR(50) NOT NULL,
   city VARCHAR(100) NOT NULL,
@@ -57,9 +56,9 @@ CREATE TABLE IF NOT EXISTS PRODUCT (
   product_rating DECIMAL(5,2),
   unit_price DECIMAL(10,2) NOT NULL,
   stock_on_hand INT NOT NULL,
-  main_product_id INT,
-  category_id INT NOT NULL,
-  supplier_id INT NOT NULL,
+  main_product_id VARCHAR(50),
+  category_id VARCHAR(50) NOT NULL,
+  supplier_id VARCHAR(50) NOT NULL,
   FOREIGN KEY (supplier_id) REFERENCES SUPPLIER (supplier_id),
   FOREIGN KEY (category_id) REFERENCES CATEGORY (category_id)
 );
@@ -70,7 +69,7 @@ CREATE TABLE IF NOT EXISTS PRODUCT (
 ```{sql connection=connect}
 CREATE TABLE IF NOT EXISTS DISCOUNT (
   promo_code VARCHAR(20) PRIMARY KEY, 
-  discount_amount INT NOT NULL
+  discount_percent INT NOT NULL
 );
 ```
 

@@ -309,7 +309,7 @@ negative_zero_quantity <- order_item[order_item$order_quantity < 1, c("order_id"
 
 #Check for missing data
 na_order_item_order_id <- order_item[is.na(order_item$order_id), "order_id"]
-na_order_item_product_id <- order_item[is.na(order_item$product_id), c("order_id", "product_id")]
+na_order_item_product_id <- order_item[is.na(order_item$order_id), c("order_id", "product_id")]
 na_order_item_order_quantity <- order_item[is.na(order_item$order_quantity), c("order_id", "order_quantity")]
 
 #Remove unclean data
