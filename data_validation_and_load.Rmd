@@ -408,8 +408,8 @@ for (i in seq_along(tables)) {
   
   # Convert data types if needed (e.g., order_date column)
   if ("order_date" %in% colnames(existing)) {
-    existing$order_date <- as.Date(existing$order_date)
-    new_records$order_date <- as.Date(new_records$order_date)
+    existing$order_date <- as.character(existing$order_date)
+    new_records$order_date <- as.character(new_records$order_date)
   }
   
   # Find new records not present in existing table
