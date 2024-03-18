@@ -1,0 +1,11 @@
+---
+title: "test"
+author: "我"
+date: "2024/3/18"
+output: html_document
+---
+
+```{r setup}
+print('hello')
+```
+

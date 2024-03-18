@@ -189,7 +189,7 @@ ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name
 ```{r}
 library(lubridate)
 time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
-
+#test
 time_period_sales$order_date <- as.Date(time_period_sales$order_date, format="%d/%m/%Y")
 
 time_period_sales$order_date_mnth_yr <- format(time_period_sales$order_date,'%Y/%m')
