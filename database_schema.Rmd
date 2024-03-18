@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS ORDER_DETAIL (
   order_status VARCHAR(50) NOT NULL, 
   promo_code VARCHAR(20),
   payment_method TEXT NOT NULL,
+  delivery_fee DECIMAL(10, 2) NOT NULL,
   FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id),
   FOREIGN KEY (promo_code)  REFERENCES DISCOUNT (promo_code)
 );
