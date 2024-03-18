@@ -257,7 +257,7 @@ status <- c("Pending", "Paid", "Shipped", "Completed", "Cancelled")
 invalid_order_status <- order_detail[!order_detail$order_status %in% status, c("order_id", "order_status")]
 
 #Check payment method
-payment <- c("Mastercard", "Card", "Amex")
+payment <- c("Mastercard", "Visa", "Amex")
 invalid_payment_method <- order_detail[!order_detail$payment_method %in% payment, c("order_id", "payment_method")]
 
 #Check date format (dd/mm/yyyy)
@@ -315,15 +315,25 @@ na_order_item_product_id <- order_item[is.na(order_item$order_id), c("order_id",
 na_order_item_order_quantity <- order_item[is.na(order_item$order_quantity), c("order_id", "order_quantity")]
 
 #Remove unclean data
-bad_order_item_record <- unique(c(duplicate_order_item_composite$order_id,
-                                  invalid_order_fk$order_id,
-                                  invalid_product_fk$order_id,
-                                  invalid_quantity$order_id,
-                                  negative_zero_quantity$order_id,
-                                  na_order_item_order_id$order_id,
-                                  na_order_item_product_id$order_id,
-                                  na_order_item_order_quantity$order_id))
+bad_order_item_record <- unique(c())
 order_item <- order_item[!(order_item$order_id %in% bad_order_item_record), ]
+
+#Remove unclean data
+# Combine all unclean data
+bad_order_item_record <- rbind(duplicate_order_item_composite,
+                                  invalid_order_fk,
+                                  invalid_product_fk,
+                                  invalid_quantity,
+                                  negative_zero_quantity,
+                                  na_order_item_order_id,
+                                  na_order_item_product_id,
+                                  na_order_item_order_quantity)
+
+# Remove duplicates from bad records
+bad_order_item_record <- unique(bad_order_item_record)
+
+# Remove unclean data based on composite key
+order_item <- order_item[!paste(order_item$order_id, order_item$product_id) %in% paste(bad_order_item_record$order_id, bad_order_item_record$product_id), ]
 
 ```
 
@@ -369,7 +379,7 @@ advertise_in_composite <- paste(advertise_in$ad_id, advertise_in$product_id)
 duplicate_advertise_in_composite <- advertise_in[duplicated(advertise_in_composite), c("ad_id", "product_id")]
 
 #Check if ad_id exists in the ADVERTISEMENT table
-invalid_advertisement_fk <- advertise_in[!advertise_in$ad_id %in% advertisement$ad_id, "ad_id"]
+invalid_advertisement_fk <- advertise_in[!advertise_in$ad_id %in% advertisement$ad_id, c("ad_id", "product_id")]
 
 #Check if product_id exists in the PRODUCT table
 invalid_product_fk <- advertise_in[!advertise_in$product_id %in% product$product_id, c("ad_id", "product_id")]
@@ -379,12 +389,18 @@ na_advertise_in_ad_id <- advertise_in[is.na(advertise_in$ad_id), "ad_id"]
 na_advertise_in_product_id <- advertise_in[is.na(advertise_in$product_id), c("ad_id", "product_id")]
 
 #Remove unclean data
-bad_advertise_in_record <- unique(c(duplicate_advertise_in_composite$ad_id,
-                                    invalid_advertisement_fk$ad_id,
-                                    invalid_product_fk$ad_id,
-                                    na_advertise_in_ad_id$ad_id,
-                                    na_advertise_in_product_id$ad_id))
-advertise_in <- advertise_in[!(advertise_in$ad_id %in% bad_advertise_in_record), ]
+# Combine all unclean data
+bad_advertise_in_record <- rbind(duplicate_advertise_in_composite,
+                                 invalid_advertisement_fk,
+                                 invalid_product_fk,
+                                 na_advertise_in_ad_id,
+                                 na_advertise_in_product_id)
+
+# Remove duplicates from bad records
+bad_advertise_in_record <- unique(bad_advertise_in_record)
+
+# Remove unclean data based on composite key
+advertise_in <- advertise_in[!paste(advertise_in$ad_id, advertise_in$product_id) %in% paste(bad_advertise_in_record$ad_id, bad_advertise_in_record$product_id), ]
 
 ```
 
