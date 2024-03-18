@@ -28,20 +28,11 @@ CREATE TABLE CUSTOMER (
   last_name VARCHAR(50) NOT NULL,
   gender VARCHAR(10),
   customer_email VARCHAR(50) NOT NULL UNIQUE,
-  customer_mobile VARCHAR(15) NOT NULL UNIQUE
-);
-```
-
-## Create ADDRESS table
-
-```{sql connection=connect}
-CREATE TABLE ADDRESS (
-  postcode VARCHAR(20) PRIMARY KEY, 
-  customer_id VARCHAR(50) NOT NULL,
+  customer_mobile VARCHAR(15) NOT NULL UNIQUE,
+  postcode VARCHAR(20), 
   street VARCHAR(50) NOT NULL,
   city VARCHAR(100) NOT NULL,
-  country VARCHAR(100) NOT NULL,
-  FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id)
+  country VARCHAR(100) NOT NULL
 );
 ```
 
