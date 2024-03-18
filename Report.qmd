@@ -82,11 +82,7 @@ In summary, four new entities were created from the normalization, which were OR
 
 -   DISCOUNT([promo_code]{.ul}, discount_amount)
 
-<<<<<<< HEAD
 -   ADVERTISEMENT([ad_id]{.underline}, ad_frequency, ad_place, ad_price) 
-=======
--   ADVERTISEMENT([ad_id]{.ul}, ad_prequency, ad_place, ad_price) 
->>>>>>> c5f42cbd9c0402d3938ce9d65c3337605310b142
 
 -   SUPPLIER([supplier_id]{.ul}, supplier_name, email, mobile_no) 
 
