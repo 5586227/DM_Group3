@@ -74,7 +74,7 @@ Functional Dependency:
 
 This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and stores street, city, and country as other attributes.
 
-In summary, four new entities were created from the Normalisation, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS.
+In summary, four new entities were created from the normalization, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS.
 
 -   CUSTOMER([customer_id]{.underline}, first_name, last_name, gender, email, mobile_no, address_id)
 
@@ -82,7 +82,7 @@ In summary, four new entities were created from the Normalisation, which were OR
 
 -   DISCOUNT([promo_code]{.underline}, discount_amount)
 
--   ADVERTISEMENT([ad_id]{.underline}, ad_prequency, ad_place, ad_price) 
+-   ADVERTISEMENT([ad_id]{.underline}, ad_frequency, ad_place, ad_price) 
 
 -   SUPPLIER([supplier_id]{.underline}, supplier_name, email, mobile_no) 
 
