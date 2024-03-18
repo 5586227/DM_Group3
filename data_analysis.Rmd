@@ -287,15 +287,6 @@ effective_ad_type <- merged_data %>%
 
 ```
 
-```{r}
-ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
-  geom_col() +
-  labs(title = "Effectiveness of Ad Types", x = "Ad Place", y = "Effectiveness") +
-  theme_minimal() +
-  theme( legend.position = "none", 
-        plot.title = element_text(hjust = 0.5)) 
-
-```
 
 ```{r}
 
@@ -304,7 +295,7 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
   scale_fill_brewer(palette = "Paired") + # Use a more appealing color palette
   labs(title = "Effectiveness of Advertisement Types", 
        x = "Ad Place", 
-       y = "Effectiveness (Total Sales / Total Frequency)") +
+       y = "Total Sales / Total Frequency") +
   theme_minimal(base_size = 14) + # Increase base text size for better readability
   theme(plot.title = element_text(hjust = 0.5, size = 20), # Center and style title
         axis.title = element_text(size = 16), # Style axis titles
