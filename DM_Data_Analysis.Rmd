@@ -163,16 +163,16 @@ CREATE TABLE CATEGORY (
 ```
 
 ```{r dataloading,message=FALSE,warning=FALSE}
-customer <- readr::read_csv("CUSTOMER.csv")
-address <- readr::read_csv("ADDRESS.csv")
-product <- readr::read_csv("PRODUCT.csv")
-discount <- readr::read_csv("DISCOUNT.csv")
-order_item <- readr::read_csv("ORDER_ITEM.csv")
-order_detail <- readr::read_csv("ORDER_DETAIL.csv")
-supplier <- readr::read_csv("SUPPLIER.csv")
-advertisement  <- readr::read_csv("ADVERTISEMENT.csv")
-advertise_in  <- readr::read_csv("ADVERTISE_IN .csv")
-category <- readr::read_csv ("CATEGORY.csv")
+customer <- readr::read_csv("data_upload/CUSTOMER.csv")
+address <- readr::read_csv("data_upload/ADDRESS.csv")
+product <- readr::read_csv("data_upload/PRODUCT.csv")
+discount <- readr::read_csv("data_upload/DISCOUNT.csv")
+order_item <- readr::read_csv("data_upload/ORDER_ITEM.csv")
+order_detail <- readr::read_csv("data_upload/ORDER_DETAIL.csv")
+supplier <- readr::read_csv("data_upload/SUPPLIER.csv")
+advertisement  <- readr::read_csv("data_upload/ADVERTISEMENT.csv")
+advertise_in  <- readr::read_csv("data_upload/ADVERTISE_IN .csv")
+category <- readr::read_csv ("data_upload/CATEGORY.csv")
 
 ```
 
@@ -213,6 +213,8 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
          yaxis = list(title = "Stock on Hand"),
          showlegend = FALSE)
 ```
+
+
 
 2. Top 10 products based on the revenue generated
 
