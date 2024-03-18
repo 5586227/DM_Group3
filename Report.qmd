@@ -637,11 +637,10 @@ Our GitHub Actions workflow was designed to execute a task named "ETL workflow f
 2.  Set up R environment and specify the R version as '4.3.3'.
 3.  Cache R packages to avoid reinstalling them on each run.
 4.  Install required packages if the cache misses.
-5.  Delete the database file if it exists.
-6.  Run database_schema.Rmd to render database schema.
-7.  Run data_validation_and_load.Rmd to render validation and load data into database.
-8.  Run data_analysis.Rmd to render data analysis.
-9.  Utilize an authentication token to push changes to the 'main' branch.
+5.  Run database_schema.Rmd to render database schema.
+6.  Run data_validation_and_load.Rmd to render validation and load data into database.
+7.  Run data_analysis.Rmd to render data analysis.
+8.  Utilize an authentication token to push changes to the 'main' branch.
 
 ## Part 4: Data Analysis and Reporting with Quarto in R
 
