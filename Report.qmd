@@ -606,7 +606,8 @@ library(dplyr)
 library(plotly)
 ```
 
-```{r}RSQLite::dbWriteTable(connect,"CUSTOMERS",customer,overwrite=TRUE)}
+```{r writebacktodb}
+RSQLite::dbWriteTable(connect,"CUSTOMERS",customer,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"ADDRESS",address,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"PRODUCT",product,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"DISCOUNT",discount,overwrite=TRUE)
@@ -616,10 +617,6 @@ RSQLite::dbWriteTable(connect,"SUPPLIER",supplier,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"ADVERTISEMENTS",advertisement,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"ADVERTISE_IN",advertise_in,overwrite=TRUE)
 RSQLite::dbWriteTable(connect,"CATEGORY",category,overwrite=TRUE)
-
-```
-
-```{}
 ```
 
 ### Task 4.2: Comprehensive Reporting with Quarto
