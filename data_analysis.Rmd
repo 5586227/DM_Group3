@@ -14,7 +14,7 @@ library(RSQLite)
 library(readr)
 library(dplyr)
 library(plotly)
-#test
+
 #install.packages("plotly")
 #install.packages("dplyr")
 #install.packages("readr")
@@ -28,169 +28,10 @@ library(plotly)
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-## Create CUSTOMER Table
-
-```{sql connection=connect}
-CREATE TABLE CUSTOMER (
-  customer_id VARCHAR(250) PRIMARY KEY, 
-  first_name VARCHAR(250) NOT NULL,
-  last_name VARCHAR(250) NOT NULL,
-  gender VARCHAR(10),
-  customer_email VARCHAR(250) NOT NULL,
-  customer_mobile VARCHAR(15) NOT NULL
-);
-```
-
-## Create ADDRESS table
-
-```{sql connection=connect}
-CREATE TABLE ADDRESS (
-  postcode VARCHAR(20) PRIMARY KEY, 
-  customer_id INT NOT NULL,
-  street VARCHAR(50) NOT NULL,
-  city VARCHAR(100) NOT NULL,
-  country VARCHAR(100) NOT NULL,
-  FOREIGN KEY (customer_id)
-    REFERENCES CUSTOMER (customer_id)
-);
-```
-
-## Create PRODUCT table
-
-```{sql connection=connect}
-CREATE TABLE PRODUCT (
-  product_id VARCHAR(250) PRIMARY KEY, 
-  product_name VARCHAR(250) NOT NULL,
-  product_description VARCHAR(250),
-  product_rating DECIMAL(5,2),
-  unit_price DECIMAL(10,2) NOT NULL,
-  stock_on_hand INT NOT NULL,
-  main_product_id INT,
-  category_id INT NOT NULL,
-  supplier_id INT NOT NULL,
-  FOREIGN KEY (supplier_id)
-    REFERENCES SUPPLIER (supplier_id),
-  FOREIGN KEY (category_id)
-    REFERENCES CATEGORY (category_id)
-);
-```
-
-## Create DISCOUNT table
-
-```{sql connection=connect}
-CREATE TABLE DISCOUNT (
-  promo_code VARCHAR(20) PRIMARY KEY, 
-  discount_amount INT NOT NULL
-);
-```
-
-## Create ORDER table for CUSTOMER-PRODUCT relationship
-
-```{sql connection=connect}
-CREATE TABLE ORDER_ITEM (
-  order_id VARCHAR(250) PRIMARY KEY,
-  product_id VARCHAR(250), 
-  order_quantity INT NOT NULL,
-  FOREIGN KEY (product_id)
-    REFERENCES PRODUCT (product_id)
-);
-
-```
-
-```{sql connection=connect}
-CREATE TABLE ORDER_DETAIL (
-  order_id VARCHAR(250) PRIMARY KEY,
-  customer_id VARCHAR(250), 
-  order_date DATE NOT NULL,
-  order_status VARCHAR(50) NOT NULL, 
-  promo_code VARCHAR(20),
-  payment_method TEXT NOT NULL,
-  FOREIGN KEY (customer_id)
-    REFERENCES CUSTOMER (customer_id),
-  FOREIGN KEY (order_id)
-    REFERENCES CUSTOMER (customer_id),
-  FOREIGN KEY (promo_code)
-    REFERENCES DISCOUNT (promo_code)
-);
-```
-
-## Create ADVERTISEMENT table
-
-```{sql connection=connect}
-CREATE TABLE ADVERTISEMENTS (
-  ad_id VARCHAR(250) PRIMARY KEY, 
-  ad_number INT NOT NULL,
-  ad_price DECIMAL(10, 2) NOT NULL, 
-  ad_place VARCHAR(50) NOT NULL
-);
-```
-
-## Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
-
-```{sql connection=connect}
-CREATE TABLE ADVERTISE_IN (
-  product_id VARCHAR(250),
-  ad_id VARCHAR(250),
-  PRIMARY KEY (product_id, ad_id),
-  FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
-  FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
-);
-```
-
-## Create SUPPLIER table
-
-```{sql connection=connect}
-CREATE TABLE SUPPLIER (
-  supplier_id VARCHAR(250) PRIMARY KEY, 
-  supplier_name VARCHAR(250) NOT NULL,
-  supplier_email VARCHAR(250) NOT NULL,
-  supplier_mobile VARCHAR(20) NOT NULL
-);
-```
-
-## Create CATEGORY table
-
-```{sql connection=connect}
-
-CREATE TABLE CATEGORY (
-  category_id VARCHAR(250) PRIMARY KEY, 
-  category_name VARCHAR(250) NOT NULL
-);
-```
-
-```{r dataloading,message=FALSE,warning=FALSE}
-customer <- readr::read_csv("data_upload/CUSTOMER.csv")
-address <- readr::read_csv("data_upload/ADDRESS.csv")
-product <- readr::read_csv("data_upload/PRODUCT.csv")
-discount <- readr::read_csv("data_upload/DISCOUNT.csv")
-order_item <- readr::read_csv("data_upload/ORDER_ITEM.csv")
-order_detail <- readr::read_csv("data_upload/ORDER_DETAIL.csv")
-supplier <- readr::read_csv("data_upload/SUPPLIER.csv")
-advertisement  <- readr::read_csv("data_upload/ADVERTISEMENT.csv")
-advertise_in  <- readr::read_csv("data_upload/ADVERTISE_IN.csv")
-category <- readr::read_csv ("data_upload/CATEGORY.csv")
-
-```
-
-## Write them to the database
-
-```{r writebacktodb}
-RSQLite::dbWriteTable(connect,"CUSTOMERS",customer,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADDRESS",address,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"PRODUCT",product,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"DISCOUNT",discount,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ORDER_ITEM",order_item,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ORDER_DETAIL",order_detail,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"SUPPLIER",supplier,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADVERTISEMENTS",advertisement,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADVERTISE_IN",advertise_in,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"CATEGORY",category,overwrite=TRUE)
-
-```
-
 1.  Top 5 Suppliers (quantity of products supplied/ stock on hand)
 
 ```{r}
+product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
 top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
 
 ```
@@ -212,6 +53,10 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
 2.  Top 10 products based on the revenue generated
 
 ```{r}
+order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
+order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
+discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
+
 profit_data <- order_item %>%
   inner_join(order_detail, by = "order_id") %>% # Assuming order_id is the common key
   filter(order_status != "Cancelled") %>%
@@ -253,6 +98,10 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 ```{r}
 # Joining Product with advertise_in and advertisement to get advertisement details
+
+advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
+advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
+
 advertisement_data <- product %>%
   inner_join(advertise_in, by = "product_id") %>%
   inner_join(advertisement, by = "ad_id") %>%
@@ -318,6 +167,8 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 4.  Average Review for each category
 
 ```{r}
+category <- RSQLite::dbGetQuery(connect,'SELECT * FROM CATEGORY')
+
 # Join product_df with category_df to include category names
 product_with_category <- product %>%
   inner_join(category, by = "category_id")
@@ -396,8 +247,6 @@ time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%
 #salesvsregion
 cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id')
 
-#Test
-
 #cust_order_join<- inner_join(Customer,Order,by="customer_id")
 
 sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))
@@ -414,7 +263,7 @@ ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = q
 library(gridExtra)
 cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity,unit_price FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
-
+#TEST
 
 cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price
 
