@@ -26,7 +26,7 @@ jobs:
 
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
-        run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"), dependencies=TRUE, repos="https://cloud.r-project.org")'
+        run: R -e 'install.packages(c("DBI", "dplyr", "readr", "RSQLite", "plotly", "tidyr", "lubridate"))'
 
   run-tests-and-data-processing:
     needs: [install-packages]
