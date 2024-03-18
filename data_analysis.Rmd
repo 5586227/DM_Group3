@@ -9,11 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(DBI)
-library(RSQLite)
-library(readr)
-library(dplyr)
-library(plotly)
+
 ```
 
 ## Connect to database
@@ -238,7 +234,7 @@ ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev
 grid.arrange(ggplot1,ggplot2,nrow(1))
 ```
 
-```{r} 
+```{r}
 #Calculating Marketplace fee
 merged_product_fee <- product %>%
   inner_join(select(category, category_fee), by = "category_id")
@@ -246,5 +242,3 @@ order_fee <- order %>%
   inner_join(select(order, category_fee), by = "product_id"
              
 ```
-
-

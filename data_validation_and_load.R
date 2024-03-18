@@ -1,8 +1,6 @@
 # Load required libraries
-library(dplyr)
-library(tidyr)
-library(DBI)
-library(RSQLite)
+library(readr)
+require(RSQLite)
 
 # Read Files
 customer <- readr::read_csv("data_upload/CUSTOMER.csv")
