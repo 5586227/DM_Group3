@@ -82,15 +82,21 @@ According to the E-R diagram and the normalization stage, we can list the logica
 
 -   CUSTOMER([customer_ID]{.ul}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
 
--   ADDRESS(
-
--   PRODUCT([product_ID]{.ul}, product_name, product_description, unit_price, stock_at_hand) 
+-   ADDRESS(address_id, postcode, street, city, country)
 
 -   ADVERTISEMENT([ad_id]{.ul}, ad_number, ad_place, ad_price, product_ID) 
 
 -   SUPPLIER([supplier_id]{.ul}, supplier_name, email, mobile_no) 
 
 -   CATEGORY([category_id,]{.ul} category_name, category_fee)
+
+-   PRODUCT([product_ID]{.ul}, product_name, product_description, unit_price, stock_at_hand) 
+
+-   ORDER_DETAIL(order_id, customer_id, order_date
+
+-   ORDER_ITEM(
+
+-   ADVERTISE_IN(
 
 #### Physical Schema \<update>
 
@@ -625,7 +631,6 @@ For setting up workflow, as GitHub Actions can automate workflows, such as runni
 
 ### Task 3.2: Data Import and Quality Assurance
 
-<<<<<<< HEAD
 Our GitHub Actions workflow was designed to execute a task named "ETL workflow for group 3.", triggering by pushing events to the 'main' branch. In this part, we defined a sequence of steps to be executed on the latest version of Ubuntu:
 
 1.  Use GitHub Actions checkout action to check out code into the working directory.
@@ -637,16 +642,6 @@ Our GitHub Actions workflow was designed to execute a task named "ETL workflow f
 7.  Run data_validation_and_load.Rmd to render validation and load data into database.
 8.  Run data_analysis.Rmd to render data analysis.
 9.  Utilize an authentication token to push changes to the 'main' branch.
-=======
-Our GitHub Actions workflow was designed to execute a task named "ETL workflow for group 3.", triggering by push events to the 'main' branch. In this part, we defined a sequence of steps to be executed on the latest version of Ubuntu:
-
-1.  Checkout code: fetch the repository's code.
-2.  Set up the R environment and specify the R version as '4.3.3'.
-3.  Cache R packages: Caches R packages to avoid reinstalling them on each run.
-4.  Install packages: Installs required packages if the cache misses.
-5.  Execute RMD files: Executes for data loading tasks.
-6.  Push changes: utilizes an authentication token to push changes to the 'main' branch.
->>>>>>> 1e9eb016360c5de7335e75437cadfe3f2849cd3a
 
 ## Part 4: Data Analysis and Reporting with Quarto in R
 
