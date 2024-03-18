@@ -203,7 +203,7 @@ time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%
 
 ```{r}
 #salesvsregion
-cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id')
+cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
 
 #cust_order_join<- inner_join(Customer,Order,by="customer_id")
 
@@ -219,7 +219,7 @@ ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = q
 ```{r}
 #revenuevsregion
 library(gridExtra)
-cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,order_quantity,unit_price FROM ADDRESS ADR INNER JOIN ORDER_DETAIL ORDDET ON ADR.customer_id = ORDDET.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDDET.order_id = ORDITM.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
 #TEST
 
