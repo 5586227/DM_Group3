@@ -1,7 +1,3 @@
-# Load required libraries
-library(readr)
-require(RSQLite)
-
 # Read Files
 customer <- readr::read_csv("data_upload/CUSTOMER.csv")
 address <- readr::read_csv("data_upload/ADDRESS.csv")
