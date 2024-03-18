@@ -12,7 +12,7 @@ editor: visual
 
 #### Entities
 
-Our E-R Diagram for an E-commerce database consisted of seven main entities:
+Our E-R Diagram for an E-commerce database consisted of five main entities:
 
 1.  CUSTOMER: Represents details of individuals or entities who purchase products, including attributes such as customer ID, customer name, contact information, and gender. 
 2.  PRODUCT: Represents details of items available for sale, including attributes such as product ID, product name, description, rating, price, and available stock. 
@@ -625,14 +625,14 @@ GitHub Actions can automate workflows, such as running tests, building, and depl
 
 ### Task 3.2: Data Import and Quality Assurance
 
-Our GitHub Actions workflow was designed to execute a task named "ETL workflow for group 3.", triggering by push events to the ‘main’ branch. In this part, we defined a sequence of steps to be executed on the latest version of Ubuntu:
+Our GitHub Actions workflow was designed to execute a task named "ETL workflow for group 3.", triggering by push events to the 'main' branch. In this part, we defined a sequence of steps to be executed on the latest version of Ubuntu:
 
 1.  Checkout code: fetch the repository's code.
 2.  Set up the R environment and specify the R version as '4.3.3'.
 3.  Cache R packages: Caches R packages to avoid reinstalling them on each run.
 4.  Install packages: Installs required packages if the cache misses.
 5.  Execute RMD files: Executes for data loading tasks.
-6.  Push changes: utilizes an authentication token to push changes to the ‘main’ branch.
+6.  Push changes: utilizes an authentication token to push changes to the 'main' branch.
 
 ## Part 4: Data Analysis and Reporting with Quarto in R
 
