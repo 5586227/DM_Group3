@@ -44,7 +44,7 @@ The relationships among these entities are as follows: 
 
 As a result, this is our E-R diagram.
 
-![](images/E-R Diagram(Final)-Before Final.drawio.png)
+![](images/E-R%20Diagram(Final)-Before%20Final.drawio.png)
 
 ### Task 1.2: SQL Database Schema Creation
 
@@ -221,15 +221,39 @@ According to our first draft of the E-R diagram, two main adjustments were made 
 
 The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF.
 
-Previous logical schema:
+The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based on its function dependency, street, city, and country can also be determined by postcode and customer_id.
 
-By considering
+{customer_id} -\>{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -\> { street, city , country }
+
+This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and store street, city , and country as other attributes
 
 ## Part 2: Data Generation and Implementation
 
 ### Task 2.1: Synthetic Data Generation
 
-The synthetic data of each table was created using Mockaroo,
+The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform.
+
+The number of observation data generated for each entity was as followed:
+
+-   50 observations for ADDRESS
+
+-   50 observations for ADVERTISE_IN
+
+-   5 observations for ADVERTISEMENT
+
+-   5 observations for CATEGORY
+
+-   50 observations for CUSTOMER
+
+-   5 observations for DISCOUNT
+
+-   100 observations for ORDER_DETAIL
+
+-   100 observations for ORDER_ITEM
+
+-   50 observations for PRODUCT
+
+-   50 observations for SUPPLIER
 
 ### Task 2.2: Data Import and Quality Assurance
 
