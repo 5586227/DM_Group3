@@ -591,4 +591,8 @@ The imported data sets were validated before being added to the database to ensu
 
 ### Task 4.1: Advanced Data Analysis in R
 
+```{r}
+
+```
+
 ### Task 4.2: Comprehensive Reporting with Quarto

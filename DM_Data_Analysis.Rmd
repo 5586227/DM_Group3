@@ -14,11 +14,11 @@ library(readr)
 library(dplyr)
 library(plotly)
 
-install.packages("plotly")
-install.packages("dplyr")
-install.packages("readr")
-install.packages("DBI")
-install.packages("RSQLite")
+#install.packages("plotly")
+#install.packages("dplyr")
+#install.packages("readr")
+#install.packages("DBI")
+#install.packages("RSQLite")
 ```
 
 ##Connect to database
@@ -163,16 +163,16 @@ CREATE TABLE CATEGORY (
 ```
 
 ```{r dataloading,message=FALSE,warning=FALSE}
-Customer <- readr::read_csv("CUSTOMER.csv")
-Address <- readr::read_csv("ADDRESS.csv")
-Product <- readr::read_csv("PRODUCT.csv")
-Discount <- readr::read_csv("DISCOUNT.csv")
-Order_item <- readr::read_csv("ORDER_ITEM.csv")
-Order_detail <- readr::read_csv("ORDER_DETAIL.csv")
-Supplier <- readr::read_csv("SUPPLIER.csv")
-Advertisement  <- readr::read_csv("ADVERTISEMENT.csv")
-Advertise_in  <- readr::read_csv("ADVERTISE_IN .csv")
-Category <- readr::read_csv ("CATEGORY.csv")
+customer <- readr::read_csv("CUSTOMER.csv")
+address <- readr::read_csv("ADDRESS.csv")
+product <- readr::read_csv("PRODUCT.csv")
+discount <- readr::read_csv("DISCOUNT.csv")
+order_item <- readr::read_csv("ORDER_ITEM.csv")
+order_detail <- readr::read_csv("ORDER_DETAIL.csv")
+supplier <- readr::read_csv("SUPPLIER.csv")
+advertisement  <- readr::read_csv("ADVERTISEMENT.csv")
+advertise_in  <- readr::read_csv("ADVERTISE_IN .csv")
+category <- readr::read_csv ("CATEGORY.csv")
 
 ```
 
@@ -180,23 +180,23 @@ Category <- readr::read_csv ("CATEGORY.csv")
 ## Write them to the database
 
 ```{r writebacktodb}
-RSQLite::dbWriteTable(connect,"CUSTOMERS",Customer,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADDRESS",Address,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"PRODUCT",Product,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"DISCOUNT",Discount,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ORDER_ITEM",Order_item,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ORDER_DETAIL",Order_detail,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"SUPPLIER",Supplier,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADVERTISEMENTS",Advertisement,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"ADVERTISE_IN",Advertise_in,overwrite=TRUE)
-RSQLite::dbWriteTable(connect,"CATEGORY",Category,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"CUSTOMERS",customer,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADDRESS",address,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"PRODUCT",product,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"DISCOUNT",discount,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ORDER_ITEM",order_item,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ORDER_DETAIL",order_detail,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"SUPPLIER",supplier,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADVERTISEMENTS",advertisement,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADVERTISE_IN",advertise_in,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"CATEGORY",category,overwrite=TRUE)
 
 ```
 
 1. Top 5 Suppliers (quantity of products supplied/ stock on hand)
 
 ```{r}
-top_suppliers<- Product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
+top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
 
 ```
 
@@ -214,14 +214,14 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
          showlegend = FALSE)
 ```
 
-2. Top 10 Products based on the revenue generated
+2. Top 10 products based on the revenue generated
 
 ```{r}
-profit_data <- Order_item %>%
-  inner_join(Order_detail, by = "order_id") %>% # Assuming order_id is the common key
+profit_data <- order_item %>%
+  inner_join(order_detail, by = "order_id") %>% # Assuming order_id is the common key
   filter(order_status != "Cancelled") %>%
-  inner_join(Product, by = "product_id") %>%
-  left_join(Discount, by = c("promo_code" = "promo_code")) %>%
+  inner_join(product, by = "product_id") %>%
+  left_join(discount, by = c("promo_code" = "promo_code")) %>%
   mutate(
     discount_percentage = ifelse(is.na(discount_percent), 0, discount_percent), 
     total_profit = (order_quantity * unit_price) * (1 - discount_percentage / 100)
@@ -244,8 +244,8 @@ top_10_profit_data <- head(profit_data, 10)
 # graphing the results
 ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
   geom_bar(stat = "identity") +
-  scale_fill_discrete(name = "Product Name") + 
-  labs(title = "Top 10 Profitable Products", x = "Product ID", y = "Total Profit") +
+  scale_fill_discrete(name = "product Name") + 
+  labs(title = "Top 10 Profitable products", x = "Product ID", y = "Total Profit") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.title = element_text(size = 12), 
@@ -257,10 +257,10 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 3. Comparing the effectiveness of each Advertisement Type
 
 ```{r}
-# Joining Product with Advertise_in and Advertisement to get advertisement details
-advertisement_data <- Product %>%
-  inner_join(Advertise_in, by = "product_id") %>%
-  inner_join(Advertisement, by = "ad_id") %>%
+# Joining Product with advertise_in and advertisement to get advertisement details
+advertisement_data <- product %>%
+  inner_join(advertise_in, by = "product_id") %>%
+  inner_join(advertisement, by = "ad_id") %>%
   group_by(product_id, product_name, ad_place) %>%
   summarise(
     total_frequency = sum(ad_frequency), # Sum the total frequency of ads for each ad place
@@ -268,8 +268,8 @@ advertisement_data <- Product %>%
 
 
 # Joining product with order to get the number of sales per product
-number_of_sales <- Product %>%
-  inner_join(Order_item, by = "product_id") %>%
+number_of_sales <- product %>%
+  inner_join(order_item, by = "product_id") %>%
   group_by(product_id, product_name) %>%
   summarise(sales_count = n(), .groups = 'drop')
 
@@ -325,8 +325,8 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 
 ```{r}
 # Join product_df with category_df to include category names
-product_with_category <- Product %>%
-  inner_join(Category, by = "category_id")
+product_with_category <- product %>%
+  inner_join(category, by = "category_id")
 
 
 avg_rating_by_category <- product_with_category %>%
