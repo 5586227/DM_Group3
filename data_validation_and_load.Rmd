@@ -10,15 +10,56 @@ editor_options:
 library(dplyr)
 library(tidyr)
 
+
+```
+
+#read files
+```{r}
+customer <- readr::read_csv("CUSTOMER.csv")
+address <- readr::read_csv("ADDRESS.csv")
+category <- readr::read_csv("CATEGORY.csv")
+supplier <- readr::read_csv("SUPPLIER.csv")
+discount <- readr::read_csv("DISCOUNT.csv")
+product <- readr::read_csv("PRODUCT.csv")
+order_item <- readr::read_csv("ORDER_ITEM.csv")
+order_detail <- readr::read_csv("ORDER_DETAIL.csv")
+advertisement <- readr::read_csv("ADVERTISEMENT.csv")
+advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
+
+```
+
+```{r}
+# List of tables and their corresponding primary key columns
+table_pk <- list(
+  customer = "customer_id",
+  address = "postcode",
+  category = "category_id",
+  supplier = "supplier_id",
+  product = "product_id",
+  discount = "promo_code",
+  order_detail = "order_id",
+  order_item = c("order_id", "product_id"),
+  advertisement = "ad_id",
+  advertise_in = c("ad_id", "product_id")
+)
+
+# Loop through each table and check for duplicates
+for (table_name in names(table_pk)) {
+  table <- get(table_name)
+  key_columns <- table_pk[[table_name]]
+  duplicates <- table[duplicated(table[, key_columns]), key_columns]
+  if (nrow(duplicates) > 0) {
+    print(paste("Duplicate key in", table_name, ":"))
+    print(duplicates)
+  } else {
+    print(paste("No duplicate key in", table_name))
+  }
+}
+
 ```
 
 #CUSTOMER
 ```{r}
-customer <- readr::read_csv("CUSTOMER.csv")
-
-#Check for duplicate primary key
-duplicate_customer_id <- customer[duplicated(customer$customer_id), "customer_id"] 
-
 #Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
 invalid_customer_firstname <- customer[!grepl("^[A-Z][a-z]*$", customer$first_name), c("customer_id", "first_name")]
 invalid_customer_lastname <- customer[!grepl("^[A-Z][a-z]*$", customer$last_name), c("customer_id", "last_name")]
@@ -27,38 +68,81 @@ invalid_customer_lastname <- customer[!grepl("^[A-Z][a-z]*$", customer$last_name
 invalid_customer_email <- customer[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), c("customer_id", "customer_email")]
 
 #Check format of mobile number (+xx xxx xxx xxxx)
-invalid_customer_number <- customer[!grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", customer$customer_phone), c("customer_id", "customer_phone")]
+invalid_customer_mobile <- customer[!grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", customer$customer_mobile), c("customer_id", "customer_mobile")]
 
-#Check for missing data (remove?)
+#Check for missing data
 na_customer_customer_id <- customer[is.na(customer$customer_id), "customer_id"]
 na_customer_first_name <- customer[is.na(customer$first_name), c("customer_id", "first_name")]
 na_customer_last_name <- customer[is.na(customer$last_name), c("customer_id", "last_name")]
-na_customer_gender <- customer[is.na(customer$gender), c("customer_id", "gender")]
 na_customer_customer_email <- customer[is.na(customer$customer_email), c("customer_id", "customer_email")]
-na_customer_customer_phone <- customer[is.na(customer$customer_phone), c("customer_id", "customer_phone")]
-na_customer_street <- customer[is.na(customer$street), c("customer_id", "street")]
-na_customer_city <- customer[is.na(customer$city), c("customer_id", "city")]
-na_customer_country <- customer[is.na(customer$country), c("customer_id", "country")]
-na_customer_postcode <- customer[is.na(customer$postcode), c("customer_id", "postcode")]
+na_customer_customer_mobile <- customer[is.na(customer$customer_mobile), c("customer_id", "customer_mobile")]
 
 #Remove unclean data
-bad_customer_record <- unique(c(duplicate_customer_id, 
-                                invalid_customer_firstname$customer_id, 
+bad_customer_record <- unique(c(invalid_customer_firstname$customer_id, 
                                 invalid_customer_lastname$customer_id, 
                                 invalid_customer_email$customer_id, 
-                                invalid_customer_number$customer_id))
+                                invalid_customer_mobile$customer_id,
+                                na_customer_customer_id$customer_id,
+                                na_customer_first_name$customer_id,
+                                na_customer_last_name$customer_id,
+                                na_customer_customer_email$customer_id,
+                                na_customer_customer_mobile$customer_id))
 customer <- customer[!(customer$customer_id %in% bad_customer_record), ]
 
 ```
 
+#ADDRESS
+```{r}
+#Check for missing data
+na_address_postcode <- address[is.na(address$postcode), "postcode"]
+na_address_street <- address[is.na(address$street), c("postcode", "street")]
+na_address_city <- address[is.na(address$city), c("postcode", "city")]
+na_address_country <- address[is.na(address$country), c("postcode", "country")]
+
+#Check if customer_id exists in the CUSTOMER table
+invalid_customer_fk <- address[!address$customer_id %in% customer$customer_id, c("postcode", "customer_id")]
+
+#Remove unclean data
+bad_address_record <- unique(c(na_address_postcode$postcode,
+                               na_address_street$postcode,
+                               na_address_city$postcode,
+                               na_address_country$postcode,
+                               invalid_customer_fk$postcode))
+address <- address[!(address$postcode %in% bad_address_record), ]
+
+
+```
+
+
+# CATEGORY
+```{r}
+#Check category (can contain alphabets)
+invalid_category_name <- category[!grepl("^[A-Za-z]+( [A-Za-z]+)*$", category$category_name), c("category_id", "category_name")]
+
+#Check for duplicate category name
+duplicate_category_name <- category[duplicated(category$category_name), c("category_id", "category_name")]
+
+#Check for negative prices
+negative_category_fee <- category[category$category_fee < 0, c("category_id", "category_fee")]
+
+#Check for missing data
+na_category_category_id <- category[is.na(category$category_id), "category_id"]
+na_category_category_name <- category[is.na(category$category_name), c("category_id", "category_name")]
+na_category_category_fee <- category[is.na(category$category_fee), c("category_id", "category_fee")]
+
+#Remove unclean data
+bad_category_record <- unique(c(invalid_category_name$category_id,
+                                duplicate_category_name$category_id,
+                                negative_category_fee$category_id,
+                                na_category_category_id$category_id,
+                                na_category_category_name$category_id,
+                                na_category_category_fee$category_id))
+category <- category[!(category$category_id %in% bad_category_record), ]
+
+```
 
 #SUPPLIER
 ```{r}
-supplier <- readr::read_csv("SUPPLIER.csv")
-
-#Check for duplicate primary key
-duplicate_supplier_id <- supplier[duplicated(supplier$supplier_id), "supplier_id"] 
-
 #Check supplier (can contain alphabets, comma, hyphen, dot)
 invalid_supplier_name <- supplier[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", supplier$supplier_name), c("supplier_id", "supplier_name")]
 
@@ -66,86 +150,28 @@ invalid_supplier_name <- supplier[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", suppl
 invalid_supplier_email <- supplier[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), c("supplier_id", "supplier_email")]
 
 #Check format of mobile number (+xx xxx xxx xxxx)
-invalid_supplier_number <- supplier[!grepl("^^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", supplier$supplier_phone), c("supplier_id", "supplier_phone")]
+invalid_supplier_mobile <- supplier[!grepl("^^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", supplier$supplier_mobile), c("supplier_id", "supplier_mobile")]
 
 #Check for missing data (remove?)
 na_supplier_supplier_id <- supplier[is.na(supplier$supplier_id), "supplier_id"]
 na_supplier_supplier_name <- supplier[is.na(supplier$supplier_name), c("supplier_id", "supplier_name")]
 na_supplier_supplier_email <- supplier[is.na(supplier$supplier_email), c("supplier_id", "supplier_email")]
-na_supplier_supplier_phone <- supplier[is.na(supplier$supplier_phone), c("supplier_id", "supplier_phone")]
+na_supplier_supplier_mobile <- supplier[is.na(supplier$supplier_mobile), c("supplier_id", "supplier_mobile")]
 
 #Remove unclean data
-bad_supplier_record <- unique(c(duplicate_supplier_id$supplier_id, 
-                                invalid_supplier_name$supplier_id,
+bad_supplier_record <- unique(c(invalid_supplier_name$supplier_id, 
                                 invalid_supplier_email$supplier_id,
-                                invalid_supplier_number$supplier_id))
+                                invalid_supplier_mobile$supplier_id,
+                                na_supplier_supplier_id$supplier_id, 
+                                na_supplier_supplier_name$supplier_id,
+                                na_supplier_supplier_email$supplier_id,
+                                na_supplier_supplier_mobile$supplier_id))
 supplier <- supplier[!(supplier$supplier_id %in% bad_supplier_record), ]
-
-```
-
-# CATEGORY
-```{r}
-category <- readr::read_csv("CATEGORY.csv")
-
-#Check for duplicate primary key
-duplicate_category_id <- category[duplicated(category$category_id), "category_id"] 
-
-#Check category (can contain alphabets)
-invalid_category_name <- category[!grepl("^[A-Za-z]+( [A-Za-z]+)*$", category$category_name), c("category_id", "category_name")]
-
-#Check for duplicate category name
-duplicate_category_name <- category[duplicated(category$category_name), c("category_id", "category_name")]
-
-#Check for missing data (remove?)
-na_category_category_id <- category[is.na(category$category_id), "category_id"]
-na_category_category_name <- category[is.na(category$category_name), c("category_id", "category_name")]
-
-#Remove unclean data
-bad_category_record <- unique(c(duplicate_category_id$category_id, 
-                                invalid_category_name$category_id,
-                                duplicate_category_name$category_id))
-category <- category[!(category$category_id %in% bad_category_record), ]
-
-```
-
-# ADVERTISEMENT
-```{r}
-advertisement <- readr::read_csv("ADVERTISEMENT.csv")
-
-#Check for duplicate primary key
-duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), "ad_id"]
-
-#Check ad frequency (can only contain integer)
-invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", advertisement$ad_frequency), c("ad_id", "ad_frequency")]
-
-#Check for negative ad frequency
-negative_ad_frequency <- advertisement[advertisement$ad_frequency < 0, c("ad_id", "ad_frequency")]
-
-#Check for negative prices
-negative_ad_prices <- advertisement[advertisement$ad_price < 0, c("ad_id", "ad_price")]
-
-#Check for missing data (remove?)
-na_advertisement_ad_id <- advertisement[is.na(advertisement$ad_id), "ad_id"]
-na_advertisement_ad_frequency <- advertisement[is.na(advertisement$ad_frequency), c("ad_id", "ad_frequency")]
-na_advertisement_ad_price <- advertisement[is.na(advertisement$ad_price), c("ad_id", "ad_price")]
-na_advertisement_ad_place <- advertisement[is.na(advertisement$ad_place), c("ad_id", "ad_place")]
-
-#Remove unclean data
-bad_advertisement_record <- unique(c(duplicate_ad_id$ad_id, 
-                                invalid_ad_frequency$ad_id,
-                                negative_ad_frequency$ad_id,
-                                negative_ad_prices$ad_id))
-advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_record), ]
 
 ```
 
 # DISCOUNT
 ```{r}
-discount <- readr::read_csv("DISCOUNT.csv")
-
-#Check for duplicate primary key
-duplicate_promo_code <- discount[duplicated(discount$promo_code), "promo_code"]
-
 #Check percent
 invalid_discount_percent <- discount[!grepl("^[0-9]+$", discount$discount_percent), c("promo_code", "discount_percent")]
 
@@ -154,19 +180,15 @@ na_discount_promo_code <- discount[is.na(discount$promo_code), "promo_code"]
 na_discount_discount_percent <- discount[is.na(discount$discount_percent), c("promo_code", "discount_percent")]
 
 #Remove unclean data
-bad_discount_record <- unique(c(duplicate_promo_code$promo_code, 
-                                invalid_discount_percent$promo_code))
+bad_discount_record <- unique(c(invalid_discount_percent$promo_code,
+                                na_discount_promo_code$promo_code,
+                                na_discount_discount_percent$promo_code))
 discount <- discount[!(discount$promo_code %in% bad_discount_record), ]
 
 ```
 
 # PRODUCT
 ```{r}
-product <- readr::read_csv("PRODUCT.csv")
-
-#Check for duplicate primary key
-duplicate_product_id <- product[duplicated(product$product_id), "product_id"]
-
 #Check product name (can contain alphabets, comma, hyphen, dot)
 invalid_product_name <- product[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", product$product_name), c("product_id", "product_name")]
 
@@ -210,19 +232,37 @@ product <- product[!(product$product_id %in% bad_product_record), ]
 
 ```
 
-# ORDER
+# ORDER_ITEM
 ```{r}
-order <- readr::read_csv("ORDER.csv")
+#Check if product_id exists in the PRODUCT table
+invalid_product_fk <- order_item[!order_item$product_id %in% product$product_id, c("order_id", "product_id")]
 
-#Check duplicate for composite primary key
-order_composite_key <- paste(order$order_id, order$customer_id, order$product_id)
-duplicate_order_composite_key <- order[duplicated(order_composite_key), c("order_id", "customer_id", "product_id")]
+#Check invalid order quantity
+invalid_quantity <- order[!grepl("^[0-9]+$", order$order_quantity), c("order_id", "order_quantity")]
+negative_zero_quantity <- order[order$order_quantity < 1, c("order_id", "order_quantity")]
 
+
+#Check for missing data (remove?)
+na_order_item_order_id <- order[is.na(order$order_id), "order_id"]
+na_order_item_product_id <- order[is.na(order$product_id), c("order_id", "product_id")]
+na_order_item_order_quantity <- order[is.na(order$order_quantity), c("order_id", "order_quantity")]
+
+#Remove unclean data
+bad_order_item_record <- unique(c(duplicate_order_id$order_id,
+                             invalid_product_fk$order_id,
+                             invalid_quantity$order_id,
+                             negative_zero_quantity$order_id))
+order_item <- order_item[!(order_item$order_id %in% bad_order_item_record), ]
+
+```
+
+# ORDER_DETAIL
+```{r}
 #Check if customer_id exists in the CUSTOMER table
 invalid_customer_fk <- order[!order$customer_id %in% customer$customer_id, c("order_id", "customer_id", "product_id")]
 
-#Check if product_id exists in the PRODUCT table
-invalid_product_fk <- order[!order$product_id %in% product$product_id, c("order_id", "product_id")]
+#Check if order_id exists in the ORDER_ITEM table
+invalid_order_fk <- order_detail[!order_detail$order_id %in% order_item$order_id, "order_id"]
 
 #Check if promo_code exists in the DISCOUNT table
 discounted_order <- order[!is.na(order$promo_code), ]
@@ -239,11 +279,7 @@ invalid_payment_method <- order[!order$payment_method %in% payment, c("order_id"
 #Check date format (dd/mm/yyyy)
 invalid_order_date <- order[!grepl("^\\d{2}/\\d{2}/\\d{4}$", order$order_date), c("order_id", "order_date")]
 
-#Check invalid order quantity
-invalid_quantity <- order[!grepl("^[0-9]+$", order$order_quantity), c("order_id", "order_quantity")]
-negative_zero_quantity <- order[order$order_quantity < 1, c("order_id", "order_quantity")]
-
-#Check for negative delivery fee
+#Check for negative delivery fee???
 negative_delivery_fee <- order[order$delivery_fee < 0, c("order_id", "delivery_fee")]
 
 #Check if total order quantity for a product in all orders exceed stock on hand
@@ -252,37 +288,53 @@ negative_delivery_fee <- order[order$delivery_fee < 0, c("order_id", "delivery_f
 #Check for missing data (remove?)
 na_order_order_id <- order[is.na(order$order_id), "order_id"]
 na_order_customer_id <- order[is.na(order$customer_id), c("order_id", "customer_id")]
-na_order_product_id <- order[is.na(order$product_id), c("order_id", "product_id")]
 na_order_order_status <- order[is.na(order$order_status), c("order_id", "order_status")]
 na_order_order_date <- order[is.na(order$order_date), c("order_id", "order_date")]
 na_order_payment_method <- order[is.na(order$payment_method), c("order_id", "payment_method")]
-na_order_order_quantity <- order[is.na(order$order_quantity), c("order_id", "order_quantity")]
 na_order_delivery_fee <- order[is.na(order$delivery_fee), c("order_id", "delivery_fee")]
 na_order_promo_code <- order[is.na(order$promo_code), c("order_id", "promo_code")] #not all order have discount
 
 #Remove unclean data
 bad_order_record <- unique(c(duplicate_order_composite_key$order_id,
                              invalid_customer_fk$order_id,
-                             invalid_product_fk$order_id,
                              invalid_promo_fk$order_id,
                              invalid_order_status$order_id,
                              invalid_payment_method$order_id,
                              invalid_order_date$order_id,
-                             invalid_quantity$order_id,
                              negative_zero_quantity$order_id,
                              negative_delivery_fee$order_id))
 order <- order[!(order$order_id %in% bad_order_record), ]
 
 ```
 
+# ADVERTISEMENT
+```{r}
+#Check ad frequency (can only contain integer)
+invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", advertisement$ad_frequency), c("ad_id", "ad_frequency")]
+
+#Check for negative ad frequency
+negative_ad_frequency <- advertisement[advertisement$ad_frequency < 0, c("ad_id", "ad_frequency")]
+
+#Check for negative prices
+negative_ad_prices <- advertisement[advertisement$ad_price < 0, c("ad_id", "ad_price")]
+
+#Check for missing data (remove?)
+na_advertisement_ad_id <- advertisement[is.na(advertisement$ad_id), "ad_id"]
+na_advertisement_ad_frequency <- advertisement[is.na(advertisement$ad_frequency), c("ad_id", "ad_frequency")]
+na_advertisement_ad_price <- advertisement[is.na(advertisement$ad_price), c("ad_id", "ad_price")]
+na_advertisement_ad_place <- advertisement[is.na(advertisement$ad_place), c("ad_id", "ad_place")]
+
+#Remove unclean data
+bad_advertisement_record <- unique(c(duplicate_ad_id$ad_id, 
+                                invalid_ad_frequency$ad_id,
+                                negative_ad_frequency$ad_id,
+                                negative_ad_prices$ad_id))
+advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_record), ]
+
+```
+
 #ADVERTISE_IN
 ```{r}
-advertise_in <- readr::read_csv("ADVERTISE_IN.csv")
-
-#Check duplicate for composite primary key
-advertise_in_composite_key <- paste(advertise_in$ad_id, advertise_in$product_id)
-duplicate_advertise_in_composite_key <- advertise_in[duplicated(advertise_in_composite_key), c("ad_id", "product_id")]
-
 #Check if ad_id exists in the ADVERTISEMENT table
 invalid_advertisement_fk <- advertise_in[!advertise_in$ad_id %in% advertisement$ad_id, "ad_id"]
 
@@ -296,3 +348,19 @@ bad_advertise_in_record <- unique(c(duplicate_advertise_in_composite_key$ad_id,
 advertise_in <- advertise_in[!(advertise_in$ad_id %in% bad_advertise_in_record), ]
 
 ```
+
+
+```{r}
+#add new records into table
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
+
+tables <- c("CUSTOMER", "ADDRESS", "CATEGORY", "SUPPLIER", "PRODUCT", "DISCOUNT", 
+            "ORDER_ITEM", "ORDER_DETAIL", "ADVERTISEMENT", "ADVERTISE_IN")
+
+for (table in tables) {
+  existing <- dbGetQuery(connect, paste("SELECT * FROM", table))
+  new <- anti_join(get(table), existing)
+  dbWriteTable(connect, table, new, append=TRUE)
+}
+
+dbDisconnect(connect)
