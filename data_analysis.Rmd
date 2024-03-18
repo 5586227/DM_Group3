@@ -171,7 +171,7 @@ order_item <- readr::read_csv("data_upload/ORDER_ITEM.csv")
 order_detail <- readr::read_csv("data_upload/ORDER_DETAIL.csv")
 supplier <- readr::read_csv("data_upload/SUPPLIER.csv")
 advertisement  <- readr::read_csv("data_upload/ADVERTISEMENT.csv")
-advertise_in  <- readr::read_csv("data_upload/ADVERTISE_IN .csv")
+advertise_in  <- readr::read_csv("data_upload/ADVERTISE_IN.csv")
 category <- readr::read_csv ("data_upload/CATEGORY.csv")
 
 ```
