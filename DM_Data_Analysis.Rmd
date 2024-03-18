@@ -1,0 +1,386 @@
+---
+title: "Data Analysis"
+output: html_document
+date: "2024-03-17"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(DBI)
+library(RSQLite)
+library(readr)
+library(dplyr)
+library(plotly)
+
+install.packages("plotly")
+install.packages("dplyr")
+install.packages("readr")
+install.packages("DBI")
+install.packages("RSQLite")
+```
+
+##Connect to database
+
+```{r}
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
+```
+
+## Create CUSTOMER Table 
+
+        
+```{sql connection=connect}
+CREATE TABLE CUSTOMER (
+  customer_id VARCHAR(250) PRIMARY KEY, 
+  first_name VARCHAR(250) NOT NULL,
+  last_name VARCHAR(250) NOT NULL,
+  gender VARCHAR(10),
+  customer_email VARCHAR(250) NOT NULL,
+  customer_mobile VARCHAR(15) NOT NULL
+);
+```
+
+## Create ADDRESS table
+
+```{sql connection=connect}
+CREATE TABLE ADDRESS (
+  postcode VARCHAR(20) PRIMARY KEY, 
+  customer_id INT NOT NULL,
+  street VARCHAR(50) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  FOREIGN KEY (customer_id)
+    REFERENCES CUSTOMER (customer_id)
+);
+```
+
+
+## Create PRODUCT table
+
+```{sql connection=connect}
+CREATE TABLE PRODUCT (
+  product_id VARCHAR(250) PRIMARY KEY, 
+  product_name VARCHAR(250) NOT NULL,
+  product_description VARCHAR(250),
+  product_rating DECIMAL(5,2),
+  unit_price DECIMAL(10,2) NOT NULL,
+  stock_on_hand INT NOT NULL,
+  main_product_id INT,
+  category_id INT NOT NULL,
+  supplier_id INT NOT NULL,
+  FOREIGN KEY (supplier_id)
+    REFERENCES SUPPLIER (supplier_id),
+  FOREIGN KEY (category_id)
+    REFERENCES CATEGORY (category_id)
+);
+```
+
+##Create DISCOUNT table
+
+````{sql connection=connect}
+CREATE TABLE DISCOUNT (
+  promo_code VARCHAR(20) PRIMARY KEY, 
+  discount_amount INT NOT NULL
+);
+```
+
+
+
+##Create ORDER table for CUSTOMER-PRODUCT relationship
+```{sql connection=connect}
+CREATE TABLE ORDER_ITEM (
+  order_id VARCHAR(250) PRIMARY KEY,
+  product_id VARCHAR(250), 
+  order_quantity INT NOT NULL,
+  FOREIGN KEY (product_id)
+    REFERENCES PRODUCT (product_id)
+);
+
+```
+
+
+```{sql connection=connect}
+CREATE TABLE ORDER_DETAIL (
+  order_id VARCHAR(250) PRIMARY KEY,
+  customer_id VARCHAR(250), 
+  order_date DATE NOT NULL,
+  order_status VARCHAR(50) NOT NULL, 
+  promo_code VARCHAR(20),
+  payment_method TEXT NOT NULL,
+  FOREIGN KEY (customer_id)
+    REFERENCES CUSTOMER (customer_id),
+  FOREIGN KEY (order_id)
+    REFERENCES CUSTOMER (customer_id),
+  FOREIGN KEY (promo_code)
+    REFERENCES DISCOUNT (promo_code)
+);
+```
+
+
+## Create ADVERTISEMENT table
+
+```{sql connection=connect}
+CREATE TABLE ADVERTISEMENTS (
+  ad_id VARCHAR(250) PRIMARY KEY, 
+  ad_number INT NOT NULL,
+  ad_price DECIMAL(10, 2) NOT NULL, 
+  ad_place VARCHAR(50) NOT NULL
+);
+```
+
+##Create ADVERTISE_IN table for PRODUCT-ADVERTISEMENT relationship
+
+```{sql connection=connect}
+CREATE TABLE ADVERTISE_IN (
+  product_id VARCHAR(250),
+  ad_id VARCHAR(250),
+  PRIMARY KEY (product_id, ad_id),
+  FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
+  FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
+);
+```
+
+## Create SUPPLIER table
+
+```{sql connection=connect}
+CREATE TABLE SUPPLIER (
+  supplier_id VARCHAR(250) PRIMARY KEY, 
+  supplier_name VARCHAR(250) NOT NULL,
+  supplier_email VARCHAR(250) NOT NULL,
+  supplier_mobile VARCHAR(20) NOT NULL
+);
+```
+
+## Create CATEGORY table
+
+```{sql connection=connect}
+
+CREATE TABLE CATEGORY (
+  category_id VARCHAR(250) PRIMARY KEY, 
+  category_name VARCHAR(250) NOT NULL
+);
+```
+
+```{r dataloading,message=FALSE,warning=FALSE}
+Customer <- readr::read_csv("CUSTOMER.csv")
+Address <- readr::read_csv("ADDRESS.csv")
+Product <- readr::read_csv("PRODUCT.csv")
+Discount <- readr::read_csv("DISCOUNT.csv")
+Order_item <- readr::read_csv("ORDER_ITEM.csv")
+Order_detail <- readr::read_csv("ORDER_DETAIL.csv")
+Supplier <- readr::read_csv("SUPPLIER.csv")
+Advertisement  <- readr::read_csv("ADVERTISEMENT.csv")
+Advertise_in  <- readr::read_csv("ADVERTISE_IN .csv")
+Category <- readr::read_csv ("CATEGORY.csv")
+
+```
+
+
+## Write them to the database
+
+```{r writebacktodb}
+RSQLite::dbWriteTable(connect,"CUSTOMERS",Customer,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADDRESS",Address,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"PRODUCT",Product,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"DISCOUNT",Discount,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ORDER_ITEM",Order_item,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ORDER_DETAIL",Order_detail,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"SUPPLIER",Supplier,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADVERTISEMENTS",Advertisement,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"ADVERTISE_IN",Advertise_in,overwrite=TRUE)
+RSQLite::dbWriteTable(connect,"CATEGORY",Category,overwrite=TRUE)
+
+```
+
+1. Top 5 Suppliers (quantity of products supplied/ stock on hand)
+
+```{r}
+top_suppliers<- Product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
+
+```
+
+```{r}
+top_5_suppliers <- top_suppliers %>% 
+  arrange(desc(quantity)) %>% 
+  slice(1:5)
+
+# Create a bar plot using Plotly
+plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar', 
+        marker = list(color = 'skyblue')) %>%
+  layout(title = "Top 5 Suppliers by Stock",
+         xaxis = list(title = "Supplier ID"),
+         yaxis = list(title = "Stock on Hand"),
+         showlegend = FALSE)
+```
+
+2. Top 10 Products based on the revenue generated
+
+```{r}
+profit_data <- Order_item %>%
+  inner_join(Order_detail, by = "order_id") %>% # Assuming order_id is the common key
+  filter(order_status != "Cancelled") %>%
+  inner_join(Product, by = "product_id") %>%
+  left_join(Discount, by = c("promo_code" = "promo_code")) %>%
+  mutate(
+    discount_percentage = ifelse(is.na(discount_percent), 0, discount_percent), 
+    total_profit = (order_quantity * unit_price) * (1 - discount_percentage / 100)
+  ) %>%
+  group_by(product_id, product_name) %>%
+  summarise(
+    total_profit = sum(total_profit), 
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(total_profit))
+
+```
+
+```{r}
+
+# Selecting the top 10 profitable products
+top_10_profit_data <- head(profit_data, 10)
+
+
+# graphing the results
+ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
+  geom_bar(stat = "identity") +
+  scale_fill_discrete(name = "Product Name") + 
+  labs(title = "Top 10 Profitable Products", x = "Product ID", y = "Total Profit") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10), 
+        plot.title = element_text(hjust = 0.5)) 
+
+```
+
+3. Comparing the effectiveness of each Advertisement Type
+
+```{r}
+# Joining Product with Advertise_in and Advertisement to get advertisement details
+advertisement_data <- Product %>%
+  inner_join(Advertise_in, by = "product_id") %>%
+  inner_join(Advertisement, by = "ad_id") %>%
+  group_by(product_id, product_name, ad_place) %>%
+  summarise(
+    total_frequency = sum(ad_frequency), # Sum the total frequency of ads for each ad place
+    .groups = 'drop' )
+
+
+# Joining product with order to get the number of sales per product
+number_of_sales <- Product %>%
+  inner_join(Order_item, by = "product_id") %>%
+  group_by(product_id, product_name) %>%
+  summarise(sales_count = n(), .groups = 'drop')
+
+# Note: Each product is being sold twice.
+# Note: Remove Category fee 
+# Note: Product table: main category id column empty
+
+merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
+
+```
+
+```{r}
+# Analyzing which ad place is most effective by calculating a ratio of total sales to total ad frequency
+effective_ad_type <- merged_data %>%
+  group_by(ad_place) %>%
+  summarise( total_sales = sum(sales_count), 
+    total_frequency = sum(total_frequency), .groups = 'drop') %>%
+  mutate( effectiveness = total_sales / total_frequency) %>%
+  arrange(desc(effectiveness))
+
+```
+
+```{r}
+ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
+  geom_col() +
+  labs(title = "Effectiveness of Ad Types", x = "Ad Place", y = "Effectiveness") +
+  theme_minimal() +
+  theme( legend.position = "none", 
+        plot.title = element_text(hjust = 0.5)) 
+
+```
+
+
+```{r}
+
+ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
+  geom_col(show.legend = FALSE, width = 0.5) + # Adjust bar width here
+  scale_fill_brewer(palette = "Paired") + # Use a more appealing color palette
+  labs(title = "Effectiveness of Advertisement Types", 
+       x = "Ad Place", 
+       y = "Effectiveness (Total Sales / Total Frequency)") +
+  theme_minimal(base_size = 14) + # Increase base text size for better readability
+  theme(plot.title = element_text(hjust = 0.5, size = 20), # Center and style title
+        axis.title = element_text(size = 16), # Style axis titles
+        axis.text = element_text(size = 12), # Style axis texts
+        panel.grid.major = element_blank(), # Remove major grid lines
+        panel.grid.minor = element_blank(), # Remove minor grid lines
+        panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
+
+```
+
+4. Average Review for each category
+
+```{r}
+# Join product_df with category_df to include category names
+product_with_category <- Product %>%
+  inner_join(Category, by = "category_id")
+
+
+avg_rating_by_category <- product_with_category %>%
+  group_by(category_id, category_name) %>%
+  summarise(Average_Rating = round(mean(product_rating, na.rm = TRUE),2), .groups = 'drop') %>%
+  arrange(category_id)
+
+print(avg_rating_by_category)
+
+```
+
+```{r}
+
+ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_name)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar(theta = "y") + # Convert the bar chart to a pie chart
+  labs(fill = "Category Name", # Legend title
+       title = "Average Rating by Category") + # Chart title
+  theme_minimal() + 
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+
+# Add a cumulative sum of Average_Rating to calculate position for labels
+avg_rating_by_category$label_position <- cumsum(avg_rating_by_category$Average_Rating) - 
+                                         (0.5 * avg_rating_by_category$Average_Rating)
+
+# Define your custom color palette
+custom_colors <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b")
+
+ggplot(avg_rating_by_category, aes(x = "", y = Average_Rating, fill = category_name)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  geom_text(aes(label = sprintf("%.2f", Average_Rating), 
+                y = label_position), 
+            color = "black", size = 4) + # Adjust size as needed
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = custom_colors) + # Apply custom colors
+  labs(fill = "Category Name",
+       title = "Average Rating by Category") +
+  theme_minimal() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+
