@@ -98,7 +98,7 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 ```{r}
 # Joining Product with advertise_in and advertisement to get advertisement details
-
+#test
 advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
 advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
 
