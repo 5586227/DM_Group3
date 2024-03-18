@@ -1,7 +1,3 @@
-# Load required libraries
-library(DBI)
-library(RSQLite)
-
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
