@@ -24,7 +24,7 @@ Our E-R Diagram for an E-commerce database consisted of five main entities:
 4.  SUPPLIER: Represents details of entities providing products to businesses or customers, including attributes such as supplier ID, supplier name, and contact information. 
 5.  CATEGORY: Represents product classifications or groupings, including attributes such as category unique ID, name, and fee amount as a percentage.
 
-#### Relationships + \<paste relationship set>
+#### Relationships + \<paste relationship set\>
 
 The relationships among these entities are as follows: 
 
@@ -32,7 +32,7 @@ The relationships among these entities are as follows: 
 
     The relationship is shown as ORDER, representing a customer placing an order to purchase products. It also contains some attributes to store the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee.
 
--   **\<?????>**PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
+-   **\<?????\>**PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
 
 -   PRODUCT and ADVERTISEMENT have an M-N relationship. This relationship is shown as ADVERTIIE_IN to reflect products presented in the advertisements, meaning multiple advertisements can promote one product, and one advertisement can promote multiple products. 
 
@@ -54,9 +54,9 @@ The first adjustment was on the ORDER table. After reviewing the order of normal
 
 Functional Dependency:
 
-{order_id, customer_id, product_id } -> { order_date , order_status, order_quantity, promo_code, discount amount, payment_method, delivery_fee}
+{order_id, customer_id, product_id } -\> { order_date , order_status, order_quantity, promo_code, discount amount, payment_method, delivery_fee}
 
-{promo_code} -> { discount_amount}
+{promo_code} -\> { discount_amount}
 
 As we assumed that order_id could be duplicated to represent products ordered by the same customer simultaneously, there would be UPDATE anomalies. If there is an update on any attributes, such as payment_methods, we must alter more than one row in case there is more than one product in that order_id. In addition, discount_amount is also transitively dependent on promo_code.
 
@@ -70,35 +70,33 @@ The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based
 
 Functional Dependency:
 
-{customer_id} ->{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -> { street, city , country }
+{customer_id} -\>{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -\> { street, city , country }
 
 This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and stores street, city, and country as other attributes.
 
 In summary, four new entities were created from the Normalisation, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS.
 
-#### Logical Schema \<update>
+-   CUSTOMER([customer_id]{.underline}, first_name, last_name, gender, email, mobile_no, address_id)
 
-According to the E-R diagram and the normalization stage, we can list the logical schema as follows:
+-   ADDRESS([address_id]{.underline}, postcode, street, city, country)
 
--   CUSTOMER([customer_ID]{.ul}, first_name, last_name, gender, email, mobile_no, street, city, country, postcode) 
+-   DISCOUNT([promo_code]{.underline}, discount_amount)
 
--   ADDRESS(address_id, postcode, street, city, country)
+-   ADVERTISEMENT([ad_id]{.underline}, ad_prequency, ad_place, ad_price) 
 
--   ADVERTISEMENT([ad_id]{.ul}, ad_number, ad_place, ad_price, product_ID) 
+-   SUPPLIER([supplier_id]{.underline}, supplier_name, email, mobile_no) 
 
--   SUPPLIER([supplier_id]{.ul}, supplier_name, email, mobile_no) 
+-   CATEGORY([category_id,]{.underline} category_name, category_fee)
 
--   CATEGORY([category_id,]{.ul} category_name, category_fee)
+-   PRODUCT([product_id]{.underline}, product_name, product_description, product_rating, unit_price, stock_at_hand, main_product_id, category_id, supplier_id) 
 
--   PRODUCT([product_ID]{.ul}, product_name, product_description, unit_price, stock_at_hand) 
+-   ORDER_DETAIL([order_id,]{.underline} customer_id, order_date, order_status, promo_code, payment_method, delivery_fee)
 
--   ORDER_DETAIL(order_id, customer_id, order_date
+-   ORDER_ITEM([order_id]{.underline}, product_id, quantity)
 
--   ORDER_ITEM(
+-   ADVERTISE_IN([product_id]{.underline}, ad_id)
 
--   ADVERTISE_IN(
-
-#### Physical Schema \<update>
+#### Physical Schema \<update\>
 
 ```{r, echo=FALSE}
 
