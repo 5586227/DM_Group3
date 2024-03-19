@@ -32,9 +32,9 @@ The relationships among these entities are as follows: 
 
     The relationship is shown as ORDER, representing a customer placing an order to purchase products. It also contains some attributes to store the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee.
 
--   **\<?????\>**PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
+-   PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
 
--   PRODUCT and ADVERTISEMENT have an M-N relationship. This relationship is shown as ADVERTIIE_IN to reflect products presented in the advertisements, meaning multiple advertisements can promote one product, and one advertisement can promote multiple products. 
+-   PRODUCT and ADVERTISEMENT have an M-N relationship. This relationship is shown as ADVERTISE_IN to reflect products presented in the advertisements, meaning multiple advertisements can promote one product, and one advertisement can promote multiple products. 
 
 -   PRODUCT and SUPPLIER have an N-1 relationship, indicating that one product can be supplied by only one supplier, but one supplier can provide multiple products. 
 
@@ -74,7 +74,11 @@ Functional Dependency:
 
 This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and stores street, city, and country as other attributes.
 
-In summary, four new entities were created from the normalization, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS.
+In summary, four new entities were created from the normalization, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS. This resulted in a total of nine entities in our schema.
+
+**Logical Schema**
+
+According to the E-R diagram and normalization s, we can list **the** logical schema as follows:
 
 -   CUSTOMER([customer_id]{.underline}, first_name, last_name, gender, email, mobile_no, address_id)
 
