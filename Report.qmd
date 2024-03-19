@@ -116,7 +116,10 @@ According to the E-R diagram and normalization s, we can list the logical schema
 
 library(DBI)
 library(RSQLite)
-
+library(dplyr)
+library(tidyr)
+library(gridExtra)
+library(ggplot2)
 #install.packages("DBI")
 #install.packages("RSQLite")
 ```
@@ -179,7 +182,7 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 5.  Create SUPPLIER entity
 
     ```{sql connection=connect}
-    CREATE TABLE SUPPLIER (
+    CREATE TABLE IF NOT EXISTS SUPPLIER (
       supplier_id VARCHAR(250) PRIMARY KEY, 
       supplier_name VARCHAR(250) NOT NULL,
       supplier_email VARCHAR(250) NOT NULL,
@@ -806,6 +809,39 @@ The imported data sets were validated before being added to the database to ensu
     advertise_in <- advertise_in[!paste(advertise_in$ad_id, advertise_in$product_id) %in% paste(bad_advertise_in_record$ad_id, bad_advertise_in_record$product_id), ]
     ```
 
+```{r}
+#add new records into table
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
+
+tables <- c("CUSTOMER", "ADDRESS", "CATEGORY", "SUPPLIER", "PRODUCT", "DISCOUNT", 
+            "ORDER_ITEM", "ORDER_DETAIL", "ADVERTISEMENT", "ADVERTISE_IN")
+
+table_new <- list(customer, address, category, supplier, product, discount, 
+                  order_item, order_detail, advertisement, advertise_in)
+
+# Loop through each table
+for (i in seq_along(tables)) {
+  table <- tables[i]
+  new_records <- table_new[[i]]
+  
+  # Read existing records from the table
+  existing <- dbGetQuery(connect, paste("SELECT * FROM", table))
+  
+  # Convert data types if needed (e.g., order_date column)
+  if ("order_date" %in% colnames(existing)) {
+    existing$order_date <- as.character(existing$order_date)
+    new_records$order_date <- as.character(new_records$order_date)
+  }
+  
+  # Find new records not present in existing table
+  new <- anti_join(new_records, existing)
+  
+  # Append new records to the table
+  if (nrow(new) > 0) {
+    dbWriteTable(connect, table, new, append = TRUE)
+  }}
+```
+
 ## Part 3: Data Pipeline Generation
 
 ### Task 3.1: GitHub Repository and Workflow Setup
@@ -966,7 +1002,7 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme(legend.position = "none") 
 ```
 
-```{#Report 3}
+```{r Report 3}
 
 #SQL Query to get the sales over a time period 
 
@@ -1108,58 +1144,56 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 ```
 
 ```{r}
-#Report 6
-#Calculating Marketplace fee
-merged_product_fee <- product %>%
-  inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
-category_fee <- order_item %>%
-  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
-  inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
-  filter(order_status == "Completed") %>%
-  mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
-  mutate(cat_total_sales = order_quantity * unit_price) %>%
-  group_by(category_id, category_name) %>%
-  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>%
-  inner_join(select(avg_rating_by_category, category_id, Average_Rating), by = 'category_id') %>%
-  mutate(Average_Rating = Average_Rating)
-
-
-#Visualise
-
-
-# Graph to compare Category sales VS Category Fee
-ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
-  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
-  geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
-  scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
-  labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# #Report 6
+# #Calculating Marketplace fee
+# merged_product_fee <- product %>%
+#   inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
+# category_fee <- order_item %>%
+#   inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+#   inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
+#   filter(order_status == "Completed") %>%
+#   mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+#   mutate(cat_total_sales = order_quantity * unit_price) %>%
+#   group_by(category_id, category_name) %>%
+#   summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>% inner_join(select(category_id, Average_Rating), by= 'category_id')
+# 
+# 
+# #Visualise
+# 
+# 
+# #Graph to compare Category sales VS Category Fee
+# ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+#   geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
+#   geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
+#   scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
+#   labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
 ```{r}
-#Report 7
-# Graph to compare Category sales VS Category average rating
-ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
-  geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
-  geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
-  geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
-            color = "black", size = 4, hjust = 0.5) +
-  scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
-  labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(name = "Total Sales in Units")
+# #Report 7
+# # Graph to compare Category sales VS Category average rating
+# ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
+#   geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
+#   geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
+#   geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
+#             color = "black", size = 4, hjust = 0.5) +
+#   scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
+#   labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   scale_y_continuous(name = "Total Sales in Units")
 ```
 
 ### Task 4.2: Comprehensive Reporting with Quarto
 
 **Report 1: Profitability vs Popularity**
 
-![*Figure 1*](images/Figure%201.jpeg){alt="Figure 1"}
+![Figure 1](images/Figure%201.jpeg)
 
-![*Figure 2*](images/Figure%202.jpeg){alt="Figure 2"}
+![Figure 2](images/Figure%202.jpeg)
 
 Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
 
@@ -1178,7 +1212,7 @@ Products that are both top sellers and highly profitable should be kept in optim
 
 : *Table 1*
 
-![*Figure 3*](images/Figure%203.jpeg){alt="Figure 3"}
+![Figure 3](images/Figure%203.jpeg)
 
 As seen in Table 1, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
 
@@ -1202,7 +1236,7 @@ Figure 5 gives a crucial insight of cities that generated significant revenue wi
 
 **Report 5: Analysis of Advertisement methods**
 
-![](images/Figure 4.jpeg)
+![](images/Figure%204.jpeg)
 
 *Figure 6: Sales of products per 1 advertisement of each type*
 
@@ -1210,7 +1244,7 @@ We analysed 3 types of advertisements on the Marketplace to find that Products t
 
 **Report 6: Analysis of Marketplace transaction fees**
 
-![](images/Figure 5.jpeg)
+![](images/Figure%205.jpeg)
 
 *Figure 7: Comparing Marketplace fees to the sales in each Category of products*
 
@@ -1220,7 +1254,7 @@ On Figure 7 we see that the higher the sales of the Category, the more fees Mark
 
 **Report 7: Analysis of Customers reviews on sales for each category.**
 
-![](images/Figure 6.jpeg)
+![](images/Figure%206.jpeg){width="831"}
 
 *Figure 8: Average customers' rating for the category and category's sales in units*
 
