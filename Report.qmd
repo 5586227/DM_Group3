@@ -1052,6 +1052,107 @@ top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summ
 (top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
 ```
 
+```{r}
+#Report 5
+# Joining Product with advertise_in and advertisement to get advertisement details
+advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
+advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
+
+advertisement_data <- product %>%
+  inner_join(advertise_in, by = "product_id") %>%
+  inner_join(advertisement, by = "ad_id") %>%
+  group_by(product_id, product_name, ad_place) %>%
+  summarise(
+    total_frequency = sum(ad_frequency), # Sum the total frequency of ads for each ad place
+    .groups = 'drop' )
+
+
+# Joining product with order to get the number of sales per product
+number_of_sales <- product %>%
+  inner_join(order_item, by = "product_id") %>%
+  group_by(product_id, product_name) %>%
+  summarise(sales_count = n(), .groups = 'drop')
+
+
+
+merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
+
+
+
+# Analyzing which ad place is most effective by calculating a ratio of total sales to total ad frequency
+effective_ad_type <- merged_data %>%
+  group_by(ad_place) %>%
+  summarise( total_sales = sum(sales_count), 
+             total_frequency = sum(total_frequency), .groups = 'drop') %>%
+  mutate( effectiveness = total_sales / total_frequency) %>%
+  arrange(desc(effectiveness))
+
+
+
+
+ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
+  geom_col(show.legend = FALSE, width = 0.5) + # Adjust bar width here
+  scale_fill_brewer(palette = "Paired") + # Use a more appealing color palette
+  labs(title = "Effectiveness of Advertisement Types", 
+       x = "Ad Place", 
+       y = "Total Sales / Total Frequency") +
+  theme_minimal(base_size = 14) + # Increase base text size for better readability
+  theme(plot.title = element_text(hjust = 0.5, size = 20), # Center and style title
+        axis.title = element_text(size = 16), # Style axis titles
+        axis.text = element_text(size = 12), # Style axis texts
+        panel.grid.major = element_blank(), # Remove major grid lines
+        panel.grid.minor = element_blank(), # Remove minor grid lines
+        panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
+
+
+```
+
+```{r}
+#Report 6
+#Calculating Marketplace fee
+merged_product_fee <- product %>%
+  inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
+category_fee <- order_item %>%
+  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+  inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
+  filter(order_status == "Completed") %>%
+  mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+  mutate(cat_total_sales = order_quantity * unit_price) %>%
+  group_by(category_id, category_name) %>%
+  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>%
+  inner_join(select(avg_rating_by_category, category_id, Average_Rating), by = 'category_id') %>%
+  mutate(Average_Rating = Average_Rating)
+
+
+#Visualise
+
+
+# Graph to compare Category sales VS Category Fee
+ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
+  geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
+  scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
+  labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+#Report 7
+# Graph to compare Category sales VS Category average rating
+ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
+  geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
+  geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
+  geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
+            color = "black", size = 4, hjust = 0.5) +
+  scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
+  labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(name = "Total Sales in Units")
+```
+
 ### Task 4.2: Comprehensive Reporting with Quarto
 
 **Report 1: Profitability vs Popularity**
