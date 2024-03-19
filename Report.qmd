@@ -202,9 +202,8 @@ Then, we created entities that are children entities and entities that have refe
       );
     ```
 
-```{=html}
 <!-- -->
-```
+
 7.  Create PRODUCT entity
 
     ```{sql connection=connect}
@@ -334,13 +333,13 @@ We have set the category_id, which is the primary of the table, to start with 'C
 
 50 observations for the CUSTOMER table were created using the following setting:
 
-![](images/CUSTOMER DATA GEN-01.png)
+![](images/CUSTOMER%20DATA%20GEN-01.png)
 
 There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
 
-![](images/CUSTOMER 2 DATA GEN-01.png)
+![](images/CUSTOMER%202%20DATA%20GEN-01.png)
 
-![](images/CUSTOMER 3 DATA GEN-01.png)
+![](images/CUSTOMER%203%20DATA%20GEN-01.png)
 
 7\. PRODUCT
 
@@ -382,7 +381,7 @@ We have set the order_id, which is the primary of the table, to start with 'ORD'
 
 Loading all generated data sets using read_csv to each entity
 
-```{r}
+```{r message=FALSE}
 customer <- readr::read_csv("data_upload/CUSTOMER.csv")
 address <- readr::read_csv("data_upload/ADDRESS.csv")
 category <- readr::read_csv("data_upload/CATEGORY.csv")
@@ -414,14 +413,18 @@ However, there would be some additional validation methods that were used to val
 
     ```{r}
     #Check duplicate pk
-    duplicate_address_id <- address[duplicated(address$address_id), "address_id"]
+    duplicate_address_id <- address[duplicated(address$address_id), 
+                                    "address_id"]
 
     #Check for missing data
     na_address_address_id <- address[is.na(address$address_id), "address_id"]
-    na_address_postcode <- address[is.na(address$postcode), c("address_id", "postcode")]
-    na_address_street <- address[is.na(address$street), c("address_id", "street")]
+    na_address_postcode <- address[is.na(address$postcode), 
+                                   c("address_id", "postcode")]
+    na_address_street <- address[is.na(address$street), 
+                                 c("address_id", "street")]
     na_address_city <- address[is.na(address$city), c("address_id", "city")]
-    na_address_country <- address[is.na(address$country), c("address_id", "country")]
+    na_address_country <- address[is.na(address$country), 
+                                  c("address_id", "country")]
 
     #Remove unclean data
     bad_address_record <- unique(c(duplicate_address_id$address_id,
@@ -441,14 +444,19 @@ However, there would be some additional validation methods that were used to val
 
     ```{r}
     #Check duplicate pk
-    duplicate_promo_code <- discount[duplicated(discount$promo_code), "promo_code"]
+    duplicate_promo_code <- discount[duplicated(discount$promo_code), 
+                                     "promo_code"]
 
     #Check percent
-    invalid_discount_percent <- discount[!grepl("^[0-9]+$", discount$discount_percent), c("promo_code", "discount_percent")]
+    invalid_discount_percent <- discount[!grepl("^[0-9]+$", 
+                                                discount$discount_percent), 
+                                         c("promo_code", "discount_percent")]
 
     #Check for missing data
-    na_discount_promo_code <- discount[is.na(discount$promo_code), "promo_code"]
-    na_discount_discount_percent <- discount[is.na(discount$discount_percent), c("promo_code", "discount_percent")]
+    na_discount_promo_code <- discount[is.na(discount$promo_code), 
+                                       "promo_code"]
+    na_discount_discount_percent <- discount[is.na(discount$discount_percent), 
+                                        c("promo_code", "discount_percent")]
 
     #Remove unclean data
     bad_discount_record <- unique(c(duplicate_promo_code$promo_code,
@@ -468,22 +476,31 @@ However, there would be some additional validation methods that were used to val
 
     ```{r}
     #Check duplicate pk
-    duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), "ad_id"]
+    duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), 
+                                     "ad_id"]
 
     #Check ad frequency (can only contain integer)
-    invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", advertisement$ad_frequency), c("ad_id", "ad_frequency")]
+    invalid_ad_frequency <- advertisement[!grepl("^[0-9]+$", 
+                                      advertisement$ad_frequency), c
+                                          ("ad_id", "ad_frequency")]
 
     #Check for negative ad frequency
-    negative_ad_frequency <- advertisement[advertisement$ad_frequency < 0, c("ad_id", "ad_frequency")]
+    negative_ad_frequency <- advertisement[advertisement$ad_frequency < 0, 
+                                           c("ad_id", "ad_frequency")]
 
     #Check for negative prices
-    negative_ad_prices <- advertisement[advertisement$ad_price < 0, c("ad_id", "ad_price")]
+    negative_ad_prices <- advertisement[advertisement$ad_price < 0, 
+                                        c("ad_id", "ad_price")]
 
     #Check for missing data
-    na_advertisement_ad_id <- advertisement[is.na(advertisement$ad_id), "ad_id"]
-    na_advertisement_ad_frequency <- advertisement[is.na(advertisement$ad_frequency), c("ad_id", "ad_frequency")]
-    na_advertisement_ad_price <- advertisement[is.na(advertisement$ad_price), c("ad_id", "ad_price")]
-    na_advertisement_ad_place <- advertisement[is.na(advertisement$ad_place), c("ad_id", "ad_place")]
+    na_advertisement_ad_id <- advertisement[is.na(advertisement$ad_id), 
+                                            "ad_id"]
+    na_advertisement_ad_frequency <- advertisement[is.na(advertisement$ad_frequency), 
+                                                   c("ad_id", "ad_frequency")]
+    na_advertisement_ad_price <- advertisement[is.na(advertisement$ad_price), 
+                                               c("ad_id", "ad_price")]
+    na_advertisement_ad_place <- advertisement[is.na(advertisement$ad_place), 
+                                               c("ad_id", "ad_place")]
 
     #Remove unclean data
     bad_advertisement_record <- unique(c(duplicate_ad_id$ad_id,
@@ -494,7 +511,8 @@ However, there would be some additional validation methods that were used to val
                                          na_advertisement_ad_frequency$ad_id,
                                          na_advertisement_ad_price$ad_id,
                                          na_advertisement_ad_place$ad_id))
-    advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_record), ]
+    advertisement <- advertisement[!(advertisement$ad_id %in% bad_advertisement_record),
+                                   ]
     ```
 
 4.  SUPPLIER
@@ -625,9 +643,8 @@ However, there would be some additional validation methods that were used to val
 
     ```
 
-```{=html}
 <!-- -->
-```
+
 7.  PRODUCT
 
     Additional validation method:
