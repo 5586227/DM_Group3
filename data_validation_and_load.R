@@ -50,7 +50,7 @@ bad_customer_record <- unique(c(duplicate_customer_id$customer_id,
                                 invalid_customer_email$customer_id,
                                 duplicate_customer_email$customer_id,
                                 invalid_customer_mobile$customer_id,
-                                duplicate_customer_mobile$customer_id,
+                                duplicate_customer_mobile$customer_id, #test
                                 invalid_address_fk$customer_id,
                                 na_customer_customer_id$customer_id,
                                 na_customer_first_name$customer_id,
