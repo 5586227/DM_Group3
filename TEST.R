@@ -69,20 +69,78 @@ na_customer_last_name <- customer[is.na(customer$last_name), c("customer_id", "l
 na_customer_customer_email <- customer[is.na(customer$customer_email), c("customer_id", "customer_email")]
 na_customer_customer_mobile <- customer[is.na(customer$customer_mobile), c("customer_id", "customer_mobile")]
 
-#Remove unclean data
-bad_customer_record <- unique(c(duplicate_customer_id$customer_id,
-                                invalid_customer_firstname$customer_id,
-                                invalid_customer_lastname$customer_id, 
-                                invalid_customer_email$customer_id,
-                                duplicate_customer_email$customer_id,
-                                invalid_customer_mobile$customer_id,
-                                duplicate_customer_mobile$customer_id,
-                                invalid_address_fk$customer_id,
-                                na_customer_customer_id$customer_id,
-                                na_customer_first_name$customer_id,
-                                na_customer_last_name$customer_id,
-                                na_customer_customer_email$customer_id,
-                                na_customer_customer_mobile$customer_id))
+# Remove unclean data
+bad_customer_record <- c()
+
+# Check and append if duplicate_customer_id is not empty
+if(nrow(duplicate_customer_id) > 0) {
+  bad_customer_record <- c(bad_customer_record, duplicate_customer_id[["customer_id"]])
+}
+
+# Check and append if invalid_customer_firstname is not empty
+if(nrow(invalid_customer_firstname) > 0) {
+  bad_customer_record <- c(bad_customer_record, invalid_customer_firstname[["customer_id"]])
+}
+
+# Check and append if invalid_customer_lastname is not empty
+if(nrow(invalid_customer_lastname) > 0) {
+  bad_customer_record <- c(bad_customer_record, invalid_customer_lastname[["customer_id"]])
+}
+
+# Check and append if invalid_customer_email is not empty
+if(nrow(invalid_customer_email) > 0) {
+  bad_customer_record <- c(bad_customer_record, invalid_customer_email[["customer_id"]])
+}
+
+# Check and append if duplicate_customer_email is not empty
+if(nrow(duplicate_customer_email) > 0) {
+  bad_customer_record <- c(bad_customer_record, duplicate_customer_email[["customer_id"]])
+}
+
+# Check and append if invalid_customer_mobile is not empty
+if(nrow(invalid_customer_mobile) > 0) {
+  bad_customer_record <- c(bad_customer_record, invalid_customer_mobile[["customer_id"]])
+}
+
+# Check and append if duplicate_customer_mobile is not empty
+if(nrow(duplicate_customer_mobile) > 0) {
+  bad_customer_record <- c(bad_customer_record, duplicate_customer_mobile[["customer_id"]])
+}
+
+# Check and append if invalid_address_fk is not empty
+if(nrow(invalid_address_fk) > 0) {
+  bad_customer_record <- c(bad_customer_record, invalid_address_fk[["customer_id"]])
+}
+
+# Check and append if na_customer_customer_id is not empty
+if(nrow(na_customer_customer_id) > 0) {
+  bad_customer_record <- c(bad_customer_record, na_customer_customer_id[["customer_id"]])
+}
+
+# Check and append if na_customer_first_name is not empty
+if(nrow(na_customer_first_name) > 0) {
+  bad_customer_record <- c(bad_customer_record, na_customer_first_name[["customer_id"]])
+}
+
+# Check and append if na_customer_last_name is not empty
+if(nrow(na_customer_last_name) > 0) {
+  bad_customer_record <- c(bad_customer_record, na_customer_last_name[["customer_id"]])
+}
+
+# Check and append if na_customer_customer_email is not empty
+if(nrow(na_customer_customer_email) > 0) {
+  bad_customer_record <- c(bad_customer_record, na_customer_customer_email[["customer_id"]])
+}
+
+# Check and append if na_customer_customer_mobile is not empty
+if(nrow(na_customer_customer_mobile) > 0) {
+  bad_customer_record <- c(bad_customer_record, na_customer_customer_mobile[["customer_id"]])
+}
+
+# Remove duplicates
+bad_customer_record <- unique(bad_customer_record)
+
+
 customer <- customer[!(customer$customer_id %in% bad_customer_record), ]
 
 # ADDRESS
