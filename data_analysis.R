@@ -1,6 +1,6 @@
 # Load required package
 library(RSQLite)
-#library(DBI)
+library(DBI)
 #library(readr)
 library(dplyr)
 library(ggplot2)
@@ -122,12 +122,14 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme_minimal() +
   theme(legend.position = "none",
         plot.title = element_text(hjust = 0.5))  
-
-
-
-# Joining Product with advertise_in and advertisement to get advertisement details
-#test
-advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
+---------------------------------------------------------------------------------------------------
+  
+  
+  
+  
+  
+  # Joining Product with advertise_in and advertisement to get advertisement details
+  advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
 advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
 
 advertisement_data <- product %>%
@@ -145,9 +147,7 @@ number_of_sales <- product %>%
   group_by(product_id, product_name) %>%
   summarise(sales_count = n(), .groups = 'drop')
 
-# Note: Each product is being sold twice.
-# Note: Remove Category fee 
-# Note: Product table: main category id column empty
+
 
 merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
 
@@ -177,8 +177,6 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
         panel.grid.major = element_blank(), # Remove major grid lines
         panel.grid.minor = element_blank(), # Remove minor grid lines
         panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
-
-
 
 
 category <- RSQLite::dbGetQuery(connect,'SELECT * FROM CATEGORY')
@@ -213,6 +211,46 @@ ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name
         axis.title = element_blank(),
         panel.grid = element_blank(),
         plot.title = element_text(hjust = 0.5))
+
+{r}
+#Calculating Marketplace fee
+merged_product_fee <- product %>%
+  inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
+category_fee <- order_item %>%
+  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+  inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
+  filter(order_status == "Completed") %>%
+  mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+  mutate(cat_total_sales = order_quantity * unit_price) %>%
+  group_by(category_id, category_name) %>%
+  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales)) %>%
+  inner_join(select(avg_rating_by_category, category_id, Average_Rating), by = 'category_id') %>%
+  mutate(Average_Rating = Average_Rating)
+
+
+#Visualise
+
+
+# Graph to compare Category sales VS Category Fee
+ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
+  geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
+  scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
+  labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Graph to compare Category sales VS Cagegory average rating
+ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
+  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
+  geom_bar(aes(y = (Average_Rating-3)*1000, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.3) +
+  geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
+            color = "black", size = 4, hjust = 0.5) +
+  scale_fill_manual(name = "Category", values = c("Average Rating" = "red", "Total Sales" = "#31a354")) +
+  labs(title = "Average Rating vs Total Sales by Category", x = "Category", y = "Total Sales") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(name = "Total Sales")
 
 
 #SQL Query to get the sales over a time period 
@@ -249,7 +287,7 @@ sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(o
 #Get the top 10 cities for sales
 top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
 
-top_10_sales_per_region <- head(top_5_sales_per_region,10)
+top_10_sales_per_region <- head(top_10_sales_per_region,10)
 
 #Bar graph to show the sales per region
 
@@ -280,7 +318,7 @@ top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
 ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
-grid.arrange(ggplot1,ggplot2,nrow(1))
+grid.arrange(ggplot1,ggplot2)
 
 
 #revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
