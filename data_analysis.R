@@ -122,14 +122,14 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme_minimal() +
   theme(legend.position = "none",
         plot.title = element_text(hjust = 0.5))  
----------------------------------------------------------------------------------------------------
+
   
   
   
   
   
   # Joining Product with advertise_in and advertisement to get advertisement details
-  advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
+advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
 advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
 
 advertisement_data <- product %>%
@@ -212,7 +212,6 @@ ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name
         panel.grid = element_blank(),
         plot.title = element_text(hjust = 0.5))
 
-{r}
 #Calculating Marketplace fee
 merged_product_fee <- product %>%
   inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
