@@ -256,7 +256,7 @@ top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summ
 (top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
 
 #Calculating Marketplace fee
-merged_product_fee <- product %>%
-  inner_join(select(category, category_fee), by = "category_id")
-order_fee <- order %>%
-  inner_join(select(order, category_fee), by = "product_id")
+#merged_product_fee <- product %>%
+#  inner_join(select(category, category_fee), by = "category_id")
+#order_fee <- order %>%
+#  inner_join(select(order, category_fee), by = "product_id")
