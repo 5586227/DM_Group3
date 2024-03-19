@@ -23,7 +23,7 @@ dbExecute(connect, "
             last_name VARCHAR(50) NOT NULL,
             gender VARCHAR(10),
             customer_email VARCHAR(50) NOT NULL UNIQUE,
-            customer_mobile VARCHAR(15) NOT NULL UNIQUE,
+            customer_mobile VARCHAR(50) NOT NULL UNIQUE,
             address_id VARCHAR(50) NOT NULL,
             FOREIGN KEY (address_id) REFERENCES ADDRESS (address_id)
           );
