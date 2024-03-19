@@ -2,7 +2,7 @@
 library(RSQLite)
 #library(DBI)
 #library(readr)
-#library(dplyr)
+library(dplyr)
 #library(ggplot2)
 #library(plotly)
 #library(gridExtra)
