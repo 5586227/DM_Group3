@@ -22,7 +22,7 @@ PROD20,CATG1,SUP19,Apollo Portable Charger,Cras non velit nec nisi vulputate non
 PROD21,CATG3,SUP30,Tranquility Scented Candles,Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem.,4.6,37.01,76,
 PROD22,CATG4,SUP32,Cosmic Compression Socks,Proin risus.,3.5,73.86,84,
 PROD23,CATG5,SUP27,Celestial Shampoo & Conditioner Set,"Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.",4.7,13.67,69,PROD15
-PROD24,CATG2,SUP36,Solar Eclipse Sunglasses,Donec ut mauris eget massa tempor convallis.,4.0,33.3,65,
+PROD24,CATG2,SUP36,Solar Eclipse Sunglasses,Donec ut mauris eget massa tempor convallis.,4,33.3,65,
 PROD25,CATG1,SUP49,FusionX Gaming Console,Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum.,4.3,53.44,23,
 PROD26,CATG4,SUP12,Sonic Boom Resistance Bands,"Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.",3.4,89.8,45,
 PROD27,CATG5,SUP9,Stardust Makeup Brushes,Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis.,4.1,13.14,9,PROD1
@@ -31,11 +31,11 @@ PROD29,CATG2,SUP40,Satellite Silk Tie,Vestibulum sed magna at nunc commodo place
 PROD30,CATG1,SUP5,TitanX Noise-Canceling Headphones,Donec quis orci eget orci vehicula condimentum.,3.8,28.53,40,PROD22
 PROD31,CATG1,SUP2,Sparkle USB-C Hub,"Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo.",3.1,10.94,56,
 PROD32,CATG5,SUP47,Blissful Body Scrub,Suspendisse accumsan tortor quis turpis. Sed ante.,4.9,72.63,56,PROD48
-PROD33,CATG3,SUP34,Enchanted Fairy Lights,In hac habitasse platea dictumst. Etiam faucibus cursus urna.,5.0,11.72,23,
+PROD33,CATG3,SUP34,Enchanted Fairy Lights,In hac habitasse platea dictumst. Etiam faucibus cursus urna.,5,11.72,23,
 PROD34,CATG4,SUP26,Aurora Weightlifting Gloves,Donec dapibus. Duis at velit eu est congue elementum.,4.9,78.2,42,
 PROD35,CATG2,SUP45,Celestial Leggings,Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis.,4.3,74.5,60,
 PROD36,CATG3,SUP25,Serenity Wall Art,Proin risus. Praesent lectus.,3.1,36.09,51,
-PROD37,CATG4,SUP24,Aurora Weightlifting Gloves,Donec posuere metus vitae ipsum.,3.3,86.97,89,PROD38
+PROD37,CATG4,SUP24,Eclipse Yoga Mat,Donec posuere metus vitae ipsum.,3.3,86.97,89,PROD38
 PROD38,CATG1,SUP48,QuantumX Gaming Mouse,Nulla suscipit ligula in lacus.,3.2,23.55,43,PROD46
 PROD39,CATG5,SUP50,Stellar Eyeshadow Palette,"Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.",4.7,19.92,90,
 PROD40,CATG2,SUP29,Nebula Scarf,"Morbi ut odio. Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo.",4.3,11.74,42,PROD33
@@ -43,7 +43,7 @@ PROD41,CATG2,SUP4,Solar Flare Sweater,Nam dui.,3.2,37.11,89,PROD37
 PROD42,CATG1,SUP35,CyberX Gaming Keyboard,Nullam molestie nibh in lectus. Pellentesque at nulla.,4.9,48.89,73,
 PROD43,CATG3,SUP3,Sanctuary Plant Stand,Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis.,4.7,16.91,8,
 PROD44,CATG4,SUP1,Zenith Golf Club Set,Phasellus in felis.,4.6,29.17,86,
-PROD45,CATG5,SUP33,Blissful Body Scrub,Nullam molestie nibh in lectus. Pellentesque at nulla.,4.3,84.27,73,PROD49
+PROD45,CATG5,SUP33,Cosmic Perfume,Nullam molestie nibh in lectus. Pellentesque at nulla.,4.3,84.27,73,PROD49
 PROD46,CATG4,SUP7,Cosmic Compression Socks,Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros.,3.7,70.59,12,PROD27
 PROD47,CATG5,SUP37,Serenity Bath Bombs,"Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue.",4.6,44.43,94,
 PROD48,CATG3,SUP10,Tranquility Scented Candles,"Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa.",4.5,18.59,37,PROD2
