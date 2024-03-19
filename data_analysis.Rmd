@@ -10,6 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 
+library(DBI)
+library(RSQLite)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
 ```
 
 ## Connect to database
@@ -40,7 +47,7 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
          showlegend = FALSE)
 ```
 
-2.  Top 10 products based on the revenue generated
+2.  Top 10 products based on the Profit
 
 ```{r}
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
@@ -75,7 +82,7 @@ top_10_profit_data <- head(profit_data, 10)
 ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
-  labs(title = "Top 10 Profitable products", x = "Product ID", y = "Total Profit") +
+  labs(title = "Top 10 Most Profitable Products", x = "Product ID", y = "Total Profit") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.title = element_text(size = 12), 
@@ -83,6 +90,38 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
         plot.title = element_text(hjust = 0.5)) 
 
 ```
+
+Top 10 most selling products
+
+```{r}
+sales_data <- order_item %>%
+  group_by(product_id) %>%
+  summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
+  arrange(desc(Total_Sales))
+
+top_selling_products <- sales_data %>%
+  left_join(product, by = "product_id") %>%
+  select(product_id, product_name, Total_Sales) %>%
+  top_n(10, Total_Sales)
+
+```
+
+```{r}
+
+ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
+  geom_bar(stat = "identity") +
+  scale_fill_discrete(name = "product Name") + 
+  labs(title = "Top Most Selling Products", x = "Product ID", y = "Total Sales") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.title = element_text(size = 12), 
+        legend.text = element_text(size = 10), 
+        plot.title = element_text(hjust = 0.5))
+```
+
+
+
+
 
 3.  Comparing the effectiveness of each Advertisement Type
 
