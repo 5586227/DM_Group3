@@ -110,7 +110,7 @@ According to the E-R diagram and normalization s, we can list the logical schema
 
 -   ADVERTISE_IN([product_id]{.underline}, ad_id)
 
-#### Physical Schema \<update\>
+#### Physical Schema 
 
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 
@@ -183,10 +183,10 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 
     ```{sql connection=connect}
     CREATE TABLE IF NOT EXISTS SUPPLIER (
-      supplier_id VARCHAR(250) PRIMARY KEY, 
-      supplier_name VARCHAR(250) NOT NULL,
-      supplier_email VARCHAR(250) NOT NULL,
-      supplier_mobile VARCHAR(20) NOT NULL
+      supplier_id VARCHAR(50) PRIMARY KEY, 
+      supplier_name VARCHAR(50) NOT NULL,
+      supplier_email VARCHAR(50) NOT NULL UNIQUE,
+      supplier_mobile VARCHAR(20) NOT NULL UNIQUE
     );
     ```
 
@@ -265,29 +265,111 @@ Then, we created entities that are children entities and entities that have refe
 
 ### Task 2.1: Synthetic Data Generation
 
-The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform.
+The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform. We first generated the data for the parent entities to ensure that the referential integrity exists on the children entities or the entities that need a reference for foreign keys from parent entities
 
-The number of observation data generated for each entity was as followed:
+**Data generation for parent entities**
 
--   50 observations for ADDRESS
+1\. ADDRESS
 
--   50 observations for ADVERTISE_IN
+50 observations for the ADDRESS table were created using the following setting:
 
--   5 observations for ADVERTISEMENT
+![](images/ADDRESS data gen.png)
 
--   5 observations for CATEGORY
+As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
 
--   50 observations for CUSTOMER
+In addition, we have set the address_id, which is the primary of the table, to start with 'ADDR' and followed by a number.
 
--   5 observations for DISCOUNT
+![](images/ADDRESS 2 data gen .png)
 
--   100 observations for ORDER_DETAIL
+2\. CUSTOMER
 
--   100 observations for ORDER_ITEM
+50 observations for the CUSTOMER table were created using the following setting:
 
--   50 observations for PRODUCT
+![](images/CUSTOMER DATA GEN.png)
 
--   50 observations for SUPPLIER
+There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
+
+![](images/CUSTOMER 2 DATA GEN.png)
+
+![](images/CUSTOMER 3 DATA GEN.png)
+
+3\. DISCOUNT
+
+5 observations for the DISCOUNT table were created using the following setting:
+
+![](images/DISCOUNT DATA GEN.png)
+
+For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
+
+![](images/DISCOUNT 2 DATA GEN.png)
+
+4\. ADVERTISEMENT
+
+5 observations for the ADVERTISEMENT table were created using the following setting:
+
+![](images/ADVERTISEMENT DATA GEN.png)
+
+We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
+
+![](images/ADVERTISEMENT 2 DATA GEN.png)
+
+![](images/ADVERTISEMENT 3 DATA GEN.png)
+
+5\. SUPPLIER
+
+50 observations for the SUPPLIER table were created using the following setting:
+
+![](images/SUPPLIER DATA GEN.png)
+
+We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
+
+![](images/SUPPLIER 2 DATA GEN.png)
+
+6\. CATEGORY
+
+5 observations for the CATEGORY table were created using the following setting:
+
+![](images/CATEGORY DATA GEN.png)
+
+We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
+
+![](images/CATEGORY 2 DATA GEN.png)
+
+**Data generation for children entities**
+
+7\. PRODUCT
+
+50 observations for the PRODUCT table were created using the following setting:
+
+![](images/PRODUCT DATA GEN.png)
+
+There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
+
+![](images/PRODUCT 2 DATA GEN.png)
+
+![](images/PRODUCT 3 DATA GEN.png)
+
+8\. ORDER_DETAIL
+
+100 observations for the ORDER_DETAIL table were created using the following setting:
+
+![](images/ORDER_DETAIL DATA GEN.png)
+
+We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
+
+![](images/ORDER_DETAIL 2 DATA GEN.png)
+
+9\. ORDER_ITEM
+
+100 observations for the ORDER_ITEM table were created using the following setting:
+
+![](images/ORDER_ITEM DATA GEN.png)
+
+10\. ADVERTISE_IN
+
+50 observations for the ADVERTISE_IN table were created using the following setting:
+
+![](images/ADVERTISE_IN DATA GEN.png)
 
 ### Task 2.2: Data Import and Quality Assurance
 
