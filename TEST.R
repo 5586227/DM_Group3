@@ -3,47 +3,7 @@ library(readr)
 library(RSQLite)
 library(lubridate)
 
-# Function to read CSV files from a directory and categorize them into different data frames
-read_and_categorize_csv <- function(directory) {
-  # Get list of CSV files in the directory
-  csv_files <- list.files(directory, pattern = "\\.csv$", full.names = TRUE)
-  
-  # Initialize a list to store data frames
-  data_frames <- list(
-    Category = NULL,
-    Customer = NULL,
-    Orders = NULL,
-    Payment = NULL,
-    Product = NULL,
-    Promotion = NULL,
-    Sales = NULL,
-    Settlement = NULL,
-    Supplier = NULL
-  )
-  
-  # Loop through each CSV file
-  for (csv_file in csv_files) {
-    # Read CSV file into a data frame
-    data <- read.csv(csv_file)
-    
-    # Extract file name without extension
-    file_name <- tools::file_path_sans_ext(basename(csv_file))
-    
-    # Convert column names to lowercase
-    colnames(data) <- tolower(colnames(data))
-    
-    # Determine which data frame to store the data
-    df_name <- sub("s$", "", file_name)  # Remove plural form
-    if (df_name %in% names(data_frames)) {
-      data_frames[[df_name]] <- rbind(data_frames[[df_name]], data)
-      cat("Variables in", df_name, "data frame:\n")
-      print(names(data_frames[[df_name]]))
-    }
-  }
-  
-  # Return the list of data frames
-  return(data_frames)
-}
+
 
 # Define function to check email
 isValidEmail <- function(x) {
@@ -107,32 +67,57 @@ dbDisconnect(my_connection)
 
 
 
+# Function to read CSV files from a directory and categorize them into different data frames
+read_csv <- function(directory) {
+  csv_files <- list.files(directory, pattern = "\\.csv$", full.names = TRUE)
+  
+  # Initialize a list to store data frames
+  data_frames <- list(
+    customer <- NULL,
+    product <- NULL,
+    address <- NULL,
+    discount <- NULL,
+    supplier <- NULL,
+    category <- NULL,
+    advertisement <- NULL,
+    advertise_in <- NULL,
+    order_item <- NULL,
+    order_detail <- NULL)
+  
+  # Loop through each CSV file
+  for (csv_file in csv_files) {
+    # Read CSV file into a data frame
+    data <- read.csv(csv_file)
+    
+    # Extract file name without extension
+    file_name <- tools::file_path_sans_ext(basename(csv_file))
 
-
-
-
-
-
-
-# Return the list of data frames
-return(data_frames)
+    # Determine which data frame to store the data
+    df_name <- sub("s$", "", file_name)  # Remove plural form
+    if (df_name %in% names(data_frames)) {
+      data_frames[[df_name]] <- rbind(data_frames[[df_name]], data)
+      cat("Variables in", df_name, "data frame:\n")
+      print(names(data_frames[[df_name]]))
+    }
+  }
+  return(data_frames)
 }
 
+
 # Directory containing CSV files
-directory <- "Data_upload"
-
-
+directory <- "data_upload"
 
 # Read CSV files from the directory and categorize them into data frames
-data_frames <- read_and_categorize_csv(directory)
+data_frames <- read_csv(directory)
 
 # Access each data frame by its name
-Category <- data_frames$Category
-Customer <- data_frames$Customer
-Orders <- data_frames$Orders
-Payment <- data_frames$Payment
-Product <- data_frames$Product
-Promotion <- data_frames$Promotion
-Sales <- data_frames$Sales
-Settlement <- data_frames$Settlement
-Supplier <- data_frames$Supplier
+customer <- data_frames$customer
+product <- data_frames$product
+address <- data_frames$address
+discount <- data_frames$discount
+supplier <- data_frames$supplier
+category <- data_frames$category
+advertisement <- data_frames$advertisement
+advertise_in <- data_frames$advertise_in
+order_item <- data_frames$order_item
+order_detail <- data_frames$order_detail
