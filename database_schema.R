@@ -1,3 +1,6 @@
+# Load required package
+library(RSQLite)
+
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
