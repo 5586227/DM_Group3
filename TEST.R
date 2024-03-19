@@ -2,16 +2,42 @@
 library(RSQLite)
 
 # Read Files
-customer <- readr::read_csv("data_upload/CUSTOMER.csv")
-address <- readr::read_csv("data_upload/ADDRESS.csv")
-category <- readr::read_csv("data_upload/CATEGORY.csv")
-supplier <- readr::read_csv("data_upload/SUPPLIER.csv")
-discount <- readr::read_csv("data_upload/DISCOUNT.csv")
-product <- readr::read_csv("data_upload/PRODUCT.csv")
-order_item <- readr::read_csv("data_upload/ORDER_ITEM.csv")
-order_detail <- readr::read_csv("data_upload/ORDER_DETAIL.csv")
-advertisement <- readr::read_csv("data_upload/ADVERTISEMENT.csv")
-advertise_in <- readr::read_csv("data_upload/ADVERTISE_IN.csv")
+csv_files <- list.files("data_upload", pattern = "\\.csv$", full.names = TRUE)
+
+# Initialize a list to store data frames
+data_frames <- list(
+  CUSTOMER = NULL,
+  PRODUCT = NULL,
+  ADDRESS = NULL,
+  DISCOUNT = NULL,
+  SUPPLIER = NULL,
+  CATEGORY = NULL,
+  ADVERTISEMENT = NULL,
+  ADVERTISE_IN = NULL,
+  ORDER_ITEM = NULL,
+  ORDER_DETAIL = NULL
+)
+
+# Loop through each CSV file
+for (csv_file in csv_files) {
+  data <- read.csv(csv_file)
+  file_name <- tools::file_path_sans_ext(basename(csv_file))
+  if (file_name %in% names(data_frames)) {
+    data_frames[[file_name]] <- rbind(data_frames[[file_name]], data)
+  }
+}
+
+# Access each data frame by its name
+customer <- data_frames$CUSTOMER
+product <- data_frames$PRODUCT
+address <- data_frames$ADDRESS
+discount <- data_frames$DISCOUNT
+supplier <- data_frames$SUPPLIER
+category <- data_frames$CATEGORY
+advertisement <- data_frames$ADVERTISEMENT
+advertise_in <- data_frames$ADVERTISE_IN
+order_item <- data_frames$ORDER_ITEM
+order_detail <- data_frames$ORDER_DETAIL
 
 # CUSTOMER
 #Check duplicate pk
