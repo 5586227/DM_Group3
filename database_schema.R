@@ -107,8 +107,8 @@ dbExecute(connect, "
           CREATE TABLE IF NOT EXISTS SUPPLIER (
             supplier_id VARCHAR(50) PRIMARY KEY, 
             supplier_name VARCHAR(50) NOT NULL,
-            supplier_email VARCHAR(50) NOT NULL,
-            supplier_mobile VARCHAR(20) NOT NULL
+            supplier_email VARCHAR(50) NOT NULL UNIQUE,
+            supplier_mobile VARCHAR(20) NOT NULL UNIQUE
           );
 ")
 

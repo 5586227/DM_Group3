@@ -24,8 +24,14 @@ invalid_customer_lastname <- customer[!grepl("^[A-Z][a-z]*$", customer$last_name
 #Check email format
 invalid_customer_email <- customer[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), c("customer_id", "customer_email")]
 
+#Check duplicate email
+duplicate_customer_email <- customer[duplicated(customer$customer_email), c("customer_id", "customer_email")]
+
 #Check format of mobile number (+xx xxx xxx xxxx)
 invalid_customer_mobile <- customer[!grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", customer$customer_mobile), c("customer_id", "customer_mobile")]
+
+#Check duplicate mobile
+duplicate_customer_mobile <- customer[duplicated(customer$customer_mobile), c("customer_id", "customer_mobile")]
 
 #Check if address_id exists in the ADDRESS table
 invalid_address_fk <- customer[!customer$address_id %in% address$address_id, c("customer_id", "address_id")]
@@ -41,8 +47,10 @@ na_customer_customer_mobile <- customer[is.na(customer$customer_mobile), c("cust
 bad_customer_record <- unique(c(duplicate_customer_id$customer_id,
                                 invalid_customer_firstname$customer_id,
                                 invalid_customer_lastname$customer_id, 
-                                invalid_customer_email$customer_id, 
+                                invalid_customer_email$customer_id,
+                                duplicate_customer_email$customer_id,
                                 invalid_customer_mobile$customer_id,
+                                duplicate_customer_mobile$customer_id,
                                 invalid_address_fk$customer_id,
                                 na_customer_customer_id$customer_id,
                                 na_customer_first_name$customer_id,
@@ -109,8 +117,14 @@ invalid_supplier_name <- supplier[!grepl("^[A-Za-z,.-]+( [A-Za-z,.-]+)*$", suppl
 #Check email format
 invalid_supplier_email <- supplier[!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), c("supplier_id", "supplier_email")]
 
+#Check duplicate email
+duplicate_supplier_email <- supplier[duplicated(supplier$supplier_email), c("supplier_id", "supplier_email")]
+
 #Check format of mobile number (+xx xxx xxx xxxx)
 invalid_supplier_mobile <- supplier[!grepl("^^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", supplier$supplier_mobile), c("supplier_id", "supplier_mobile")]
+
+#Check duplicate mobile
+duplicate_supplier_mobile <- supplier[duplicated(supplier$supplier_mobile), c("supplier_id", "supplier_mobile")]
 
 #Check for missing data
 na_supplier_supplier_id <- supplier[is.na(supplier$supplier_id), "supplier_id"]
@@ -122,7 +136,9 @@ na_supplier_supplier_mobile <- supplier[is.na(supplier$supplier_mobile), c("supp
 bad_supplier_record <- unique(c(duplicate_supplier_id$supplier_id,
                                 invalid_supplier_name$supplier_id,
                                 invalid_supplier_email$supplier_id,
+                                duplicate_supplier_email$supplier_id,
                                 invalid_supplier_mobile$supplier_id,
+                                duplicate_supplier_mobile$supplier_id,
                                 na_supplier_supplier_id$supplier_id, 
                                 na_supplier_supplier_name$supplier_id,
                                 na_supplier_supplier_email$supplier_id,
