@@ -46,6 +46,9 @@ jobs:
         run: Rscript database_schema.R
         # Render database schema
 
+      - name: Validate data and load into database
+        run: Rscript data_validation_and_load.R
+
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         # Use ad-m/github-push-action action to push changes
