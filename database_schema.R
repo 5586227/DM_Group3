@@ -5,6 +5,14 @@ library(RSQLite)
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
+# 检查数据库连接是否成功
+if (inherits(connect, "SQLiteConnection")) {
+  print("数据库连接成功")
+} else {
+  print("数据库连接失败")
+}
+
+
 # Create ADDRESS Table
 dbExecute(connect, "
           CREATE TABLE IF NOT EXISTS ADDRESS (

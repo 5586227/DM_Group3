@@ -210,7 +210,7 @@ sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(o
 #Get the top 10 cities for sales
 top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
 
-top_10_sales_per_region <- head(top_5_sales_per_region,10)
+top_10_sales_per_region <- head(top_10_sales_per_region,10)
 
 #Bar graph to show the sales per region
 
@@ -241,7 +241,7 @@ top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
 ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
-grid.arrange(ggplot1,ggplot2,nrow(1))
+grid.arrange(ggplot1,ggplot2)
 
 
 #revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
