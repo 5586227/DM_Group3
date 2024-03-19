@@ -367,7 +367,6 @@ connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
 insert_new_records <- function(connect, table_name, new_records) {
   existing_records <- dbGetQuery(connect, paste("SELECT * FROM", table_name))
-  new_records <- new_records[!duplicated(new_records), ]
   new_records <- new_records[!duplicated(new_records, existing_records), ]
   
   # Convert data types if needed
