@@ -112,7 +112,7 @@ According to the E-R diagram and normalization s, we can list the logical schema
 
 #### Physical Schema \<update\>
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
 
 library(DBI)
 library(RSQLite)
