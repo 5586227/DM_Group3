@@ -1098,3 +1098,9 @@ Purchase pattern analysis is significant for an e-commerce company as different 
 *Figure 5: Top 10 cities with maximum revenue and sales*
 
 Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
+
+![](images/Figure 4.jpeg)
+
+![](images/Figure 5.jpeg)
+
+![](images/Figure 6.jpeg)
