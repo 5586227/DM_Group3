@@ -36,7 +36,7 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         # Install packages if cache is not hit
-        run: R -e 'install.packages(c("DBI","RSQLite"))'
+        run: R -e 'install.packages(c("DBI"))'
         # Install required R packages
       
       - name: Create database schema
