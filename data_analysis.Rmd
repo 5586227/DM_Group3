@@ -302,9 +302,9 @@ custom_palette <- c("#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0")
 # Plotting the total marketplace fee for each category with bars in descending order and custom blue colors
 ggplot(category_fee, aes(x = reorder(category_name, -total_fee), y = total_fee, fill = category_name)) +
   geom_bar(stat = "identity") +
-  labs(title = "Total Marketplace Fee by Category", x = "Category", y = "Total Fee") +
+  labs(title = "Total Marketplace Fee by Category", x = "Category", y = "Total Fees Received") +
   scale_fill_manual(values = custom_palette) +  # Using custom blue color palette
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-                     
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")  # Remove legend
 ```
