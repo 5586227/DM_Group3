@@ -93,3 +93,46 @@ validate_and_ingest(data_frames$Supplier, "Supplier", "supplier_id")
 
 # Close database connection
 dbDisconnect(my_connection)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Return the list of data frames
+return(data_frames)
+}
+
+# Directory containing CSV files
+directory <- "Data_upload"
+
+
+
+# Read CSV files from the directory and categorize them into data frames
+data_frames <- read_and_categorize_csv(directory)
+
+# Access each data frame by its name
+Category <- data_frames$Category
+Customer <- data_frames$Customer
+Orders <- data_frames$Orders
+Payment <- data_frames$Payment
+Product <- data_frames$Product
+Promotion <- data_frames$Promotion
+Sales <- data_frames$Sales
+Settlement <- data_frames$Settlement
+Supplier <- data_frames$Supplier
