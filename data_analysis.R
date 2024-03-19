@@ -5,7 +5,7 @@ library(RSQLite)
 library(dplyr)
 library(ggplot2)
 #library(plotly)
-#library(gridExtra)
+library(gridExtra)
 
 
 
