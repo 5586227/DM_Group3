@@ -280,8 +280,27 @@ top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summ
 ```{r}
 #Calculating Marketplace fee
 merged_product_fee <- product %>%
-  inner_join(select(category, category_fee), by = "category_id")
-order_fee <- order %>%
-  inner_join(select(order, category_fee), by = "product_id"
-             
+  inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
+category_fee <- order_item %>%
+  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+  inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
+  filter(order_status == "Completed") %>%
+  mutate(marketplace_fee = order_quantity * unit_price * category_fee) %>%
+  group_by(category_id, category_name) %>%
+  summarise(total_fee = sum(marketplace_fee))
+
+#Visualise
+# Reordering categories based on total fee in descending order
+
+# Plotting the total marketplace fee for each category
+custom_palette <- c("#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0")
+
+# Plotting the total marketplace fee for each category with bars in descending order and custom blue colors
+ggplot(category_fee, aes(x = reorder(category_name, -total_fee), y = total_fee, fill = category_name)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Marketplace Fee by Category", x = "Category", y = "Total Fees Received") +
+  scale_fill_manual(values = custom_palette) +  # Using custom blue color palette
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")  # Remove legend
 ```
