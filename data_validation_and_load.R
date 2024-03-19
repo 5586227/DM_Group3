@@ -382,8 +382,8 @@ for (i in seq_along(tables)) {
   
   # Convert data types if needed (e.g., order_date column)
   if ("order_date" %in% colnames(existing) && "order_date" %in% colnames(new_records)) {
-    existing$order_date <- as.Date(existing$order_date, format = "%d/%m/%Y")
-    new_records$order_date <- as.Date(new_records$order_date, format = "%d/%m/%Y")
+    existing$order_date <- as.character(existing$order_date, format = "%d/%m/%Y")
+    new_records$order_date <- as.character(new_records$order_date, format = "%d/%m/%Y")
   }
   
   # Insert new records

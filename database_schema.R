@@ -1,19 +1,7 @@
 # Load required package
-library(DBI)
 library(RSQLite)
 
-# 错误处理
-tryCatch({
-  # 连接数据库
-  connect <- dbConnect(RSQLite::SQLite(), "database.db")
-  # 确认当前工作目录
-  print(getwd())
-  
-  # 其他操作
-  # ...
-}, error = function(e) {
-  print(paste("发生错误：", e))
-})
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
 
 # Create ADDRESS Table
