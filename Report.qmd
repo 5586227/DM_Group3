@@ -1099,8 +1099,28 @@ Purchase pattern analysis is significant for an e-commerce company as different 
 
 Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
 
+**Report 5: Analysis of Advertisement methods**
+
 ![](images/Figure 4.jpeg)
+
+*Figure 6: Sales of products per 1 advertisement of each type*
+
+We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Figure 6 shows that Footer ads on average have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign higher price for more efficient advertisement types to be charged from suppliers.
+
+**Report 6: Analysis of Marketplace transaction fees**
 
 ![](images/Figure 5.jpeg)
 
+*Figure 7: Comparing Marketplace fees to the sales in each Category of products*
+
+The marketplace is the mediator between the customer and seller, allowing convenience for both. This service is not free. Sellers pay fees for each transaction. These fees and advertisements make the marketplace profit. The fee varies depending on the category of goods. We compared the combined amount of fees for each sold item by category to find out which category brings the Marketplace more profit.
+
+On Figure 7 we see that the higher the sales of the Category, the more fees Marketplace earns on it. We consider increasing fees for the categories with higher sales and decreasing fees for the categories with low sales to maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular ones. Sports Equipment has the highest sales in terms of money, however, as we will see later most units are sold in the Electronics category.
+
+**Report 7: Analysis of Customers reviews on sales for each category.**
+
 ![](images/Figure 6.jpeg)
+
+*Figure 8: Average customers' rating for the category and category's sales in units*
+
+It was found that categories that have products with higher ratings have lower sales in units. This may appear wrong but most likely with the increase in sales the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
