@@ -33,11 +33,11 @@ jobs:
           restore-keys: ${{ runner.os }}-r-
           # Keys used when restoring cache
 
-      #- name: Install packages
-      #  if: steps.cache.outputs.cache-hit != 'true'
-      #  # Install packages if cache is not hit
-      #  run: R -e 'install.packages(c("DBI"))'
-      #  # Install required R packages
+      - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        # Install packages if cache is not hit
+        run: R -e 'install.packages(c("dplyr"))'
+        # Install required R packages
       
       - name: Create database schema
         run: Rscript database_schema.R
