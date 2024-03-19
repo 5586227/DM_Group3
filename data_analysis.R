@@ -17,20 +17,6 @@ top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(sto
 
 
 
-top_5_suppliers <- top_suppliers %>% 
-  arrange(desc(quantity)) %>% 
-  slice(1:5)
-
-# Create a bar plot using Plotly
-plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar', 
-        marker = list(color = 'skyblue')) %>%
-  layout(title = "Top 5 Suppliers by Stock",
-         xaxis = list(title = "Supplier ID"),
-         yaxis = list(title = "Stock on Hand"),
-         showlegend = FALSE)
-
-
-
 
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
