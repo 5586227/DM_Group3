@@ -143,16 +143,18 @@ print(total_sales_by_type)
 ```
 
 ```{r}
-# Vizualising the results
+# Visualizing the results
 
 ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +
-  geom_bar(stat = "identity", width = 0.5) +  # Adjust width here
+  geom_bar(stat = "identity", width = 0.5) + 
   scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +
   labs(title = "Total Quantity Sold by Product Type",
        x = "Product Type",
        y = "Total Quantity Sold") +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5))  
+
 
 
 ```
