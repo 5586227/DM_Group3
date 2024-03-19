@@ -110,7 +110,7 @@ According to the E-R diagram and normalization s, we can list the logical schema
 
 -   ADVERTISE_IN([product_id]{.underline}, ad_id)
 
-#### Physical Schema 
+#### Physical Schema
 
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 
@@ -273,67 +273,67 @@ The synthetic data of each table was created based on the normalised schema usin
 
 50 observations for the ADDRESS table were created using the following setting:
 
-![](images/ADDRESS data gen.png)
+![](images/ADDRESS%20data%20gen.png)
 
 As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
 
 In addition, we have set the address_id, which is the primary of the table, to start with 'ADDR' and followed by a number.
 
-![](images/ADDRESS 2 data gen .png)
+![](images/ADDRESS%202%20data%20gen%20.png)
 
 2\. CUSTOMER
 
 50 observations for the CUSTOMER table were created using the following setting:
 
-![](images/CUSTOMER DATA GEN.png)
+![](images/CUSTOMER%20DATA%20GEN.png)
 
 There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
 
-![](images/CUSTOMER 2 DATA GEN.png)
+![](images/CUSTOMER%202%20DATA%20GEN.png)
 
-![](images/CUSTOMER 3 DATA GEN.png)
+![](images/CUSTOMER%203%20DATA%20GEN.png)
 
 3\. DISCOUNT
 
 5 observations for the DISCOUNT table were created using the following setting:
 
-![](images/DISCOUNT DATA GEN.png)
+![](images/DISCOUNT%20DATA%20GEN.png)
 
 For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
 
-![](images/DISCOUNT 2 DATA GEN.png)
+![](images/DISCOUNT%202%20DATA%20GEN.png)
 
 4\. ADVERTISEMENT
 
 5 observations for the ADVERTISEMENT table were created using the following setting:
 
-![](images/ADVERTISEMENT DATA GEN.png)
+![](images/ADVERTISEMENT%20DATA%20GEN.png)
 
 We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
 
-![](images/ADVERTISEMENT 2 DATA GEN.png)
+![](images/ADVERTISEMENT%202%20DATA%20GEN.png)
 
-![](images/ADVERTISEMENT 3 DATA GEN.png)
+![](images/ADVERTISEMENT%203%20DATA%20GEN.png)
 
 5\. SUPPLIER
 
 50 observations for the SUPPLIER table were created using the following setting:
 
-![](images/SUPPLIER DATA GEN.png)
+![](images/SUPPLIER%20DATA%20GEN.png)
 
 We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
 
-![](images/SUPPLIER 2 DATA GEN.png)
+![](images/SUPPLIER%202%20DATA%20GEN.png)
 
 6\. CATEGORY
 
 5 observations for the CATEGORY table were created using the following setting:
 
-![](images/CATEGORY DATA GEN.png)
+![](images/CATEGORY%20DATA%20GEN.png)
 
 We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
 
-![](images/CATEGORY 2 DATA GEN.png)
+![](images/CATEGORY%202%20DATA%20GEN.png)
 
 **Data generation for children entities**
 
@@ -341,35 +341,35 @@ We have set the category_id, which is the primary of the table, to start with 'C
 
 50 observations for the PRODUCT table were created using the following setting:
 
-![](images/PRODUCT DATA GEN.png)
+![](images/PRODUCT%20DATA%20GEN.png)
 
 There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
 
-![](images/PRODUCT 2 DATA GEN.png)
+![](images/PRODUCT%202%20DATA%20GEN.png)
 
-![](images/PRODUCT 3 DATA GEN.png)
+![](images/PRODUCT%203%20DATA%20GEN.png)
 
 8\. ORDER_DETAIL
 
 100 observations for the ORDER_DETAIL table were created using the following setting:
 
-![](images/ORDER_DETAIL DATA GEN.png)
+![](images/ORDER_DETAIL%20DATA%20GEN.png)
 
 We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
 
-![](images/ORDER_DETAIL 2 DATA GEN.png)
+![](images/ORDER_DETAIL%202%20DATA%20GEN.png)
 
 9\. ORDER_ITEM
 
 100 observations for the ORDER_ITEM table were created using the following setting:
 
-![](images/ORDER_ITEM DATA GEN.png)
+![](images/ORDER_ITEM%20DATA%20GEN.png)
 
 10\. ADVERTISE_IN
 
 50 observations for the ADVERTISE_IN table were created using the following setting:
 
-![](images/ADVERTISE_IN DATA GEN.png)
+![](images/ADVERTISE_IN%20DATA%20GEN.png)
 
 ### Task 2.2: Data Import and Quality Assurance
 
@@ -982,7 +982,9 @@ product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
 discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
-# Creating a profit table that includes a total_profit (quantity x unit price) column for each product incorporating the discount percent and filtering out all "cancelled" orders.
+# Creating a profit table that includes a total_profit column for each product 
+#incorporating the discount percent 
+#filtering out all "cancelled" orders.
 
 profit_data <- order_item %>%
   inner_join(order_detail, by = "order_id") %>% 
@@ -991,24 +993,28 @@ profit_data <- order_item %>%
   left_join(discount, by = c("promo_code" = "promo_code")) %>%
   mutate(
     discount_percentage = ifelse(is.na(discount_percent), 0, discount_percent), 
-    total_profit = (order_quantity * unit_price) * (1 - discount_percentage / 100)
+    total_profit = (order_quantity * unit_price) *
+      (1 - discount_percentage / 100)
   ) %>%
   group_by(product_id, product_name) %>%
   summarise(
     total_profit = sum(total_profit), 
     .groups = 'drop'
   ) %>%
-  arrange(desc(total_profit)) # Arranging the total_profit from highest to lowest
+  arrange(desc(total_profit)) 
 
 # Selecting the top 10 profitable products
 top_10_profit_data <- head(profit_data, 10)
 
 
 # Visualizing the results 
-ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
+ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), 
+                               y = total_profit, 
+                               fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
-  labs(title = "Top 10 Most Profitable Products", x = "Product ID", y = "Total Profit") +
+  labs(title = "Top 10 Most Profitable Products", x = "Product ID", 
+       y = "Total Profit") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.title = element_text(size = 12), 
@@ -1017,7 +1023,8 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 # Top Most Selling Products
 
-# Creating a sales that that includes the total quantity sold for each product and selecting the top 10.
+# Creating a sales that that includes the total quantity sold for each product 
+# selecting the top 10.
 sales_data <- order_item %>%
   group_by(product_id) %>%
   summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
@@ -1029,16 +1036,28 @@ top_selling_products <- sales_data %>%
   top_n(10, Total_Sales)
 
 # Visualizing the results
-ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
+ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales),
+                                 y = Total_Sales, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
-  labs(title = "Top Most Selling Products", x = "Product ID", y = "Total Sales") +
+  labs(title = "Top Most Selling Products", x = "Product ID",
+       y = "Total Sales") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.title = element_text(size = 12), 
         legend.text = element_text(size = 10), 
         plot.title = element_text(hjust = 0.5))
 ```
+Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
+
+Some products, including the "Aurora Weightlifting Gloves", "Cosmic Compression Socks" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
+
+The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
+
+Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
+
+
+
 
 ```{r}
 #Report 2
@@ -1074,9 +1093,11 @@ total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
 print(total_sales_by_type)
 
 # Visualizing the results
-ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +
+ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold,
+                                fill = Product_Type)) +
   geom_bar(stat = "identity", width = 0.5) +  # Adjust width here
-  scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +
+  scale_fill_manual(values = c("Bundled" = "skyblue",
+                               "Individual" = "salmon")) +
   labs(title = "Total Quantity Sold by Product Type",
        x = "Product Type",
        y = "Total Quantity Sold") +
@@ -1084,42 +1105,78 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme(legend.position = "none") 
 ```
 
+
+As seen in Table 1, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
+
+Optimizing bundle offerings by analyzing and aligning them with customer preferences, based on the average product ratings, can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer some flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
+
+
+
+
+
 ```{r Report 3}
 
 #SQL Query to get the sales over a time period 
 
-time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
+time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, 
+                                        order_quantity,order_date FROM 
+                                        ORDER_DETAIL ORDDET INNER JOIN 
+                                        ORDER_ITEM ORDITM ON ORDITM.order_id =
+                                        ORDDET.order_id')
 #test
 
 #Conversion of order_date field to appropiate format
-time_period_sales$order_date <- as.Date(time_period_sales$order_date, format="%d/%m/%Y")
+time_period_sales$order_date <- as.Date(time_period_sales$order_date, 
+                                        format="%d/%m/%Y")
 
-time_period_sales$order_date_mnth_yr <- format(time_period_sales$order_date,'%Y/%m')
+time_period_sales$order_date_mnth_yr <- format(
+  time_period_sales$order_date,'%Y/%m')
 
 #Conversion of order_date field to factors with levels
 
-time_period_sales$order_date_mnth_yr <- factor(time_period_sales$order_date_mnth_yr, levels=c('2022/06','2022/07','2022/08','2022/09','2022/10','2022/11','2022/12','2023/01','2023/02','2023/03','2023/04','2023/05','2023/06','2023/07','2023/08','2023/09','2023/10','2023/11','2023/12'))
+time_period_sales$order_date_mnth_yr <- factor(
+  time_period_sales$order_date_mnth_yr, levels=c('2022/06',
+'2022/07','2022/08',
+'2022/09','2022/10','2022/11','2022/12',
+'2023/01','2023/02','2023/03','2023/04',
+'2023/05','2023/06','2023/07','2023/08'
+,'2023/09','2023/10','2023/11','2023/12'))
 
 #Group by sales for each year
-time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%>%summarise(quantity=sum(order_quantity))
+time_period_sales_group_by<- time_period_sales %>% 
+group_by(order_date_mnth_yr)%>%
+summarise(quantity=sum(order_quantity))
 
 # Time series graph to show the quantity sold over a given time period
 
-(ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/month)')+ylab('Quantity Sold'))
+(ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr,
+y = quantity,group=1)) +
+geom_point()+geom_line()+
+xlab('Time Period(year/month)')+ylab('Quantity Sold'))
 ```
 
 ```{r}
 #Report 4:
-
+#| column: screen
+#| out-width: 100%
 #SQL query to join customer and order tables to get the sales for each city
 
-cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
+cust_order_join<- RSQLite::dbGetQuery(connect, 
+                                      'SELECT city,ORDITM.order_quantity 
+                                      FROM ADDRESS ADR 
+                                      INNER JOIN CUSTOMER CUST 
+                                      ON ADR.address_id= CUST.address_id 
+                                      INNER JOIN ORDER_DETAIL ORDDET 
+                                      ON ORDDET.customer_id = CUST.customer_id 
+                                      INNER JOIN ORDER_ITEM ORDITM 
+                                      ON ORDITM.order_id = ORDDET.order_id')
 
 #cust_order_join<- inner_join(Customer,Order,by="customer_id")
 
 #Grouping by city to get the overall sales per city
 
-sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))
+sales_per_region<- cust_order_join %>% group_by(city)%>%
+  summarise(quantity=sum(order_quantity))
 
 #Get the top 10 cities for sales
 top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
@@ -1128,51 +1185,90 @@ top_10_sales_per_region <- head(top_10_sales_per_region,10)
 
 #Bar graph to show the sales per region
 
-ggplot1 <- ggplot(top_10_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
+ggplot1 <- ggplot(top_10_sales_per_region, 
+aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  
+geom_bar(stat='identity') + 
+scale_fill_gradient(low = "lightblue", high = "darkblue")+ 
+xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
 
 #Table to get the revenue per city 
 
-cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+cust_order_product_join <-RSQLite::dbGetQuery(connect, 
+'SELECT city,ORDITM.order_quantity,unit_price 
+FROM ADDRESS ADR 
+INNER JOIN 
+CUSTOMER CUST ON ADR.address_id= CUST.address_id 
+INNER JOIN 
+ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id 
+INNER JOIN 
+ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id 
+INNER JOIN
+PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
 #SQL Query to get the top 5 products
 
-top_5_products <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price,PRD.product_id,PRD.product_name FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+top_5_products <-RSQLite::dbGetQuery(connect, 
+'SELECT city,ORDITM.order_quantity,unit_price,
+PRD.product_id,PRD.product_name FROM 
+ADDRESS ADR INNER JOIN 
+CUSTOMER CUST ON ADR.address_id= CUST.address_id 
+INNER JOIN 
+ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id 
+INNER JOIN 
+ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id 
+INNER JOIN 
+PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
 #Revenue calculation
 
-cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price
+cust_order_product_join$revenue<- cust_order_product_join$order_quantity*
+cust_order_product_join$unit_price
 
 #Grouping by the get the revenue for each city
-revenue_per_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+revenue_per_region <- cust_order_product_join %>% group_by(city) %>% 
+  summarise(rev= sum(revenue))
 
 #Get the top 10 cities for revenue
 
-top_5_revenue_per_region <- revenue_per_region[order(-revenue_per_region$rev),]
+top_5_revenue_per_region <-
+revenue_per_region[order(-revenue_per_region$rev),]
 
 top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
 #Bar graph to show the revenue per region
 
-ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
+ggplot2 <- ggplot(top_5_revenue_per_region,aes(x = reorder(city, -rev),
+y=rev,fill=rev))+ 
+geom_bar(stat='identity')+
+scale_fill_gradient(low = "lightblue", high = "darkblue")+
+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
-grid.arrange(ggplot1,ggplot2)
 
 
-#revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+#Revenue calculation to show the top 5 products for each city 
+#with maximum revenue
 
-#Revenue calculation to show the top 5 products for each city with maximum revenue
+top_5_products$revenue <-
+top_5_products$order_quantity*top_5_products$unit_price
 
-top_5_products$revenue <- top_5_products$order_quantity*top_5_products$unit_price
+top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% 
+summarise(rev= sum(revenue))
 
-top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summarise(rev= sum(revenue))
+#Table to show the products that are 
+#sold for the top 2 revenue producing cities
+(top_5_products_region <- top_5_products_region %>% 
+filter(city %in% head(top_5_revenue_per_region$city,2))
+%>% select(product_name))
 
-#Table to show the products that are sold for the top 2 revenue producing cities
-(top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
+plot(ggplot1)
+plot(ggplot2)
 ```
+
 
 ```{r}
 #Report 5
-# Joining Product with advertise_in and advertisement to get advertisement details
+# Joining Product with advertise_in and advertisement to get advertisement 
+#details
 advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
 advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
 
@@ -1181,7 +1277,7 @@ advertisement_data <- product %>%
   inner_join(advertisement, by = "ad_id") %>%
   group_by(product_id, product_name, ad_place) %>%
   summarise(
-    total_frequency = sum(ad_frequency), # Sum the total frequency of ads for each ad place
+    total_frequency = sum(ad_frequency),
     .groups = 'drop' )
 
 
@@ -1193,11 +1289,13 @@ number_of_sales <- product %>%
 
 
 
-merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
+merged_data <- merge(number_of_sales, advertisement_data, by = 
+c("product_id", "product_name"))
 
 
 
-# Analyzing which ad place is most effective by calculating a ratio of total sales to total ad frequency
+# Analyzing which ad place is most effective by calculating a 
+#ratio of total sales to total ad frequency
 effective_ad_type <- merged_data %>%
   group_by(ad_place) %>%
   summarise( total_sales = sum(sales_count), 
@@ -1208,65 +1306,115 @@ effective_ad_type <- merged_data %>%
 
 
 
-ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
-  geom_col(show.legend = FALSE, width = 0.5) + # Adjust bar width here
-  scale_fill_brewer(palette = "Paired") + # Use a more appealing color palette
-  labs(title = "Effectiveness of Advertisement Types", 
-       x = "Ad Place", 
-       y = "Total Sales / Total Frequency") +
-  theme_minimal(base_size = 14) + # Increase base text size for better readability
-  theme(plot.title = element_text(hjust = 0.5, size = 20), # Center and style title
-        axis.title = element_text(size = 16), # Style axis titles
-        axis.text = element_text(size = 12), # Style axis texts
-        panel.grid.major = element_blank(), # Remove major grid lines
-        panel.grid.minor = element_blank(), # Remove minor grid lines
-        panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
+ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness,
+fill = ad_place))+geom_col(show.legend = FALSE, width = 0.5) +
+# Adjust bar width here
+scale_fill_brewer(palette = "Paired") +
+# Use a more appealing color palette
+labs(title = "Effectiveness of Advertisement Types",
+x = "Ad Place",
+y = "Total Sales / Total Frequency") +
+theme_minimal(base_size = 14) +
+# Increase base text size for better readability
+theme(plot.title = element_text(hjust = 0.5, size = 20),
+# Center and style title
+axis.title = element_text(size = 16),
+# Style axis titles
+axis.text = element_text(size = 12),
+# Style axis texts
+panel.grid.major = element_blank(),
+# Remove major grid lines
+panel.grid.minor = element_blank(),
+# Remove minor grid lines
+panel.background = element_rect(fill = "white", colour = "grey50"))
+#Style panel background
 
 
 ```
 
 ```{r}
-# #Report 6
-# #Calculating Marketplace fee
-# merged_product_fee <- product %>%
-#   inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
-# category_fee <- order_item %>%
-#   inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
-#   inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
-#   filter(order_status == "Completed") %>%
-#   mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
-#   mutate(cat_total_sales = order_quantity * unit_price) %>%
-#   group_by(category_id, category_name) %>%
-#   summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>% inner_join(select(category_id, Average_Rating), by= 'category_id')
-# 
-# 
-# #Visualise
-# 
-# 
-# #Graph to compare Category sales VS Category Fee
-# ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
-#   geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
-#   geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
-#   scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
-#   labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+#Report 6
+
+## Calculating Average Review for each category
+
+category <- RSQLite::dbGetQuery(connect,'SELECT * FROM CATEGORY')
+
+# Join product_df with category_df to include category names
+product_with_category <- product %>%
+  inner_join(category, by = "category_id")
+
+
+avg_rating_by_category <- product_with_category %>%
+  group_by(category_id, category_name) %>%
+  summarise(Average_Rating = round(mean(product_rating, na.rm = TRUE),2),
+            .groups = 'drop') %>%
+  arrange(category_id)
+
+
+#Calculating Marketplace fee
+merged_product_fee <- product %>%
+  inner_join(select(category, category_id, category_fee, category_name), 
+             by = "category_id")
+category_fee <- order_item %>%
+  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+  inner_join(select(merged_product_fee, product_id, product_name, unit_price, 
+                    category_fee, category_id, category_name), 
+             by = "product_id") %>%
+  filter(order_status == "Completed") %>%
+  mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+  mutate(cat_total_sales = order_quantity * unit_price) %>%
+  group_by(category_id, category_name) %>%
+  summarise(total_fee = sum(marketplace_fee), 
+            total_sales = sum(cat_total_sales), 
+            total_sales_unit = sum(order_quantity)) %>% 
+  inner_join(select(avg_rating_by_category, category_id, Average_Rating),
+               by= 'category_id')
+
+
+#Visualise
+
+
+#graph to compare category sales vs category fee
+ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", 
+           position = position_dodge(width = 0.9), alpha = 0.7) +
+  geom_bar(aes(y = total_fee, fill = "marketplace fee"), stat = "identity", 
+           position = position_dodge(width = 0.9)) +
+  scale_fill_manual(name = "category", values = 
+                      c("marketplace fee" = "#3182bd", 
+                        "Total Sales" = "#31a354")) +
+  labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", 
+       y = "Amount, GBP") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
 ```{r}
-# #Report 7
-# # Graph to compare Category sales VS Category average rating
-# ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
-#   geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
-#   geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
-#   geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
-#             color = "black", size = 4, hjust = 0.5) +
-#   scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
-#   labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-#   scale_y_continuous(name = "Total Sales in Units")
+#Report 7
+# Graph to compare Category sales VS Category average rating
+ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
+  geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"),
+           stat = "identity", position = position_dodge(width = 0.9),
+           alpha = 0.6) +
+  geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), 
+           stat = "identity", position = position_dodge(width = 0.9), 
+           alpha = 1) +
+  geom_text(aes(label = sprintf("%.2f", Average_Rating), 
+                y = Average_Rating, x = category_name),
+            color = "black", size = 4, hjust = 0.5) +
+  scale_fill_manual(name = "Category", values = 
+                      c("Average Rating" = "#FFCC80", 
+                        "Total Sales in Units" = "#31a354")) +
+  labs(title = "Average Rating vs Total Sales in Units by Category",
+       x = "Category", y = "Total Sales in Units") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(name = "Total Sales in Units")
+```
+
+```{r}
+#pdf("Report.pdf",width=20,height = 8)
 ```
 
 ### Task 4.2: Comprehensive Reporting with Quarto
@@ -1277,28 +1425,6 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
 
 ![Figure 2](images/Figure%202.jpeg)
 
-Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
-
-Some products, including the "Aurora Weightlifting Gloves", "Cosmic Compression Socks" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
-
-The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
-
-Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
-
-**Report 2: Bundled vs Individual Products**
-
-| Product_Type | Total_Quantity_Sold |
-|:-------------|--------------------:|
-| Bundled      |                 491 |
-| Individual   |                 499 |
-
-: *Table 1*
-
-![Figure 3](images/Figure%203.jpeg)
-
-As seen in Table 1, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
-
-Optimizing bundle offerings by analyzing and aligning them with customer preferences, based on the average product ratings, can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer some flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
 
 **Report 3: Sales Trend over the given time period**
 
