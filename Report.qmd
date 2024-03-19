@@ -84,11 +84,11 @@ Functional Dependency:
 
 This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and stores street, city, and country as other attributes.
 
-In summary, four new entities were created from the normalization, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS. This resulted in a total of nine entities in our schema.
+In summary, four new entities were created from the normalization, which were ORDER_DETAIL, ORDER_ITEM, DISCOUNT, and ADDRESS. This resulted in a total of ten entities in our schema.
 
 **Logical Schema**
 
-According to the E-R diagram and normalization s, we can list **the** logical schema as follows:
+According to the E-R diagram and normalization s, we can list the logical schema as follows:
 
 -   CUSTOMER([customer_id]{.underline}, first_name, last_name, gender, email, mobile_no, address_id)
 
@@ -132,47 +132,47 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 1.  Create CUSTOMER entity
 
     ```{sql connection=connect}
-    CREATE TABLE CUSTOMER (
-      customer_id VARCHAR(250) PRIMARY KEY, 
-      first_name VARCHAR(250) NOT NULL,
-      last_name VARCHAR(250) NOT NULL,
+    CREATE TABLE IF NOT EXISTS CUSTOMER (
+      customer_id VARCHAR(50) PRIMARY KEY, 
+      first_name VARCHAR(50) NOT NULL,
+      last_name VARCHAR(50) NOT NULL,
       gender VARCHAR(10),
-      customer_email VARCHAR(250) NOT NULL,
-      customer_mobile VARCHAR(15) NOT NULL
+      customer_email VARCHAR(50) NOT NULL UNIQUE,
+      customer_mobile VARCHAR(15) NOT NULL UNIQUE,
+      address_id VARCHAR(50) NOT NULL,
+      FOREIGN KEY (address_id) REFERENCES ADDRESS (address_id)
     );
     ```
 
 2.  Create ADDRESS entity
 
     ```{sql connection=connect}
-    CREATE TABLE ADDRESS (
-      postcode VARCHAR(20) PRIMARY KEY, 
-      customer_id INT NOT NULL,
+    CREATE TABLE IF NOT EXISTS ADDRESS (
+      address_id VARCHAR(50) PRIMARY KEY,
+      postcode VARCHAR(20) NOT NULL, 
       street VARCHAR(50) NOT NULL,
       city VARCHAR(100) NOT NULL,
-      country VARCHAR(100) NOT NULL,
-      FOREIGN KEY (customer_id)
-        REFERENCES CUSTOMER (customer_id)
-    );
+      country VARCHAR(100) NOT NULL
+      );
     ```
 
 3.  Create DISCOUNT entity
 
     ```{sql connection=connect}
-    CREATE TABLE DISCOUNT (
+    CREATE TABLE IF NOT EXISTS DISCOUNT (
       promo_code VARCHAR(20) PRIMARY KEY, 
-      discount_amount INT NOT NULL
+      discount_percent INT NOT NULL
     );
     ```
 
 4.  Create ADVERTISEMENT entity
 
     ```{sql connection=connect}
-    CREATE TABLE ADVERTISEMENT (
-      ad_id VARCHAR(250) PRIMARY KEY, 
+    CREATE TABLE IF NOT EXISTS ADVERTISEMENT (
+      ad_id VARCHAR(50) PRIMARY KEY, 
       ad_frequency INT NOT NULL,
       ad_place VARCHAR(50) NOT NULL,
-      ad_price DECIMAL(10, 2) NOT NULL, 
+      ad_price DECIMAL(10, 2) NOT NULL
     );
     ```
 
@@ -190,76 +190,71 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 6.  Create CATEGORY entity
 
     ```{sql connection=connect}
-    CREATE TABLE CATEGORY (
-      category_id VARCHAR(250) PRIMARY KEY, 
-      category_name VARCHAR(250) NOT NULL,
-      category_fee INT NOT NULL,
+    CREATE TABLE IF NOT EXISTS CATEGORY (
+      category_id VARCHAR(50) PRIMARY KEY, 
+      category_name VARCHAR(50) NOT NULL,
+      category_fee INT NOT NULL
     );
     ```
 
-Then, we created children entities, which are PRODUCT
+Then, we created entities that are children entities and entities that have referential integrity, which consist of PRODUCT, ORDER_DETAIL, ORDER_ITEM, and ADVERTISE_IN
 
-6.  Create PRODUCT entity
+7.  Create PRODUCT entity
 
     ```{sql connection=connect}
-    CREATE TABLE PRODUCT (
-      product_id VARCHAR(250) PRIMARY KEY, 
-      product_name VARCHAR(250) NOT NULL,
-      product_description VARCHAR(250),
+    CREATE TABLE IF NOT EXISTS PRODUCT (
+      product_id VARCHAR(50) PRIMARY KEY, 
+      product_name VARCHAR(50) NOT NULL,
+      product_description VARCHAR(50),
       product_rating DECIMAL(5,2),
       unit_price DECIMAL(10,2) NOT NULL,
       stock_on_hand INT NOT NULL,
-      main_product_id INT,
-      category_id INT NOT NULL,
-      supplier_id INT NOT NULL,
-      FOREIGN KEY (supplier_id)
-        REFERENCES SUPPLIER (supplier_id),
-      FOREIGN KEY (category_id)
-        REFERENCES CATEGORY (category_id)
+      main_product_id VARCHAR(50),
+      category_id VARCHAR(50) NOT NULL,
+      supplier_id VARCHAR(50) NOT NULL,
+      FOREIGN KEY (supplier_id) REFERENCES SUPPLIER (supplier_id),
+      FOREIGN KEY (category_id) REFERENCES CATEGORY (category_id)
     );
     ```
 
-We also created new entities that are from many-to-many relationships, including ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN
-
-7.  Create ORDER_ITEM and ORDER_DETAIL entities for CUSTOMER-PRODUCT relationship
+8.  Create ORDER_DETAIL entity
 
     ```{sql connection=connect}
-    CREATE TABLE ORDER_ITEM (
-      order_id VARCHAR(250) PRIMARY KEY,
-      product_id VARCHAR(250), 
-      order_quantity INT NOT NULL,
-      FOREIGN KEY (product_id)
-        REFERENCES PRODUCT (product_id)
-    );
-
-    ```
-
-    ```{sql connection=connect}
-    CREATE TABLE ORDER_DETAIL (
-      order_id VARCHAR(250) PRIMARY KEY,
-      customer_id VARCHAR(250), 
+    CREATE TABLE IF NOT EXISTS ORDER_DETAIL (
+      order_id VARCHAR(50) PRIMARY KEY,
+      customer_id VARCHAR(50), 
       order_date DATE NOT NULL,
       order_status VARCHAR(50) NOT NULL, 
       promo_code VARCHAR(20),
       payment_method TEXT NOT NULL,
-      FOREIGN KEY (customer_id)
-        REFERENCES CUSTOMER (customer_id),
-      FOREIGN KEY (order_id)
-        REFERENCES CUSTOMER (customer_id),
-      FOREIGN KEY (promo_code)
-        REFERENCES DISCOUNT (promo_code)
+      delivery_fee DECIMAL(10, 2) NOT NULL,
+      FOREIGN KEY (customer_id) REFERENCES CUSTOMER (customer_id),
+      FOREIGN KEY (promo_code)  REFERENCES DISCOUNT (promo_code)
     );
     ```
 
-8.  Create ADVERTISE_IN entity for PRODUCT-ADVERTISEMENT relationship
+9.  Create ORDER_ITEM entity
 
     ```{sql connection=connect}
-    CREATE TABLE ADVERTISE_IN (
-      product_id VARCHAR(250),
-      ad_id VARCHAR(250),
+    CREATE TABLE IF NOT EXISTS ORDER_ITEM (
+      order_id VARCHAR(50),
+      product_id VARCHAR(50),
+      order_quantity INT NOT NULL,
+      PRIMARY KEY (order_id, product_id),
+      FOREIGN KEY (order_id)   REFERENCES ORDER_DETAIL (order_id)
+      FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id)
+    );
+    ```
+
+10. Create ADVERTISE_IN entity
+
+    ```{sql connection=connect}
+    CREATE TABLE IF NOT EXISTS ADVERTISE_IN (
+      product_id VARCHAR(50),
+      ad_id VARCHAR(50),
       PRIMARY KEY (product_id, ad_id),
       FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
-      FOREIGN KEY (ad_id) REFERENCES ADVERTISEMENTS (ad_id)
+      FOREIGN KEY (ad_id)      REFERENCES ADVERTISEMENTS (ad_id)
     );
     ```
 
