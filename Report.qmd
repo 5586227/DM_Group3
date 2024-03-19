@@ -1,6 +1,8 @@
 ---
-title: "Report pdf"
-format: pdf
+title: "Data Management Assignment Report"
+format: 
+      pdf:
+         toc: true
 editor: visual
 ---
 
@@ -64,9 +66,9 @@ The first adjustment was on the ORDER table. After reviewing the order of normal
 
 Functional Dependency:
 
-{order_id, customer_id, product_id } -\> { order_date , order_status, order_quantity, promo_code, discount amount, payment_method, delivery_fee}
+-   {order_id, customer_id, product_id } -\> { order_date , order_status, order_quantity, promo_code, discount amount, payment_method, delivery_fee}
 
-{promo_code} -\> { discount_amount}
+-   {promo_code} -\> { discount_amount}
 
 As we assumed that order_id could be duplicated to represent products ordered by the same customer simultaneously, there would be UPDATE anomalies. If there is an update on any attributes, such as payment_methods, we must alter more than one row in case there is more than one product in that order_id. In addition, discount_amount is also transitively dependent on promo_code.
 
@@ -80,7 +82,9 @@ The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based
 
 Functional Dependency:
 
-{customer_id} -\>{ first_name , last_name , gender , email, mobile_no , street , city , country , postcode } {postcode} -\> { street, city , country }
+-   {customer_id} -\>{ first_name, last_name, gender, email, customer_mobile , street , city , country , postcode }
+
+-   {postcode} -\> { street, city , country }
 
 This indicated that street, city, and country were transitively dependent on postcode. As a result, a new table is created as ADDRESS, which has postcode as a primary key and stores street, city, and country as other attributes.
 
@@ -90,7 +94,7 @@ In summary, four new entities were created from the normalization, which were OR
 
 According to the E-R diagram and normalization s, we can list the logical schema as follows:
 
-![](images/Logical_Schema.png){width="553"}
+![](images/Logical_Schema.png){width="506"}
 
 **Physical Schema**
 
@@ -997,7 +1001,7 @@ Our GitHub Actions workflow was designed to execute a task named "ETL workflow f
 
 ## Task 4.1: Advanced Data Analysis in R
 
-```{r}
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
 library(DBI)
 library(RSQLite)
 library(readr)
