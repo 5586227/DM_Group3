@@ -256,6 +256,8 @@ ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = q
 library(gridExtra)
 cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
+top_5_products <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price,PRD.product_id,PRD.product_name FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+
 #TEST
 
 cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price
@@ -271,6 +273,12 @@ revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% sum
 ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
 grid.arrange(ggplot1,ggplot2,nrow(1))
+
+top_5_products$revenue <- top_5_products$order_quantity*top_5_products$unit_price
+
+top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summarise(rev= sum(revenue))
+
+(top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
 ```
 
 ```{r}
