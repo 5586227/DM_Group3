@@ -862,17 +862,17 @@ Our GitHub Actions workflow was designed to execute a task named "ETL workflow f
 
 **Report 1: Profitability vs Popularity**
 
-![Figure 1](images/Figure%201.jpeg){alt="Figure 1"}
+![*Figure 1*](images/Figure%201.jpeg){alt="Figure 1"}
 
-![Figure 2](images/Figure%202.jpeg){alt="Figure 2"}
+![*Figure 2*](images/Figure%202.jpeg){alt="Figure 2"}
 
-Figure 1 represents the profitability of individual products. The "Eclipse Yoga Mat" genratesthe highest profit for the e-comerce company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the"Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
+Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
 
 Some products, including the "Aurora Weightlifting Gloves", "Cosmic Compression Socks" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
 
-The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations or price adjustments.
+The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
 
-Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For items that are less profitable, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
+Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
 
 **Report 2: Bundled vs Individual Products**
 
@@ -881,13 +881,13 @@ Products that are both top sellers and highly profitable should be kept in optim
 | Bundled      |                 491 |
 | Individual   |                 499 |
 
-: Table 1
+: *Table 1*
 
-![Figure 3](images/Figure%203.jpeg){alt="Figure 3"}
+![*Figure 3*](images/Figure%203.jpeg){alt="Figure 3"}
 
-As shown in Table 1 above the product salesn for Individual Products (products without bundles) and bundled products yield nearly equal total quanties sold. Indivisual products slightly overform bundled products (499 vs 491). This sugegsts that the e-commerce company's strategy to boost sales through bundled deals was not as effective as anticipated. However, it is difficult to draw conclusion. the efficacy of this deal based solely on the volume of sales.
+As seen in Table 1, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
 
-Optimizing bundle offerings by aligning more closely with customer preferences by looking at the average rating given to each product could enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The data suggests a market demand for both types of products, indicating that customers prefer some flexibility in buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
+Optimizing bundle offerings by analyzing and aligning them with customer preferences, based on the average product ratings, can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer some flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
 
 **Report 3: Sales Trend over the given time period**
 
