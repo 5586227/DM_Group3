@@ -985,13 +985,13 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
 
 **Profitability vs Popularity**
 
-![Figure 1](images/Figure_1.PNG)
+![Figure 1](images/Figure 1.jpeg)
 
-![Figure 2](images/Figure_2.PNG)
+![Figure 2](images/Figure 2.jpeg)
 
-Figure 1 represents the profitability of individual products. The "Eclipse Yoga Mat\" genratesthe highest profit for the e-comerce company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
+Figure 1 represents the profitability of individual products. The "Eclipse Yoga Mat" genratesthe highest profit for the e-comerce company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the"Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
 
-Some products, including the "Aurora Weightlifting Gloves", \"Cosmic Compression Socks\" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
+Some products, including the "Aurora Weightlifting Gloves", "Cosmic Compression Socks" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
 
 The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations or price adjustments.
 
@@ -999,18 +999,15 @@ Products that are both top sellers and highly profitable should be kept in optim
 
 **Bundled vs Individual Products**
 
-+-----------------------------------+-----------------------------------+
-| Product_Type                      | Total_Quantity_Sold               |
-+:==================================+==================================:+
-| Bundled                           | 491                               |
-+-----------------------------------+-----------------------------------+
-| Individual                        | 499                               |
-+-----------------------------------+-----------------------------------+
+| Product_Type | Total_Quantity_Sold |
+|:-------------|--------------------:|
+| Bundled      |                 491 |
+| Individual   |                 499 |
 
 : Table 1
 
-![Figure 3](images/Figure 3.PNG)
+![Figure 3](images/Figure 3.jpeg)
 
-As shown in Table 1 above the product salesn for Individual Products (products without bundles) and bundled products yield nearly equal total quanties sold. Indivisual products slightly overform bundled products (499 vs 491). This sugegsts that the e-commerce company\'s strategy to boost sales through bundled deals was not as effective as anticipated. However, it is difficult to draw conclusion. the efficacy of this deal based solely on the volume of sales.
+As shown in Table 1 above the product salesn for Individual Products (products without bundles) and bundled products yield nearly equal total quanties sold. Indivisual products slightly overform bundled products (499 vs 491). This sugegsts that the e-commerce company's strategy to boost sales through bundled deals was not as effective as anticipated. However, it is difficult to draw conclusion. the efficacy of this deal based solely on the volume of sales.
 
 Optimizing bundle offerings by aligning more closely with customer preferences by looking at the average rating given to each product could enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The data suggests a market demand for both types of products, indicating that customers prefer some flexibility in buying options. Rather than discontinuing the bundle products, the company should look deeper into the perfomance metrics of this deal considering the intventory turnover and profit margins.
