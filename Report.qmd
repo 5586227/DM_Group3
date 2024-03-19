@@ -1098,10 +1098,12 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold,
                                "Individual" = "salmon")) +
   labs(title = "Total Quantity Sold by Product Type",
        x = "Product Type",
-       y = "Total Quantity Sold", caption = "Figure 3") +
+       y = "Total Quantity Sold") +
   theme_minimal() +
   theme(legend.position = "none") 
 ```
+
+*Figure 3*
 
 As the table shows, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
 
@@ -1147,7 +1149,8 @@ summarise(quantity=sum(order_quantity))
 (ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr,
 y = quantity,group=1)) +
 geom_point()+geom_line()+
-xlab('Time Period(year/month)')+ylab('Quantity Sold'))
+xlab('Time Period(year/month)')+ylab('Quantity Sold'))+
+theme(axis.text.x=element_text(angle=45,hjust = 1))
 ```
 
 *Figure 4: Time Series Graph to depict the seasonal trends in sales*
@@ -1156,8 +1159,7 @@ Purchase pattern analysis is significant for an e-commerce company as different 
 
 ```{r}
 #Report 4:
-#| column: screen
-#| out-width: 100%
+
 #SQL query to join customer and order tables to get the sales for each city
 
 cust_order_join<- RSQLite::dbGetQuery(connect, 
@@ -1187,8 +1189,10 @@ top_10_sales_per_region <- head(top_10_sales_per_region,10)
 ggplot1 <- ggplot(top_10_sales_per_region, 
 aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  
 geom_bar(stat='identity') + 
-scale_fill_gradient(low = "lightblue", high = "darkblue")+ 
-xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
+scale_fill_gradient(low = "lightblue", high = "darkblue")+
+xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')+
+theme(axis.text.x=element_text(angle=45,
+hjust = 1))
 
 #Table to get the revenue per city 
 
@@ -1225,22 +1229,23 @@ cust_order_product_join$unit_price
 
 #Grouping by the get the revenue for each city
 revenue_per_region <- cust_order_product_join %>% group_by(city) %>% 
-  summarise(rev= sum(revenue))
+  summarise(revenue= sum(revenue))
 
 #Get the top 10 cities for revenue
 
 top_5_revenue_per_region <-
-revenue_per_region[order(-revenue_per_region$rev),]
+revenue_per_region[order(-revenue_per_region$revenue),]
 
 top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
 #Bar graph to show the revenue per region
 
-ggplot2 <- ggplot(top_5_revenue_per_region,aes(x = reorder(city, -rev),
-y=rev,fill=rev))+ 
+ggplot2 <- ggplot(top_5_revenue_per_region,aes(x = reorder(city, -revenue),
+y=revenue,fill=revenue))+ 
 geom_bar(stat='identity')+
 scale_fill_gradient(low = "lightblue", high = "darkblue")+
-xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')+
+theme(axis.text.x=element_text(angle=45,hjust = 1))
 
 
 
@@ -1259,8 +1264,7 @@ summarise(rev= sum(revenue))
 filter(city %in% head(top_5_revenue_per_region$city,2))
 %>% select(product_name))
 
-plot(ggplot1)
-plot(ggplot2)
+grid.arrange(ggplot1,ggplot2)
 ```
 
 *Figure 5: Top 10 cities with maximum revenue and sales*
@@ -1432,53 +1436,3 @@ It was found that categories that have products with higher ratings have lower s
 ```{r}
 #pdf("Report.pdf",width=20,height = 8)
 ```
-
-### Task 4.2: Comprehensive Reporting with Quarto
-
-**Report 1: Profitability vs Popularity**
-
-![Figure 1](images/Figure%201.jpeg)
-
-![Figure 2](images/Figure%202.jpeg)
-
-**Report 3: Sales Trend over the given time period**
-
-![](images/Time%20Series%20Graph.png)
-
-*Figure 4: Time Series Graph to depict the seasonal trends in sales*
-
-Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 4 illustrates that the sales was maximum at September and December months over the time-period from 2022 to 2023. Hence appropriate pricing strategies could be deployed to increase revenue from top selling products. Also, a sharp decline in sales is identified in October month which is later followed by an increase in succeeding months. This study could help in an efficient inventory management in place for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
-
-**Report 4: Comparison of sales and revenue for each city**
-
-![](images/Revenue%20Graph.png){width="731" height="388"}
-
-*Figure 5: Top 10 cities with maximum revenue and sales*
-
-Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
-
-**Report 5: Analysis of Advertisement methods**
-
-![](images/Figure%204.jpeg)
-
-*Figure 6: Sales of products per 1 advertisement of each type*
-
-We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Figure 6 shows that Footer ads on average have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign higher price for more efficient advertisement types to be charged from suppliers.
-
-**Report 6: Analysis of Marketplace transaction fees**
-
-![](images/Figure%205.jpeg)
-
-*Figure 7: Comparing Marketplace fees to the sales in each Category of products*
-
-The marketplace is the mediator between the customer and seller, allowing convenience for both. This service is not free. Sellers pay fees for each transaction. These fees and advertisements make the marketplace profit. The fee varies depending on the category of goods. We compared the combined amount of fees for each sold item by category to find out which category brings the Marketplace more profit.
-
-On Figure 7 we see that the higher the sales of the Category, the more fees Marketplace earns on it. We consider increasing fees for the categories with higher sales and decreasing fees for the categories with low sales to maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular ones. Sports Equipment has the highest sales in terms of money, however, as we will see later most units are sold in the Electronics category.
-
-**Report 7: Analysis of Customers reviews on sales for each category.**
-
-![](images/Figure%206.jpeg){width="831"}
-
-*Figure 8: Average customers' rating for the category and category's sales in units*
-
-It was found that categories that have products with higher ratings have lower sales in units. This may appear wrong but most likely with the increase in sales the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
