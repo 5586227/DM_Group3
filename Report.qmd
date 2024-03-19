@@ -840,154 +840,31 @@ Our GitHub Actions workflow was designed to execute a task named "ETL workflow f
 
 ### Task 4.1: Advanced Data Analysis in R
 
-```{r}
-library(DBI)
-library(RSQLite)
-library(readr)
-library(dplyr)
-library(plotly)
+```{r} library(DBI) library(RSQLite) library(readr) library(dplyr) library(plotly)}
 ```
 
-```{r writebacktodb}
-# Connecting to the database
-connect <- dbConnect(RSQLite::SQLite(), "database.db")
+```{r writebacktodb} # Connecting to the database connect <- dbConnect(RSQLite::SQLite(), "database.db")}
 ```
 
-```{r}
-# Top 10 products based on the Profit Generated
-
-# Getting the tables from the database
-product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
-order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
-order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
-discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
+```{r} # Report 1  # Top 10 products based on the Profit Generated  # Getting the tables from the database product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT') order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM') order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL') discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT') # Creating a profit table that includes a total_profit (quantity x unit price) column for each product incorporating the discount percent and filtering out all "cancelled" orders.  profit_data <- order_item %>%   inner_join(order_detail, by = "order_id") %>%    filter(order_status != "Cancelled") %>%   inner_join(product, by = "product_id") %>%   left_join(discount, by = c("promo_code" = "promo_code")) %>%   mutate(     discount_percentage = ifelse(is.na(discount_percent), 0, discount_percent),      total_profit = (order_quantity * unit_price) * (1 - discount_percentage / 100)   ) %>%   group_by(product_id, product_name) %>%   summarise(     total_profit = sum(total_profit),      .groups = 'drop'   ) %>%   arrange(desc(total_profit)) # Arranging the total_profit from highest to lowest  # Selecting the top 10 profitable products top_10_profit_data <- head(profit_data, 10)   # Visualizing the results  ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +   geom_bar(stat = "identity") +   scale_fill_discrete(name = "product Name") +    labs(title = "Top 10 Most Profitable Products", x = "Product ID", y = "Total Profit") +   theme_minimal() +   theme(axis.text.x = element_text(angle = 45, hjust = 1),         legend.title = element_text(size = 12),          legend.text = element_text(size = 10),          plot.title = element_text(hjust = 0.5))   # Top Most Selling Products  # Creating a sales that that includes the total quantity sold for each product and selecting the top 10. sales_data <- order_item %>%   group_by(product_id) %>%   summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%   arrange(desc(Total_Sales))  top_selling_products <- sales_data %>%   left_join(product, by = "product_id") %>%   select(product_id, product_name, Total_Sales) %>%   top_n(10, Total_Sales)  # Visualizing the results ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +   geom_bar(stat = "identity") +   scale_fill_discrete(name = "product Name") +    labs(title = "Top Most Selling Products", x = "Product ID", y = "Total Sales") +   theme_minimal() +   theme(axis.text.x = element_text(angle = 45, hjust = 1),         legend.title = element_text(size = 12),          legend.text = element_text(size = 10),          plot.title = element_text(hjust = 0.5))}
 ```
 
-```{r}
-# Creating a profit table that includes a total_profit (quantity x unit price) column for each product incorporating the discount percent and filtering out all "cancelled" orders.
-
-profit_data <- order_item %>%
-  inner_join(order_detail, by = "order_id") %>% 
-  filter(order_status != "Cancelled") %>%
-  inner_join(product, by = "product_id") %>%
-  left_join(discount, by = c("promo_code" = "promo_code")) %>%
-  mutate(
-    discount_percentage = ifelse(is.na(discount_percent), 0, discount_percent), 
-    total_profit = (order_quantity * unit_price) * (1 - discount_percentage / 100)
-  ) %>%
-  group_by(product_id, product_name) %>%
-  summarise(
-    total_profit = sum(total_profit), 
-    .groups = 'drop'
-  ) %>%
-  arrange(desc(total_profit)) # Arranging the total_profit from highest to lowest
-
+```{r} #Report 2  # Bundles vs Individual products Comparison by Sales Volume  # Join product with order item  product_order_item <- order_item %>%   inner_join(product, by = "product_id")  # Calculate total quantity sold for bundled products bundled_sales <- product_order_item %>%   filter(!is.na(main_product_id)) %>%   group_by(main_product_id) %>%   summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%   ungroup() %>%   mutate(Product_Type = "Bundled")  # Calculate total quantity sold for individual products individual_sales <- product_order_item %>%   filter(is.na(main_product_id)) %>%   group_by(product_id) %>%   summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%   ungroup() %>%   mutate(Product_Type = "Individual")  # Combining the results total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%   group_by(Product_Type) %>%   summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%   ungroup()  print(total_sales_by_type)  # Visualizing the results ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +   geom_bar(stat = "identity", width = 0.5) +  # Adjust width here   scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +   labs(title = "Total Quantity Sold by Product Type",        x = "Product Type",        y = "Total Quantity Sold") +   theme_minimal() +   theme(legend.position = "none")}
 ```
 
-```{r}
-# Selecting the top 10 profitable products
-top_10_profit_data <- head(profit_data, 10)
-
-
-# Visualizing the results 
-ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
-  geom_bar(stat = "identity") +
-  scale_fill_discrete(name = "product Name") + 
-  labs(title = "Top 10 Most Profitable Products", x = "Product ID", y = "Total Profit") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.title = element_text(size = 12), 
-        legend.text = element_text(size = 10), 
-        plot.title = element_text(hjust = 0.5)) 
-
+```{r} #Report 3  #SQL Query to get the sales over a time period   time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id') #test  #Conversion of order_date field to appropiate format time_period_sales$order_date <- as.Date(time_period_sales$order_date, format="%d/%m/%Y")  time_period_sales$order_date_mnth_yr <- format(time_period_sales$order_date,'%Y/%m')  #Conversion of order_date field to factors with levels  time_period_sales$order_date_mnth_yr <- factor(time_period_sales$order_date_mnth_yr, levels=c('2022/06','2022/07','2022/08','2022/09','2022/10','2022/11','2022/12','2023/01','2023/02','2023/03','2023/04','2023/05','2023/06','2023/07','2023/08','2023/09','2023/10','2023/11','2023/12'))  #Group by sales for each year time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%>%summarise(quantity=sum(order_quantity))  # Time series graph to show the quantity sold over a given time period  (ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/month)')+ylab('Quantity Sold'))}
 ```
 
-```{r}
-# Top Most Selling Products
-
-# Creating a sales that that includes the total quantity sold for each product and selecting the top 10.
-sales_data <- order_item %>%
-  group_by(product_id) %>%
-  summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
-  arrange(desc(Total_Sales))
-
-top_selling_products <- sales_data %>%
-  left_join(product, by = "product_id") %>%
-  select(product_id, product_name, Total_Sales) %>%
-  top_n(10, Total_Sales)
-```
-
-```{r}
-# Visualizing the results
-ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
-  geom_bar(stat = "identity") +
-  scale_fill_discrete(name = "product Name") + 
-  labs(title = "Top Most Selling Products", x = "Product ID", y = "Total Sales") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.title = element_text(size = 12), 
-        legend.text = element_text(size = 10), 
-        plot.title = element_text(hjust = 0.5))
-```
-
-```{r}
-# Bundles vs Individual products Comparison by Sales Volume
-
-# Join product with order item 
-product_order_item <- order_item %>%
-  inner_join(product, by = "product_id")
-
-# Calculate total quantity sold for bundled products
-bundled_sales <- product_order_item %>%
-  filter(!is.na(main_product_id)) %>%
-  group_by(main_product_id) %>%
-  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(Product_Type = "Bundled")
-
-```
-
-```{r}
-# Calculate total quantity sold for individual products
-individual_sales <- product_order_item %>%
-  filter(is.na(main_product_id)) %>%
-  group_by(product_id) %>%
-  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(Product_Type = "Individual")
-
-```
-
-```{r}
-# Combining the results
-total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
-  group_by(Product_Type) %>%
-  summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%
-  ungroup()
-
-print(total_sales_by_type)
-```
-
-```{r}
-# Visualizing the results
-ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +
-  geom_bar(stat = "identity", width = 0.5) +  # Adjust width here
-  scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +
-  labs(title = "Total Quantity Sold by Product Type",
-       x = "Product Type",
-       y = "Total Quantity Sold") +
-  theme_minimal() +
-  theme(legend.position = "none")
-
+```{r} #Report 4:  #SQL query to join customer and order tables to get the sales for each city  cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')  #cust_order_join<- inner_join(Customer,Order,by="customer_id")  #Grouping by city to get the overall sales per city  sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))  #Get the top 10 cities for sales top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]  top_10_sales_per_region <- head(top_10_sales_per_region,10)  #Bar graph to show the sales per region  ggplot1 <- ggplot(top_10_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')  #Table to get the revenue per city   cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')  #SQL Query to get the top 5 products  top_5_products <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price,PRD.product_id,PRD.product_name FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')  #Revenue calculation  cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price  #Grouping by the get the revenue for each city revenue_per_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))  #Get the top 10 cities for revenue  top_5_revenue_per_region <- revenue_per_region[order(-revenue_per_region$rev),]  top_5_revenue_per_region <- head(top_5_revenue_per_region,10)  #Bar graph to show the revenue per region  ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')  grid.arrange(ggplot1,ggplot2)   #revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))  #Revenue calculation to show the top 5 products for each city with maximum revenue  top_5_products$revenue <- top_5_products$order_quantity*top_5_products$unit_price  top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summarise(rev= sum(revenue))  #Table to show the products that are sold for the top 2 revenue producing cities (top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))}
 ```
 
 ### Task 4.2: Comprehensive Reporting with Quarto
 
-**Profitability vs Popularity**
+**Report 1: Profitability vs Popularity**
 
-![Figure 1](images/Figure 1.jpeg)
+![Figure 1](images/Figure%201.jpeg){alt="Figure 1"}
 
-![Figure 2](images/Figure 2.jpeg)
+![Figure 2](images/Figure%202.jpeg){alt="Figure 2"}
 
 Figure 1 represents the profitability of individual products. The "Eclipse Yoga Mat" genratesthe highest profit for the e-comerce company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the"Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
 
@@ -997,7 +874,7 @@ The e-commerce company could focus on marketing strategies for high-margin produ
 
 Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For items that are less profitable, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
 
-**Bundled vs Individual Products**
+**Report 2: Bundled vs Individual Products**
 
 | Product_Type | Total_Quantity_Sold |
 |:-------------|--------------------:|
@@ -1006,8 +883,24 @@ Products that are both top sellers and highly profitable should be kept in optim
 
 : Table 1
 
-![Figure 3](images/Figure 3.jpeg)
+![Figure 3](images/Figure%203.jpeg){alt="Figure 3"}
 
 As shown in Table 1 above the product salesn for Individual Products (products without bundles) and bundled products yield nearly equal total quanties sold. Indivisual products slightly overform bundled products (499 vs 491). This sugegsts that the e-commerce company's strategy to boost sales through bundled deals was not as effective as anticipated. However, it is difficult to draw conclusion. the efficacy of this deal based solely on the volume of sales.
 
-Optimizing bundle offerings by aligning more closely with customer preferences by looking at the average rating given to each product could enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The data suggests a market demand for both types of products, indicating that customers prefer some flexibility in buying options. Rather than discontinuing the bundle products, the company should look deeper into the perfomance metrics of this deal considering the intventory turnover and profit margins.
+Optimizing bundle offerings by aligning more closely with customer preferences by looking at the average rating given to each product could enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The data suggests a market demand for both types of products, indicating that customers prefer some flexibility in buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
+
+**Report 3: Sales Trend over the given time period**
+
+![](images/Time%20Series%20Graph.png)
+
+*Figure 4: Time Series Graph to depict the seasonal trends in sales*
+
+Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 4 illustrates that the sales was maximum at September and December months over the time-period from 2022 to 2023. Hence appropriate pricing strategies could be deployed to increase revenue from top selling products. Also, a sharp decline in sales is identified in October month which is later followed by an increase in succeeding months. This study could help in an efficient inventory management in place for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
+
+**Report 4: Comparison of sales and revenue for each city**
+
+![](images/Revenue%20Graph.png){width="731" height="388"}
+
+*Figure 5: Top 10 cities with maximum revenue and sales*
+
+Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
