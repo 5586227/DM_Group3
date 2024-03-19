@@ -1,4 +1,5 @@
 # Load required package
+library(DBI)
 library(RSQLite)
 
 # Connect to the database
