@@ -1,3 +1,6 @@
+# Load required package
+library(RSQLite)
+
 # Read Files
 customer <- readr::read_csv("data_upload/CUSTOMER.csv")
 address <- readr::read_csv("data_upload/ADDRESS.csv")
@@ -373,4 +376,3 @@ for (i in seq_along(tables)) {
 }
 
 dbDisconnect(connect)
-
