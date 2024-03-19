@@ -1,10 +1,8 @@
 # Load required package
 library(RSQLite)
 library(DBI)
-#library(readr)
 library(dplyr)
 library(ggplot2)
-#library(plotly)
 library(gridExtra)
 
 
@@ -123,12 +121,12 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme(legend.position = "none",
         plot.title = element_text(hjust = 0.5))  
 
-  
-  
-  
-  
-  
-  # Joining Product with advertise_in and advertisement to get advertisement details
+
+
+
+
+
+# Joining Product with advertise_in and advertisement to get advertisement details
 advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
 advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
 
@@ -222,7 +220,7 @@ category_fee <- order_item %>%
   mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
   mutate(cat_total_sales = order_quantity * unit_price) %>%
   group_by(category_id, category_name) %>%
-  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales)) %>%
+  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>%
   inner_join(select(avg_rating_by_category, category_id, Average_Rating), by = 'category_id') %>%
   mutate(Average_Rating = Average_Rating)
 
@@ -241,16 +239,15 @@ ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
 
 # Graph to compare Category sales VS Cagegory average rating
 ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
-  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
-  geom_bar(aes(y = (Average_Rating-3)*1000, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.3) +
+  geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
+  geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
   geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
             color = "black", size = 4, hjust = 0.5) +
-  scale_fill_manual(name = "Category", values = c("Average Rating" = "red", "Total Sales" = "#31a354")) +
-  labs(title = "Average Rating vs Total Sales by Category", x = "Category", y = "Total Sales") +
+  scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
+  labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(name = "Total Sales")
-
+  scale_y_continuous(name = "Total Sales in Units")
 
 #SQL Query to get the sales over a time period 
 
