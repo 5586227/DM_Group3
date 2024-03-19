@@ -1,39 +1,22 @@
----
-title: "Data Analysis"
-output: html_document
-date: "2024-03-17"
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
-
-library(DBI)
+# Load required package
 library(RSQLite)
-library(readr)
-library(dplyr)
-library(ggplot2)
-library(plotly)
+#library(DBI)
+#library(readr)
+#library(dplyr)
+#library(ggplot2)
+#library(plotly)
+#library(gridExtra)
 
-```
 
-## Connect to database
 
-```{r}
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
-```
 
-1.  Top 5 Suppliers (quantity of products supplied/ stock on hand)
 
-```{r}
 product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
 top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
 
-```
 
-```{r}
+
 top_5_suppliers <- top_suppliers %>% 
   arrange(desc(quantity)) %>% 
   slice(1:5)
@@ -45,11 +28,10 @@ plot_ly(data = top_5_suppliers, x = ~supplier_id, y = ~quantity, type = 'bar',
          xaxis = list(title = "Supplier ID"),
          yaxis = list(title = "Stock on Hand"),
          showlegend = FALSE)
-```
 
-2.  Top 10 products based on the Profit
 
-```{r}
+
+
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
 discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
@@ -70,9 +52,8 @@ profit_data <- order_item %>%
   ) %>%
   arrange(desc(total_profit))
 
-```
 
-```{r}
+
 
 # Selecting the top 10 profitable products
 top_10_profit_data <- head(profit_data, 10)
@@ -89,11 +70,10 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
         legend.text = element_text(size = 10), 
         plot.title = element_text(hjust = 0.5)) 
 
-```
 
-Top 10 most selling products
 
-```{r}
+
+
 sales_data <- order_item %>%
   group_by(product_id) %>%
   summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
@@ -104,9 +84,8 @@ top_selling_products <- sales_data %>%
   select(product_id, product_name, Total_Sales) %>%
   top_n(10, Total_Sales)
 
-```
 
-```{r}
+
 
 ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
   geom_bar(stat = "identity") +
@@ -117,11 +96,10 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total
         legend.title = element_text(size = 12), 
         legend.text = element_text(size = 10), 
         plot.title = element_text(hjust = 0.5))
-```
 
-3.  Comparing the effectiveness of each Advertisement Type
 
-```{r}
+
+
 # Joining Product with advertise_in and advertisement to get advertisement details
 #test
 advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
@@ -148,20 +126,18 @@ number_of_sales <- product %>%
 
 merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
 
-```
 
-```{r}
+
 # Analyzing which ad place is most effective by calculating a ratio of total sales to total ad frequency
 effective_ad_type <- merged_data %>%
   group_by(ad_place) %>%
   summarise( total_sales = sum(sales_count), 
-    total_frequency = sum(total_frequency), .groups = 'drop') %>%
+             total_frequency = sum(total_frequency), .groups = 'drop') %>%
   mutate( effectiveness = total_sales / total_frequency) %>%
   arrange(desc(effectiveness))
 
-```
 
-```{r}
+
 
 ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
   geom_col(show.legend = FALSE, width = 0.5) + # Adjust bar width here
@@ -177,11 +153,9 @@ ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place))
         panel.grid.minor = element_blank(), # Remove minor grid lines
         panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
 
-```
 
-4.  Average Review for each category
 
-```{r}
+
 category <- RSQLite::dbGetQuery(connect,'SELECT * FROM CATEGORY')
 
 # Join product_df with category_df to include category names
@@ -196,9 +170,8 @@ avg_rating_by_category <- product_with_category %>%
 
 print(avg_rating_by_category)
 
-```
 
-```{r}
+
 
 # Add a cumulative sum of Average_Rating to calculate position for labels
 avg_rating_by_category <- avg_rating_by_category[order(-avg_rating_by_category$Average_Rating), ]
@@ -215,9 +188,8 @@ ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name
         axis.title = element_blank(),
         panel.grid = element_blank(),
         plot.title = element_text(hjust = 0.5))
-```
 
-```{r}
+
 #library(lubridate)
 time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
 #test
@@ -230,9 +202,8 @@ time_period_sales$order_date_mnth_yr <- factor(time_period_sales$order_date_mnth
 time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%>%summarise(quantity=sum(order_quantity))
 
 (ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/month)')+ylab('Quantity Sold'))
-```
 
-```{r}
+
 #salesvsregion
 cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
 
@@ -245,11 +216,9 @@ top_5_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
 top_5_sales_per_region <- head(top_5_sales_per_region,10)
 
 ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
-```
 
-```{r}
+
 #revenuevsregion
-library(gridExtra)
 cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
 top_5_products <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price,PRD.product_id,PRD.product_name FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
@@ -275,29 +244,10 @@ top_5_products$revenue <- top_5_products$order_quantity*top_5_products$unit_pric
 top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summarise(rev= sum(revenue))
 
 (top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
-```
 
-```{r}
+
 #Calculating Marketplace fee
 merged_product_fee <- product %>%
-  inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
-category_fee <- order_item %>%
-  inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
-  inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
-  filter(order_status == "Completed") %>%
-  mutate(marketplace_fee = order_quantity * unit_price * category_fee) %>%
-  group_by(category_id, category_name) %>%
-  summarise(total_fee = sum(marketplace_fee))
-
-#Visualise
-
-
-# Plotting the total marketplace fee for each category with bars in descending order and custom blue colors
-ggplot(category_fee, aes(x = reorder(category_name, -total_fee), y = total_fee)) +
-  geom_bar(stat = "identity", aes(fill = total_fee)) +
-  scale_fill_gradient(low = "lightblue", high = "darkblue") +
-  labs(title = "Total Marketplace Fee by Category", x = "Category", y = "Total Fees Received") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none")  #
-```
+  inner_join(select(category, category_fee), by = "category_id")
+order_fee <- order %>%
+  inner_join(select(order, category_fee), by = "product_id")
