@@ -2,15 +2,18 @@
 library(DBI)
 library(RSQLite)
 
-# Connect to the database
-connect <- dbConnect(RSQLite::SQLite(), "database.db")
-
-# 检查数据库连接是否成功
-if (inherits(connect, "SQLiteConnection")) {
-  print("数据库连接成功")
-} else {
-  print("数据库连接失败")
-}
+# 错误处理
+tryCatch({
+  # 连接数据库
+  connect <- dbConnect(RSQLite::SQLite(), "database.db")
+  # 确认当前工作目录
+  print(getwd())
+  
+  # 其他操作
+  # ...
+}, error = function(e) {
+  print(paste("发生错误：", e))
+})
 
 
 # Create ADDRESS Table

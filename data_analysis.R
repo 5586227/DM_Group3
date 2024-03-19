@@ -8,22 +8,21 @@ library(ggplot2)
 library(gridExtra)
 
 
-
+# Connect to database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
+## Top 10 products based on the Profit Generated
 
+# Getting the tables from the database
 product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
-top_suppliers<- product %>% group_by(supplier_id) %>% summarise(quantity=sum(stock_on_hand))
-
-
-
-
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
 discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
 
+
+# Creating a profit table that includes a total_profit (quantity x unit price) column for each product incorporating the discount percent and filtering out all "cancelled" orders.
 profit_data <- order_item %>%
-  inner_join(order_detail, by = "order_id") %>% # Assuming order_id is the common key
+  inner_join(order_detail, by = "order_id") %>% 
   filter(order_status != "Cancelled") %>%
   inner_join(product, by = "product_id") %>%
   left_join(discount, by = c("promo_code" = "promo_code")) %>%
@@ -39,13 +38,11 @@ profit_data <- order_item %>%
   arrange(desc(total_profit))
 
 
-
-
 # Selecting the top 10 profitable products
 top_10_profit_data <- head(profit_data, 10)
 
 
-# graphing the results
+# Visualizing the results 
 ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
@@ -58,8 +55,9 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 
 
+##Top Most Selling Products
 
-
+# Creating a sales that that includes the total quantity sold for each product and selecting the top 10.
 sales_data <- order_item %>%
   group_by(product_id) %>%
   summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
@@ -72,7 +70,7 @@ top_selling_products <- sales_data %>%
 
 
 
-
+# Visualizing the results
 ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
@@ -83,6 +81,47 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total
         legend.text = element_text(size = 10), 
         plot.title = element_text(hjust = 0.5))
 
+## Bundles vs Individual products Comparison by Sales Volume
+
+# Join product with order item 
+product_order_item <- order_item %>%
+  inner_join(product, by = "product_id")
+
+# Calculate total quantity sold for bundled products
+bundled_sales <- product_order_item %>%
+  filter(!is.na(main_product_id)) %>%
+  group_by(main_product_id) %>%
+  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(Product_Type = "Bundled")
+
+# Calculate total quantity sold for individual products
+individual_sales <- product_order_item %>%
+  filter(is.na(main_product_id)) %>%
+  group_by(product_id) %>%
+  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(Product_Type = "Individual")
+
+# Combining the results
+total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
+  group_by(Product_Type) %>%
+  summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%
+  ungroup()
+
+print(total_sales_by_type)
+
+# Visualizing the results
+
+ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +
+  geom_bar(stat = "identity", width = 0.5) + 
+  scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +
+  labs(title = "Total Quantity Sold by Product Type",
+       x = "Product Type",
+       y = "Total Quantity Sold") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5))  
 
 
 
@@ -210,7 +249,7 @@ sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(o
 #Get the top 10 cities for sales
 top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
 
-top_10_sales_per_region <- head(top_10_sales_per_region,10)
+top_10_sales_per_region <- head(top_5_sales_per_region,10)
 
 #Bar graph to show the sales per region
 
@@ -241,7 +280,7 @@ top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
 ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
-grid.arrange(ggplot1,ggplot2)
+grid.arrange(ggplot1,ggplot2,nrow(1))
 
 
 #revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
