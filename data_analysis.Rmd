@@ -26,19 +26,18 @@ connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
 
+Top 10 products based on the Profit Generated
 
 ```{r}
 product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
-
-```
-
-
-2.  Top 10 products based on the Profit
-
-```{r}
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
 discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
+```
+
+```{r}
+
+# Creating a profit table that includes a total_profit column for each product incorporating the discount percent and filtering out all "cancelled" orders.
 
 profit_data <- order_item %>%
   inner_join(order_detail, by = "order_id") %>% 
@@ -54,7 +53,7 @@ profit_data <- order_item %>%
     total_profit = sum(total_profit), 
     .groups = 'drop'
   ) %>%
-  arrange(desc(total_profit))
+  arrange(desc(total_profit)) # Arranging the total_profit from highest to lowest
 
 ```
 
@@ -64,7 +63,7 @@ profit_data <- order_item %>%
 top_10_profit_data <- head(profit_data, 10)
 
 
-# graphing the results
+# Visualizing the results 
 ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_profit, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
@@ -77,9 +76,11 @@ ggplot(top_10_profit_data, aes(x = reorder(product_id, total_profit), y = total_
 
 ```
 
-Top 10 most selling products
+Top Most Selling Products
 
 ```{r}
+
+# Creating a sales that that includes the total quantity sold for each product and selecting the top 10.
 sales_data <- order_item %>%
   group_by(product_id) %>%
   summarise(Total_Sales = sum(order_quantity, na.rm = TRUE)) %>%
@@ -93,7 +94,7 @@ top_selling_products <- sales_data %>%
 ```
 
 ```{r}
-
+# Visualizing the results
 ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total_Sales, fill = product_name)) +
   geom_bar(stat = "identity") +
   scale_fill_discrete(name = "product Name") + 
@@ -108,11 +109,6 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total
 
 
 ```{r}
-library(dplyr)
-library(ggplot2)
-
-# Provided code: Calculate bundled and individual sales
-# (assuming 'order_item' and 'product' data frames are already loaded)
 
 # Join product with order item 
 product_order_item <- order_item %>%
@@ -134,17 +130,15 @@ individual_sales <- product_order_item %>%
   ungroup() %>%
   mutate(Product_Type = "Individual")
 
-
+# Combing the results
 total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
   group_by(Product_Type) %>%
   summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%
   ungroup()
 
-
+print(total_sales_by_type)
 
 ```
-
-
 
 
 
