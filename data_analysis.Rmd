@@ -247,55 +247,88 @@ ggplot(avg_rating_by_category, aes(x = Average_Rating, y = reorder(category_name
 ```
 
 ```{r}
-library(lubridate)
+#SQL Query to get the sales over a time period 
+
 time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id, order_quantity,order_date FROM ORDER_DETAIL ORDDET INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
 #test
+
+#Conversion of order_date field to appropiate format
 time_period_sales$order_date <- as.Date(time_period_sales$order_date, format="%d/%m/%Y")
 
 time_period_sales$order_date_mnth_yr <- format(time_period_sales$order_date,'%Y/%m')
 
+#Conversion of order_date field to factors with levels
+
 time_period_sales$order_date_mnth_yr <- factor(time_period_sales$order_date_mnth_yr, levels=c('2022/06','2022/07','2022/08','2022/09','2022/10','2022/11','2022/12','2023/01','2023/02','2023/03','2023/04','2023/05','2023/06','2023/07','2023/08','2023/09','2023/10','2023/11','2023/12'))
 
+#Group by sales for each year
 time_period_sales_group_by<- time_period_sales %>% group_by(order_date_mnth_yr)%>%summarise(quantity=sum(order_quantity))
 
-(ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/mpnth)')+ylab('Quantity Sold'))
+# Time series graph to show the quantity sold over a given time period
+
+(ggplot(time_period_sales_group_by, aes(x = order_date_mnth_yr, y = quantity,group=1)) +  geom_point()+geom_line()+xlab('Time Period(year/month)')+ylab('Quantity Sold'))
 ```
 
 ```{r}
-#salesvsregion
+#SQL query to join customer and order tables to get the sales for each city
+
 cust_order_join<- RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id')
 
 #cust_order_join<- inner_join(Customer,Order,by="customer_id")
 
+#Grouping by city to get the overall sales per city
+
 sales_per_region<- cust_order_join %>% group_by(city)%>%summarise(quantity=sum(order_quantity))
 
-top_5_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
+#Get the top 10 cities for sales
+top_10_sales_per_region <- sales_per_region[order(-sales_per_region$quantity),]
 
-top_5_sales_per_region <- head(top_5_sales_per_region,10)
+top_10_sales_per_region <- head(top_5_sales_per_region,10)
 
-ggplot1 <- ggplot(top_5_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
+#Bar graph to show the sales per region
+
+ggplot1 <- ggplot(top_10_sales_per_region, aes(x = reorder(city,-quantity), y = quantity,fill=quantity)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+ xlab('Top 10 cities where sales is maximum')+ylab('Quantity Sold')
 ```
 
 ```{r}
-#revenuevsregion
-library(gridExtra)
+#Table to get the revenue per city 
+
 cust_order_product_join <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
 
-#TEST
+#SQL Query to get the top 5 products
+
+top_5_products <-RSQLite::dbGetQuery(connect, 'SELECT city,ORDITM.order_quantity,unit_price,PRD.product_id,PRD.product_name FROM ADDRESS ADR INNER JOIN CUSTOMER CUST ON ADR.address_id= CUST.address_id INNER JOIN ORDER_DETAIL ORDDET ON ORDDET.customer_id = CUST.customer_id INNER JOIN ORDER_ITEM ORDITM ON ORDITM.order_id = ORDDET.order_id INNER JOIN PRODUCT PRD ON PRD.product_id = ORDITM.product_id')
+
+#Revenue calculation
 
 cust_order_product_join$revenue <-  cust_order_product_join$order_quantity*cust_order_product_join$unit_price
 
+#Grouping by the get the revenue for each city
 revenue_per_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+
+#Get the top 10 cities for revenue
 
 top_5_revenue_per_region <- revenue_per_region[order(-revenue_per_region$rev),]
 
 top_5_revenue_per_region <- head(top_5_revenue_per_region,10)
 
-revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+#Bar graph to show the revenue per region
 
 ggplot2 <- ggplot(top_5_revenue_per_region, aes(x = reorder(city, -rev), y = rev,fill=rev)) +  geom_bar(stat='identity')+scale_fill_gradient(low = "lightblue", high = "darkblue")+xlab('Top 10 cities with the maximum revenue')+ylab('Revenue')
 
 grid.arrange(ggplot1,ggplot2,nrow(1))
+
+
+#revenue_per_product_region <- cust_order_product_join %>% group_by(city) %>% summarise(rev= sum(revenue))
+
+#Revenue calculation to show the top 5 products for each city with maximum revenue
+
+top_5_products$revenue <- top_5_products$order_quantity*top_5_products$unit_price
+
+top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summarise(rev= sum(revenue))
+
+#Table to show the products that are sold for the top 2 revenue producing cities
+(top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
 ```
 
 ```{r}
