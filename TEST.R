@@ -276,60 +276,22 @@ order_item_composite <- paste(order_item$order_id, order_item$product_id)
 new_order_item <- order_item[!order_item_composite %in% db_order_item_composite, ]
 
 # Write into the db
-if (nrow(new_customer) > 0) {
-  dbWriteTable(connect, "CUSTOMER", new_customer, append = TRUE, row.names = FALSE)
+writeToDB <- function(data, tableName, connect) {
+  if (nrow(data) > 0) {
+    dbWriteTable(connect, tableName, data, append = TRUE, row.names = FALSE)
+  }
 }
 
-if (nrow(new_product) > 0) {
-  dbWriteTable(connect, "PRODUCT", new_product, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_address) > 0) {
-  dbWriteTable(connect, "ADDRESS", new_address, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_discount) > 0) {
-  dbWriteTable(connect, "DISCOUNT", new_discount, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_supplier) > 0) {
-  dbWriteTable(connect, "SUPPLIER", new_supplier, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_category) > 0) {
-  dbWriteTable(connect, "CATEGORY", new_category, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_advertisement) > 0) {
-  dbWriteTable(connect, "ADVERTISEMENT", new_advertisement, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_order_detail) > 0) {
-  dbWriteTable(connect, "ORDER_DETAIL", new_order_detail, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_advertise_in) > 0) {
-  dbWriteTable(connect, "ADVERTISE_IN", new_advertise_in, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_order_item) > 0) {
-  dbWriteTable(connect, "ORDER_ITEM", new_order_item, append = TRUE, row.names = FALSE)
-}
+writeToDB(new_customer, "CUSTOMER", connect)
+writeToDB(new_product, "PRODUCT", connect)
+writeToDB(new_address, "ADDRESS", connect)
+writeToDB(new_discount, "DISCOUNT", connect)
+writeToDB(new_supplier, "SUPPLIER", connect)
+writeToDB(new_category, "CATEGORY", connect)
+writeToDB(new_advertisement, "ADVERTISEMENT", connect)
+writeToDB(new_order_detail, "ORDER_DETAIL", connect)
+writeToDB(new_advertise_in, "ADVERTISE_IN", connect)
+writeToDB(new_order_item, "ORDER_ITEM", connect)
 
 
-# List of tables in your database
-#connect <- dbConnect(RSQLite::SQLite(), "database.db")
-#db_table <- dbListTables(connect)
-
-# Function to fetch records from a table
-#fetch_db_record <- function(table_name) {
-#  query <- paste("SELECT * FROM", table_name)
-#  dbGetQuery(connect, query)
-#}
-
-# Fetch existing records from each table
-#existing_record <- lapply(db_table, fetch_db_record)
-
-
-# Disconnect from the database
 dbDisconnect(connect)
