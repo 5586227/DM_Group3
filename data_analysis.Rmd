@@ -22,6 +22,7 @@ library(plotly)
 ## Connect to database
 
 ```{r}
+# Connect to database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
@@ -29,6 +30,7 @@ connect <- dbConnect(RSQLite::SQLite(), "database.db")
 Top 10 products based on the Profit Generated
 
 ```{r}
+# Getting the tables from the database
 product <- RSQLite::dbGetQuery(connect,'SELECT * FROM PRODUCT')
 order_item <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_ITEM')
 order_detail <- RSQLite::dbGetQuery(connect,'SELECT * FROM ORDER_DETAIL')
@@ -37,7 +39,7 @@ discount <- RSQLite::dbGetQuery(connect,'SELECT * FROM DISCOUNT')
 
 ```{r}
 
-# Creating a profit table that includes a total_profit column for each product incorporating the discount percent and filtering out all "cancelled" orders.
+# Creating a profit table that includes a total_profit (quantity x unit price) column for each product incorporating the discount percent and filtering out all "cancelled" orders.
 
 profit_data <- order_item %>%
   inner_join(order_detail, by = "order_id") %>% 
@@ -106,7 +108,7 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales), y = Total
         plot.title = element_text(hjust = 0.5))
 ```
 
-
+Bundles vs Individual products Comparison by Sales Volume
 
 ```{r}
 
@@ -130,13 +132,28 @@ individual_sales <- product_order_item %>%
   ungroup() %>%
   mutate(Product_Type = "Individual")
 
-# Combing the results
+# Combining the results
 total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
   group_by(Product_Type) %>%
   summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%
   ungroup()
 
 print(total_sales_by_type)
+
+```
+
+```{r}
+# Vizualising the results
+
+ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill = Product_Type)) +
+  geom_bar(stat = "identity", width = 0.5) +  # Adjust width here
+  scale_fill_manual(values = c("Bundled" = "skyblue", "Individual" = "salmon")) +
+  labs(title = "Total Quantity Sold by Product Type",
+       x = "Product Type",
+       y = "Total Quantity Sold") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
 
 ```
 
