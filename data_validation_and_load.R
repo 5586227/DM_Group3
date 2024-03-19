@@ -2,60 +2,16 @@
 library(RSQLite)
 
 # Read Files
-# Function to read CSV files from a directory and categorize them into different data frames
-read_all_csv <- function(directory) {
-  csv_files <- list.files(directory, pattern = "\\.csv$", full.names = TRUE)
-  
-  # Initialize a list to store data frames
-  data_frames <- list(
-    customer <- NULL,
-    product <- NULL,
-    address <- NULL,
-    discount <- NULL,
-    supplier <- NULL,
-    category <- NULL,
-    advertisement <- NULL,
-    advertise_in <- NULL,
-    order_item <- NULL,
-    order_detail <- NULL)
-  
-  # Loop through each CSV file
-  for (csv_file in csv_files) {
-    # Read CSV file into a data frame
-    data <- read.csv(csv_file)
-    
-    # Extract file name without extension
-    file_name <- tools::file_path_sans_ext(basename(csv_file))
-    
-    # Determine which data frame to store the data
-    df_name <- sub("s$", "", file_name)  # Remove plural form
-    if (df_name %in% names(data_frames)) {
-      data_frames[[df_name]] <- rbind(data_frames[[df_name]], data)
-      cat("Variables in", df_name, "data frame:\n")
-      print(names(data_frames[[df_name]]))
-    }
-  }
-  return(data_frames)
-}
-
-
-# Directory containing CSV files
-directory <- "Users\edmun\Desktop\Data Mangement\Group Assignment\DM_Group3\data_upload"
-
-# Read CSV files from the directory and categorize them into data frames
-data_frames <- read_all_csv(directory)
-
-# Access each data frame by its name
-customer <- data_frames$customer
-product <- data_frames$product
-address <- data_frames$address
-discount <- data_frames$discount
-supplier <- data_frames$supplier
-category <- data_frames$category
-advertisement <- data_frames$advertisement
-advertise_in <- data_frames$advertise_in
-order_item <- data_frames$order_item
-order_detail <- data_frames$order_detail
+customer <- readr::read_csv("data_upload/CUSTOMER.csv")
+address <- readr::read_csv("data_upload/ADDRESS.csv")
+category <- readr::read_csv("data_upload/CATEGORY.csv")
+supplier <- readr::read_csv("data_upload/SUPPLIER.csv")
+discount <- readr::read_csv("data_upload/DISCOUNT.csv")
+product <- readr::read_csv("data_upload/PRODUCT.csv")
+order_item <- readr::read_csv("data_upload/ORDER_ITEM.csv")
+order_detail <- readr::read_csv("data_upload/ORDER_DETAIL.csv")
+advertisement <- readr::read_csv("data_upload/ADVERTISEMENT.csv")
+advertise_in <- readr::read_csv("data_upload/ADVERTISE_IN.csv")
 
 # CUSTOMER
 #Check duplicate pk
