@@ -586,7 +586,6 @@ However, there would be some additional validation methods that were used to val
     -   Check the format of the mobile number, which should start with a plus sign followed by 12 integer values
 
     ```{r}
-    {r}
     #Check duplicate pk
     duplicate_customer_id <- customer[duplicated(customer$customer_id), "customer_id"]
 
