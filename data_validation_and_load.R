@@ -365,45 +365,20 @@ advertise_in <- advertise_in[!paste(advertise_in$ad_id, advertise_in$product_id)
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
-# Define tables and their new records
-tables <- c("CUSTOMER", "ADDRESS", "CATEGORY", "SUPPLIER", "PRODUCT", "DISCOUNT", 
-            "ORDER_ITEM", "ORDER_DETAIL", "ADVERTISEMENT", "ADVERTISE_IN")
-
-table_new <- list(customer, address, category, supplier, product, discount, 
-                  order_item, order_detail, advertisement, advertise_in)
-
-# Loop through each table
-for (i in seq_along(tables)) {
-  table <- tables[i]
-  new_records <- table_new[[i]]
-  
-  # Read existing records from the table
-  existing <- dbGetQuery(connect, paste("SELECT * FROM", table))
-  
-  # Identify duplicates between existing and new records
-  duplicates <- intersect(existing, new_records)
-  
-  # Remove duplicates from new records
+insert_new_records <- function(connect, table_name, new_records) {
+  existing_records <- dbGetQuery(connect, paste("SELECT * FROM", table_name))
   new_records <- new_records[!duplicated(new_records), ]
+  new_records <- new_records[!duplicated(new_records, existing_records), ]
   
-  # Convert data types if needed (e.g., order_date column)
-  if ("order_date" %in% colnames(existing)) {
-    existing$order_date <- as.character(existing$order_date)
-    new_records$order_date <- as.character(new_records$order_date)
-  }
-  
-  # Insert new records
-  if (length(duplicates) > 0) {
-    cat("Skipping duplicates for table", table, ":\n")
-    print(duplicates)
-  }
+  # Convert data types if needed
+  date_columns <- c("order_date")  # Specify columns to convert to character type
+  existing_records[date_columns] <- lapply(existing_records[date_columns], as.character)
+  new_records[date_columns] <- lapply(new_records[date_columns], as.character)
   
   if (nrow(new_records) > 0) {
-    cat("Inserting new records for table", table, ":\n")
-    dbWriteTable(connect, table, new_records, append = TRUE)
-  } else {
-    cat("No new records to insert into", table, "\n")
+    dbWriteTable(connect, table_name, new_records, append = TRUE, row.names = FALSE)
   }
 }
 
+# Disconnect from the database
 dbDisconnect(connect)
