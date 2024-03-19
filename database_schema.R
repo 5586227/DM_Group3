@@ -22,7 +22,7 @@ dbExecute(connect, "
             first_name VARCHAR(50) NOT NULL,
             last_name VARCHAR(50) NOT NULL,
             gender VARCHAR(10),
-            customer_email VARCHAR(50) NOT NULL UNIQUE,
+            customer_email VARCHAR(50) NOT NULL,
             customer_mobile VARCHAR(50) NOT NULL,
             address_id VARCHAR(50) NOT NULL,
             FOREIGN KEY (address_id) REFERENCES ADDRESS (address_id)
@@ -107,7 +107,7 @@ dbExecute(connect, "
           CREATE TABLE IF NOT EXISTS SUPPLIER (
             supplier_id VARCHAR(50) PRIMARY KEY, 
             supplier_name VARCHAR(50) NOT NULL,
-            supplier_email VARCHAR(50) NOT NULL UNIQUE,
+            supplier_email VARCHAR(50) NOT NULL,
             supplier_mobile VARCHAR(20) NOT NULL
           );
 ")
