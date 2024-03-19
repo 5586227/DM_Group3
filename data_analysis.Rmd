@@ -285,19 +285,23 @@ category_fee <- order_item %>%
   inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
   inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
   filter(order_status == "Completed") %>%
-  mutate(marketplace_fee = order_quantity * unit_price * category_fee) %>%
+  mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+  mutate(cat_total_sales = order_quantity * unit_price) %>%
   group_by(category_id, category_name) %>%
-  summarise(total_fee = sum(marketplace_fee))
+  summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales)) %>%
+  inner_join(select(avg_rating_by_category, category_id, Average_Rating), by = 'category_id')
 
+
+#cat_total_sales = order_quantity * unit_price
 #Visualise
 
 
 # Plotting the total marketplace fee for each category with bars in descending order and custom blue colors
-ggplot(category_fee, aes(x = reorder(category_name, -total_fee), y = total_fee)) +
-  geom_bar(stat = "identity", aes(fill = total_fee)) +
-  scale_fill_gradient(low = "lightblue", high = "darkblue") +
-  labs(title = "Total Marketplace Fee by Category", x = "Category", y = "Total Fees Received") +
+ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+  geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
+  geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
+  scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
+  labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none")  #
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
