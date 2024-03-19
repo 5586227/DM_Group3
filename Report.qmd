@@ -110,13 +110,16 @@ According to the E-R diagram and normalization s, we can list the logical schema
 
 -   ADVERTISE_IN([product_id]{.underline}, ad_id)
 
-#### Physical Schema \<update\>
+#### Physical Schema 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
 
 library(DBI)
 library(RSQLite)
-
+library(dplyr)
+library(tidyr)
+library(gridExtra)
+library(ggplot2)
 #install.packages("DBI")
 #install.packages("RSQLite")
 ```
@@ -179,11 +182,11 @@ Then, we first created parent entities, including CUSTOMER, DISCOUNT, ADVERTISEM
 5.  Create SUPPLIER entity
 
     ```{sql connection=connect}
-    CREATE TABLE SUPPLIER (
-      supplier_id VARCHAR(250) PRIMARY KEY, 
-      supplier_name VARCHAR(250) NOT NULL,
-      supplier_email VARCHAR(250) NOT NULL,
-      supplier_mobile VARCHAR(20) NOT NULL
+    CREATE TABLE IF NOT EXISTS SUPPLIER (
+      supplier_id VARCHAR(50) PRIMARY KEY, 
+      supplier_name VARCHAR(50) NOT NULL,
+      supplier_email VARCHAR(50) NOT NULL UNIQUE,
+      supplier_mobile VARCHAR(20) NOT NULL UNIQUE
     );
     ```
 
@@ -262,29 +265,111 @@ Then, we created entities that are children entities and entities that have refe
 
 ### Task 2.1: Synthetic Data Generation
 
-The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform.
+The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform. We first generated the data for the parent entities to ensure that the referential integrity exists on the children entities or the entities that need a reference for foreign keys from parent entities
 
-The number of observation data generated for each entity was as followed:
+**Data generation for parent entities**
 
--   50 observations for ADDRESS
+1\. ADDRESS
 
--   50 observations for ADVERTISE_IN
+50 observations for the ADDRESS table were created using the following setting:
 
--   5 observations for ADVERTISEMENT
+![](images/ADDRESS data gen.png)
 
--   5 observations for CATEGORY
+As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
 
--   50 observations for CUSTOMER
+In addition, we have set the address_id, which is the primary of the table, to start with 'ADDR' and followed by a number.
 
--   5 observations for DISCOUNT
+![](images/ADDRESS 2 data gen .png)
 
--   100 observations for ORDER_DETAIL
+2\. CUSTOMER
 
--   100 observations for ORDER_ITEM
+50 observations for the CUSTOMER table were created using the following setting:
 
--   50 observations for PRODUCT
+![](images/CUSTOMER DATA GEN.png)
 
--   50 observations for SUPPLIER
+There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
+
+![](images/CUSTOMER 2 DATA GEN.png)
+
+![](images/CUSTOMER 3 DATA GEN.png)
+
+3\. DISCOUNT
+
+5 observations for the DISCOUNT table were created using the following setting:
+
+![](images/DISCOUNT DATA GEN.png)
+
+For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
+
+![](images/DISCOUNT 2 DATA GEN.png)
+
+4\. ADVERTISEMENT
+
+5 observations for the ADVERTISEMENT table were created using the following setting:
+
+![](images/ADVERTISEMENT DATA GEN.png)
+
+We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
+
+![](images/ADVERTISEMENT 2 DATA GEN.png)
+
+![](images/ADVERTISEMENT 3 DATA GEN.png)
+
+5\. SUPPLIER
+
+50 observations for the SUPPLIER table were created using the following setting:
+
+![](images/SUPPLIER DATA GEN.png)
+
+We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
+
+![](images/SUPPLIER 2 DATA GEN.png)
+
+6\. CATEGORY
+
+5 observations for the CATEGORY table were created using the following setting:
+
+![](images/CATEGORY DATA GEN.png)
+
+We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
+
+![](images/CATEGORY 2 DATA GEN.png)
+
+**Data generation for children entities**
+
+7\. PRODUCT
+
+50 observations for the PRODUCT table were created using the following setting:
+
+![](images/PRODUCT DATA GEN.png)
+
+There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
+
+![](images/PRODUCT 2 DATA GEN.png)
+
+![](images/PRODUCT 3 DATA GEN.png)
+
+8\. ORDER_DETAIL
+
+100 observations for the ORDER_DETAIL table were created using the following setting:
+
+![](images/ORDER_DETAIL DATA GEN.png)
+
+We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
+
+![](images/ORDER_DETAIL 2 DATA GEN.png)
+
+9\. ORDER_ITEM
+
+100 observations for the ORDER_ITEM table were created using the following setting:
+
+![](images/ORDER_ITEM DATA GEN.png)
+
+10\. ADVERTISE_IN
+
+50 observations for the ADVERTISE_IN table were created using the following setting:
+
+![](images/ADVERTISE_IN DATA GEN.png)
 
 ### Task 2.2: Data Import and Quality Assurance
 
@@ -806,6 +891,39 @@ The imported data sets were validated before being added to the database to ensu
     advertise_in <- advertise_in[!paste(advertise_in$ad_id, advertise_in$product_id) %in% paste(bad_advertise_in_record$ad_id, bad_advertise_in_record$product_id), ]
     ```
 
+```{r}
+#add new records into table
+connect <- dbConnect(RSQLite::SQLite(), "database.db")
+
+tables <- c("CUSTOMER", "ADDRESS", "CATEGORY", "SUPPLIER", "PRODUCT", "DISCOUNT", 
+            "ORDER_ITEM", "ORDER_DETAIL", "ADVERTISEMENT", "ADVERTISE_IN")
+
+table_new <- list(customer, address, category, supplier, product, discount, 
+                  order_item, order_detail, advertisement, advertise_in)
+
+# Loop through each table
+for (i in seq_along(tables)) {
+  table <- tables[i]
+  new_records <- table_new[[i]]
+  
+  # Read existing records from the table
+  existing <- dbGetQuery(connect, paste("SELECT * FROM", table))
+  
+  # Convert data types if needed (e.g., order_date column)
+  if ("order_date" %in% colnames(existing)) {
+    existing$order_date <- as.character(existing$order_date)
+    new_records$order_date <- as.character(new_records$order_date)
+  }
+  
+  # Find new records not present in existing table
+  new <- anti_join(new_records, existing)
+  
+  # Append new records to the table
+  if (nrow(new) > 0) {
+    dbWriteTable(connect, table, new, append = TRUE)
+  }}
+```
+
 ## Part 3: Data Pipeline Generation
 
 ### Task 3.1: GitHub Repository and Workflow Setup
@@ -966,7 +1084,7 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold, fill 
   theme(legend.position = "none") 
 ```
 
-```{#Report 3}
+```{r Report 3}
 
 #SQL Query to get the sales over a time period 
 
@@ -1052,13 +1170,112 @@ top_5_products_region <- top_5_products %>% group_by(city,product_name) %>% summ
 (top_5_products_region <- top_5_products_region %>% filter(city %in% head(top_5_revenue_per_region$city,2)) %>% select(product_name))
 ```
 
+```{r}
+#Report 5
+# Joining Product with advertise_in and advertisement to get advertisement details
+advertise_in <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISE_IN')
+advertisement <- RSQLite::dbGetQuery(connect,'SELECT * FROM ADVERTISEMENT')
+
+advertisement_data <- product %>%
+  inner_join(advertise_in, by = "product_id") %>%
+  inner_join(advertisement, by = "ad_id") %>%
+  group_by(product_id, product_name, ad_place) %>%
+  summarise(
+    total_frequency = sum(ad_frequency), # Sum the total frequency of ads for each ad place
+    .groups = 'drop' )
+
+
+# Joining product with order to get the number of sales per product
+number_of_sales <- product %>%
+  inner_join(order_item, by = "product_id") %>%
+  group_by(product_id, product_name) %>%
+  summarise(sales_count = n(), .groups = 'drop')
+
+
+
+merged_data <- merge(number_of_sales, advertisement_data, by = c("product_id", "product_name"))
+
+
+
+# Analyzing which ad place is most effective by calculating a ratio of total sales to total ad frequency
+effective_ad_type <- merged_data %>%
+  group_by(ad_place) %>%
+  summarise( total_sales = sum(sales_count), 
+             total_frequency = sum(total_frequency), .groups = 'drop') %>%
+  mutate( effectiveness = total_sales / total_frequency) %>%
+  arrange(desc(effectiveness))
+
+
+
+
+ggplot(effective_ad_type, aes(x = ad_place, y = effectiveness, fill = ad_place)) +
+  geom_col(show.legend = FALSE, width = 0.5) + # Adjust bar width here
+  scale_fill_brewer(palette = "Paired") + # Use a more appealing color palette
+  labs(title = "Effectiveness of Advertisement Types", 
+       x = "Ad Place", 
+       y = "Total Sales / Total Frequency") +
+  theme_minimal(base_size = 14) + # Increase base text size for better readability
+  theme(plot.title = element_text(hjust = 0.5, size = 20), # Center and style title
+        axis.title = element_text(size = 16), # Style axis titles
+        axis.text = element_text(size = 12), # Style axis texts
+        panel.grid.major = element_blank(), # Remove major grid lines
+        panel.grid.minor = element_blank(), # Remove minor grid lines
+        panel.background = element_rect(fill = "white", colour = "grey50")) # Style panel background
+
+
+```
+
+```{r}
+# #Report 6
+# #Calculating Marketplace fee
+# merged_product_fee <- product %>%
+#   inner_join(select(category, category_id, category_fee, category_name), by = "category_id")
+# category_fee <- order_item %>%
+#   inner_join(select(order_detail, order_id, order_status), by = "order_id") %>%
+#   inner_join(select(merged_product_fee, product_id, product_name, unit_price, category_fee, category_id, category_name), by = "product_id") %>%
+#   filter(order_status == "Completed") %>%
+#   mutate(marketplace_fee = order_quantity * unit_price * category_fee/100) %>%
+#   mutate(cat_total_sales = order_quantity * unit_price) %>%
+#   group_by(category_id, category_name) %>%
+#   summarise(total_fee = sum(marketplace_fee), total_sales = sum(cat_total_sales), total_sales_unit = sum(order_quantity)) %>% inner_join(select(category_id, Average_Rating), by= 'category_id')
+# 
+# 
+# #Visualise
+# 
+# 
+# #Graph to compare Category sales VS Category Fee
+# ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
+#   geom_bar(aes(y = total_sales, fill = "Total Sales"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.7) +
+#   geom_bar(aes(y = total_fee, fill = "Marketplace Fee"), stat = "identity", position = position_dodge(width = 0.9)) +
+#   scale_fill_manual(name = "Category", values = c("Marketplace Fee" = "#3182bd", "Total Sales" = "#31a354")) +
+#   labs(title = "Marketplace Fee vs Total Sales by Category", x = "Category", y = "Amount, USD") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+# #Report 7
+# # Graph to compare Category sales VS Category average rating
+# ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
+#   geom_bar(aes(y = total_sales_unit, fill = "Total Sales in Units"), stat = "identity", position = position_dodge(width = 0.9), alpha = 0.6) +
+#   geom_bar(aes(y = (Average_Rating-3)*20, fill = "Average Rating"), stat = "identity", position = position_dodge(width = 0.9), alpha = 1) +
+#   geom_text(aes(label = sprintf("%.2f", Average_Rating), y = Average_Rating, x = category_name), 
+#             color = "black", size = 4, hjust = 0.5) +
+#   scale_fill_manual(name = "Category", values = c("Average Rating" = "#FFCC80", "Total Sales in Units" = "#31a354")) +
+#   labs(title = "Average Rating vs Total Sales in Units by Category", x = "Category", y = "Total Sales in Units") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   scale_y_continuous(name = "Total Sales in Units")
+```
+
 ### Task 4.2: Comprehensive Reporting with Quarto
 
 **Report 1: Profitability vs Popularity**
 
-![*Figure 1*](images/Figure%201.jpeg){alt="Figure 1"}
+![Figure 1](images/Figure%201.jpeg)
 
-![*Figure 2*](images/Figure%202.jpeg){alt="Figure 2"}
+![Figure 2](images/Figure%202.jpeg)
 
 Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
 
@@ -1077,7 +1294,7 @@ Products that are both top sellers and highly profitable should be kept in optim
 
 : *Table 1*
 
-![*Figure 3*](images/Figure%203.jpeg){alt="Figure 3"}
+![Figure 3](images/Figure%203.jpeg)
 
 As seen in Table 1, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
 
@@ -1099,8 +1316,28 @@ Purchase pattern analysis is significant for an e-commerce company as different 
 
 Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
 
-![](images/Figure 4.jpeg)
+**Report 5: Analysis of Advertisement methods**
 
-![](images/Figure 5.jpeg)
+![](images/Figure%204.jpeg)
 
-![](images/Figure 6.jpeg)
+*Figure 6: Sales of products per 1 advertisement of each type*
+
+We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Figure 6 shows that Footer ads on average have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign higher price for more efficient advertisement types to be charged from suppliers.
+
+**Report 6: Analysis of Marketplace transaction fees**
+
+![](images/Figure%205.jpeg)
+
+*Figure 7: Comparing Marketplace fees to the sales in each Category of products*
+
+The marketplace is the mediator between the customer and seller, allowing convenience for both. This service is not free. Sellers pay fees for each transaction. These fees and advertisements make the marketplace profit. The fee varies depending on the category of goods. We compared the combined amount of fees for each sold item by category to find out which category brings the Marketplace more profit.
+
+On Figure 7 we see that the higher the sales of the Category, the more fees Marketplace earns on it. We consider increasing fees for the categories with higher sales and decreasing fees for the categories with low sales to maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular ones. Sports Equipment has the highest sales in terms of money, however, as we will see later most units are sold in the Electronics category.
+
+**Report 7: Analysis of Customers reviews on sales for each category.**
+
+![](images/Figure%206.jpeg){width="831"}
+
+*Figure 8: Average customers' rating for the category and category's sales in units*
+
+It was found that categories that have products with higher ratings have lower sales in units. This may appear wrong but most likely with the increase in sales the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
