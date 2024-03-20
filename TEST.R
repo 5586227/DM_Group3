@@ -40,35 +40,6 @@ order_item <- data_frames$ORDER_ITEM
 order_detail <- data_frames$ORDER_DETAIL
 
 
-# CUSTOMER
-#Check for missing data
-customer <- customer[complete.cases(customer), ]
-
-#Check duplicate customer_id
-duplicate_customer_id <- customer[duplicated(customer$customer_id), "customer_id"]
-customer <- customer[!customer$customer_id %in% duplicate_customer_id, ]
-
-#Check duplicate email
-duplicate_emails <- customer[duplicated(customer$customer_email), "customer_email"]
-customer <- customer[!customer$customer_email %in% duplicate_emails, ]
-
-#Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
-customer <- customer[grepl("^[A-Z][a-z]$", customer$first_name) & grepl("^[A-Z][a-z]$", customer$last_name), ]
-
-#Check email format
-customer <- customer[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), ]
-
-#Check format of mobile number (+xx xxx xxx xxxx)
-customer <- customer[grepl("^\\+\\d{1,3}\\s\\d{3}\\s\\d{3}\\s\\d{4}$", customer$customer_mobile), ]
-
-#Check duplicate mobile
-duplicate_mobiles <- customer[duplicated(customer$customer_mobile), "customer_mobile"]
-customer <- customer[!customer$customer_mobile %in% duplicate_mobiles, ]
-
-#Check if address_id exists in the ADDRESS table
-customer <- customer[customer$address_id %in% address$address_id, ]
-
-
 # ADDRESS
 #Check for missing data
 address <- address[complete.cases(address), ]
@@ -76,6 +47,62 @@ address <- address[complete.cases(address), ]
 #Check duplicate address_id
 duplicate_address_id <- address[duplicated(address$address_id), "address_id"]
 address <- address[!address$address_id %in% duplicate_address_id, ]
+
+
+# ADVERTISEMENT
+#Check for missing data
+advertisement <- advertisement[complete.cases(advertisement), ]
+
+#Check duplicate pk
+duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), "ad_id"]
+advertisement <- advertisement[!advertisement$ad_id %in% duplicate_ad_id, ]
+
+#Check ad frequency (can only contain integer)
+advertisement <- advertisement[grepl("^[0-9]+$", advertisement$ad_frequency), ]
+
+#Check for negative ad frequency
+advertisement <- advertisement[advertisement$ad_frequency >= 0, ]
+
+#Check for negative prices
+advertisement <- advertisement[advertisement$ad_price >= 0, ]
+
+
+# DISCOUNT
+#Check missing data
+discount <- discount[complete.cases(discount), ]
+
+#Check duplicate promo_code
+duplicate_promo_code <- discount[duplicated(discount$promo_code), "promo_code"]
+discount <- discount[!discount$promo_code %in% duplicate_promo_code, ]
+
+#Check percent
+discount <- discount[grepl("^[0-9]+$", discount$discount_percent), ]
+
+
+# SUPPLIER
+#Check missing data
+supplier <- supplier[complete.cases(supplier), ]
+
+#Check duplicate supplier_id
+duplicate_supplier_id <- supplier[duplicated(supplier$supplier_id), "supplier_id"]
+supplier <- supplier[!supplier$supplier_id %in% duplicate_supplier_id, ]
+
+#Check supplier (can contain alphabets, comma, hyphen, dot)
+#supplier <- supplier[grepl("^[a-zA-Z,.-]+$", supplier$supplier_name), ]
+
+#Check email format
+supplier <- supplier[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), ]
+
+#Check duplicate email
+duplicate_emails <- supplier[duplicated(supplier$supplier_email), "supplier_email"]
+supplier <- supplier[!supplier$supplier_email %in% duplicate_emails, ]
+
+#Check format of mobile number (+xx xxx xxx xxxx)
+supplier <- supplier[grepl("^\\+\\d{1,3}\\s\\d{3}\\s\\d{3}\\s\\d{4}$", supplier$supplier_mobile), ]
+
+#Check duplicate mobile
+duplicate_mobiles <- supplier[duplicated(supplier$supplier_mobile), "supplier_mobile"]
+supplier <- supplier[!supplier$supplier_mobile %in% duplicate_mobiles, ]
 
 
 # CATEGORY
@@ -97,76 +124,33 @@ category <- category[!category$category_name %in% duplicate_category_name, ]
 category <- category[category$category_fee >= 0, ]
 
 
-# SUPPLIER
-#Check missing data
-supplier <- supplier[complete.cases(supplier), ]
+# CUSTOMER
+#Check for missing data
+customer <- customer[complete.cases(customer), ]
 
-#Check duplicate supplier_id
-duplicate_supplier_id <- supplier[duplicated(supplier$supplier_id), "supplier_id"]
-supplier <- supplier[!supplier$supplier_id %in% duplicate_supplier_id, ]
-
-#Check supplier (can contain alphabets, comma, hyphen, dot)
-supplier <- supplier[grepl("^[a-zA-Z,.-]+$", supplier$supplier_name), ]
-
-#Check email format
-supplier <- supplier[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), ]
+#Check duplicate customer_id
+duplicate_customer_id <- customer[duplicated(customer$customer_id), "customer_id"]
+customer <- customer[!customer$customer_id %in% duplicate_customer_id, ]
 
 #Check duplicate email
-duplicate_emails <- supplier[duplicated(supplier$supplier_email), "supplier_email"]
-supplier <- supplier[!supplier$supplier_email %in% duplicate_emails, ]
+duplicate_emails <- customer[duplicated(customer$customer_email), "customer_email"]
+customer <- customer[!customer$customer_email %in% duplicate_emails, ]
+
+#Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
+#customer <- customer[grepl("^[A-Z][a-z]$", customer$first_name) & grepl("^[A-Z][a-z]$", customer$last_name), ]
+
+#Check email format
+customer <- customer[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), ]
 
 #Check format of mobile number (+xx xxx xxx xxxx)
-supplier <- supplier[grepl("^\\+\\d{1,3}\\s\\d{3}\\s\\d{3}\\s\\d{4}$", supplier$supplier_mobile), ]
+customer <- customer[grepl("^\\+\\d{1,3}\\s\\d{3}\\s\\d{3}\\s\\d{4}$", customer$customer_mobile), ]
 
 #Check duplicate mobile
-duplicate_mobiles <- supplier[duplicated(supplier$supplier_mobile), "supplier_mobile"]
-supplier <- supplier[!supplier$supplier_mobile %in% duplicate_mobiles, ]
+duplicate_mobiles <- customer[duplicated(customer$customer_mobile), "customer_mobile"]
+customer <- customer[!customer$customer_mobile %in% duplicate_mobiles, ]
 
-
-# DISCOUNT
-#Check missing data
-discount <- discount[complete.cases(discount), ]
-
-#Check duplicate promo_code
-duplicate_promo_code <- discount[duplicated(discount$promo_code), "promo_code"]
-discount <- discount[!discount$promo_code %in% duplicate_promo_code, ]
-
-#Check percent
-discount <- discount[grepl("^[0-9]+$", discount$discount_percent), ]
-
-
-# ADVERTISEMENT
-#Check for missing data
-advertisement <- advertisement[complete.cases(advertisement), ]
-
-#Check duplicate pk
-duplicate_ad_id <- advertisement[duplicated(advertisement$ad_id), "ad_id"]
-advertisement <- advertisement[!advertisement$ad_id %in% duplicate_ad_id, ]
-
-#Check ad frequency (can only contain integer)
-advertisement <- advertisement[grepl("^[0-9]+$", advertisement$ad_frequency), ]
-
-#Check for negative ad frequency
-advertisement <- advertisement[advertisement$ad_frequency >= 0, ]
-
-#Check for negative prices
-advertisement <- advertisement[advertisement$ad_price >= 0, ]
-
-
-# ADVERTISE_IN
-#Check for missing data
-advertise_in <- advertise_in[complete.cases(advertise_in), ]
-
-#Check duplicate for composite primary key
-advertise_in_composite <- paste(advertise_in$ad_id, advertise_in$product_id)
-advertise_in <- advertise_in[!duplicated(advertise_in_composite), ]
-
-#Check if ad_id exists in the ADVERTISEMENT table
-advertise_in <- advertise_in[advertise_in$ad_id %in% advertisement$ad_id, ]
-
-#Check if product_id exists in the PRODUCT table
-advertise_in <- advertise_in[advertise_in$product_id %in% product$product_id, ]
-
+#Check if address_id exists in the ADDRESS table
+customer <- customer[customer$address_id %in% address$address_id, ]
 
 
 # PRODUCT
@@ -200,8 +184,8 @@ product <- product[is.na(product$main_product_id) |
 order_detail <- order_detail[complete.cases(order_detail), ]
 
 #Check duplicate order_id
-duplicate_order_id <- order_detail[duplicated(order_detail$order_id), "order_id"]
-order_detail <- order_detail[!order_detail$order_id %in% duplicate_order_id, ]
+#duplicate_order_id <- order_detail[duplicated(order_detail$order_id), "order_id"]
+#order_detail <- order_detail[!order_detail$order_id %in% duplicate_order_id, ]
 
 #Check if customer_id exists in the CUSTOMER table
 order_detail <- order_detail[order_detail$customer_id %in% customer$customer_id, ]
@@ -237,6 +221,22 @@ order_item <- order_item[order_item$product_id %in% product$product_id, ]
 
 #Check negative order quantity
 order_item <- order_item[order_item$order_quantity >= 1, ]
+
+
+# ADVERTISE_IN
+#Check for missing data
+advertise_in <- advertise_in[complete.cases(advertise_in), ]
+
+#Check duplicate for composite primary key
+advertise_in_composite <- paste(advertise_in$ad_id, advertise_in$product_id)
+advertise_in <- advertise_in[!duplicated(advertise_in_composite), ]
+
+#Check if ad_id exists in the ADVERTISEMENT table
+advertise_in <- advertise_in[advertise_in$ad_id %in% advertisement$ad_id, ]
+
+#Check if product_id exists in the PRODUCT table
+advertise_in <- advertise_in[advertise_in$product_id %in% product$product_id, ]
+
 
 
 

@@ -15,6 +15,43 @@ dbExecute(connect, "
           );
 ")
 
+# Create ADVERTISEMENT table
+dbExecute(connect, "
+          CREATE TABLE IF NOT EXISTS ADVERTISEMENT (
+            ad_id VARCHAR(50) PRIMARY KEY, 
+            ad_frequency INT NOT NULL,
+            ad_place VARCHAR(50) NOT NULL,
+            ad_price DECIMAL(10, 2) NOT NULL
+          );
+")
+
+# Create DISCOUNT table
+dbExecute(connect, "
+          CREATE TABLE IF NOT EXISTS DISCOUNT (
+            promo_code VARCHAR(20) PRIMARY KEY, 
+            discount_percent INT NOT NULL
+          );
+")
+
+# Create SUPPLIER table
+dbExecute(connect, "
+          CREATE TABLE IF NOT EXISTS SUPPLIER (
+            supplier_id VARCHAR(50) PRIMARY KEY, 
+            supplier_name VARCHAR(50) NOT NULL,
+            supplier_email VARCHAR(50) NOT NULL UNIQUE,
+            supplier_mobile VARCHAR(20) NOT NULL UNIQUE
+          );
+")
+
+# Create CATEGORY table
+dbExecute(connect, "
+          CREATE TABLE IF NOT EXISTS CATEGORY (
+            category_id VARCHAR(50) PRIMARY KEY, 
+            category_name VARCHAR(50) NOT NULL,
+            category_fee INT NOT NULL
+          );
+")
+
 # Create CUSTOMER Table
 dbExecute(connect, "
           CREATE TABLE IF NOT EXISTS CUSTOMER (
@@ -46,26 +83,6 @@ dbExecute(connect, "
           );
 ")
 
-# Create DISCOUNT table
-dbExecute(connect, "
-          CREATE TABLE IF NOT EXISTS DISCOUNT (
-            promo_code VARCHAR(20) PRIMARY KEY, 
-            discount_percent INT NOT NULL
-          );
-")
-
-# Create ORDER_ITEM table for CUSTOMER-PRODUCT relationship
-dbExecute(connect, "
-          CREATE TABLE IF NOT EXISTS ORDER_ITEM (
-            order_id VARCHAR(50),
-            product_id VARCHAR(50),
-            order_quantity INT NOT NULL,
-            PRIMARY KEY (order_id, product_id),
-            FOREIGN KEY (order_id)   REFERENCES ORDER_DETAIL (order_id),
-            FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id)
-          );
-")
-
 # Create ORDER_DETAIL table
 dbExecute(connect, "
           CREATE TABLE IF NOT EXISTS ORDER_DETAIL (
@@ -81,13 +98,15 @@ dbExecute(connect, "
           );
 ")
 
-# Create ADVERTISEMENT table
+# Create ORDER_ITEM table for CUSTOMER-PRODUCT relationship
 dbExecute(connect, "
-          CREATE TABLE IF NOT EXISTS ADVERTISEMENT (
-            ad_id VARCHAR(50) PRIMARY KEY, 
-            ad_frequency INT NOT NULL,
-            ad_place VARCHAR(50) NOT NULL,
-            ad_price DECIMAL(10, 2) NOT NULL
+          CREATE TABLE IF NOT EXISTS ORDER_ITEM (
+            order_id VARCHAR(50),
+            product_id VARCHAR(50),
+            order_quantity INT NOT NULL,
+            PRIMARY KEY (order_id, product_id),
+            FOREIGN KEY (order_id)   REFERENCES ORDER_DETAIL (order_id),
+            FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id)
           );
 ")
 
@@ -101,25 +120,5 @@ dbExecute(connect, "
             FOREIGN KEY (ad_id)      REFERENCES ADVERTISEMENT (ad_id)
           );
 ")
-
-# Create SUPPLIER table
-dbExecute(connect, "
-          CREATE TABLE IF NOT EXISTS SUPPLIER (
-            supplier_id VARCHAR(50) PRIMARY KEY, 
-            supplier_name VARCHAR(50) NOT NULL,
-            supplier_email VARCHAR(50) NOT NULL UNIQUE,
-            supplier_mobile VARCHAR(20) NOT NULL UNIQUE
-          );
-")
-
-# Create CATEGORY table
-dbExecute(connect, "
-          CREATE TABLE IF NOT EXISTS CATEGORY (
-            category_id VARCHAR(50) PRIMARY KEY, 
-            category_name VARCHAR(50) NOT NULL,
-            category_fee INT NOT NULL
-          );
-")
-
 # Disconnect from the database
 dbDisconnect(connect)
