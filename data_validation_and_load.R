@@ -231,6 +231,8 @@ for (table_name in table_names) {
   # Get data frame from data_frames list
   df <- data_frames[[table_name]]
   
+  cat("Total records in", table_name, ":", nrow(df), "\n")
+  
   # Retrieve existing records from the database
   db_data <- dbGetQuery(connect, paste("SELECT * FROM", table_name))
   
@@ -242,6 +244,11 @@ for (table_name in table_names) {
     dbWriteTable(connect, table_name, new_records, append = TRUE, row.names = FALSE)
   }
 }
+
+
+
+##test
+
 
 
 # Disconnect from the database
