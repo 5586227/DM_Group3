@@ -271,7 +271,9 @@ Then, we created entities that are children entities and entities that have refe
 
 ## Task 2.1: Synthetic Data Generation
 
-Synthetic data from the normalized schema was created for each table was using Mockaroo, a mock data generator platform. Data was generated for the parent entities initially to ensure that the referential integrity exists on the children entities or the entities that need a reference for foreign keys from parent entities 
+Synthetic data from the normalized schema was created for each table using Mockaroo, a mock data generator platform. Data was initially generated for the parent entities to ensure that the referential integrity exists on the children entities or entities that need a reference for foreign keys from parent entities. The number of created observations is as follows
+
+![](images/TABLE (1).png) 
 
 **Data generation for parent entities**
 
@@ -279,7 +281,7 @@ Synthetic data from the normalized schema was created for each table was using M
 
 ![](images/ADDRESS%20data%20gen.png)
 
-50 observations for the ADDRESS table were created. As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
+As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
 
 In addition, we have set the address_id, which is the primary of the table, to start with 'ADDR' and followed by a number.
 
@@ -289,7 +291,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/DISCOUNT%20DATA%20GEN.png)
 
-5 observations for the DISCOUNT table were created. For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
+For the promo_code, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to a particular promo_code using this formula:
 
 ![](images/DISCOUNT%202%20DATA%20GEN.png)
 
@@ -297,7 +299,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/ADVERTISEMENT%20DATA%20GEN.png)
 
-5 observations for the ADVERTISEMENT table were created. We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
+We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place.
 
 ![](images/ADVERTISEMENT%202%20DATA%20GEN.png)
 
@@ -307,7 +309,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/SUPPLIER%20DATA%20GEN.png)
 
-50 observations for the SUPPLIER table were created. We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
+We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
 
 ![](images/SUPPLIER%202%20DATA%20GEN.png)
 
@@ -315,7 +317,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/CATEGORY%20DATA%20GEN.png)
 
-5 observations for the CATEGORY table were created. We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
+We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
 
 ![](images/CATEGORY%202%20DATA%20GEN.png)
 
@@ -325,7 +327,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/CUSTOMER%20DATA%20GEN-01.png)
 
-50 observations for the CUSTOMER table were created. There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
+There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
 
 ![](images/CUSTOMER%202%20DATA%20GEN-01.png)
 
@@ -335,7 +337,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/PRODUCT%20DATA%20GEN.png)
 
-50 observations for the PRODUCT table were created. There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
+We set two conditions in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. Next, to ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to.
 
 ![](images/PRODUCT%202%20DATA%20GEN.png)
 
@@ -345,7 +347,7 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/ORDER_DETAIL%20DATA%20GEN.png)
 
-100 observations for the ORDER_DETAIL table were created. We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
+We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
 
 ![](images/ORDER_DETAIL%202%20DATA%20GEN.png)
 
@@ -353,13 +355,9 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 ![](images/ORDER_ITEM%20DATA%20GEN.png)
 
-100 observations for the ORDER_ITEM table were created.
-
 10\. ADVERTISE_IN
 
 ![](images/ADVERTISE_IN%20DATA%20GEN.png)
-
-50 observations for the ADVERTISE_IN table were created.
 
 ## Task 2.2: Data Import and Quality Assurance
 
@@ -382,9 +380,9 @@ advertise_in <- readr::read_csv("data_upload/ADVERTISE_IN.csv")
 
 **Quality Assurance**
 
-The imported data sets were validated before being added to the database to ensure they aligned with the nature of the keys and data type specified in the physical schema. First, we validated parent entities including ADDRESS, DISCOUNT, ADVERTISEMENT, SUPPLIER, CATEGORY. Once all parent entities were validated, we continued validating children entities CUSTOMER, PRODUCT, ORDER_ITEM, ORDER_DETAIL, and ADVERTISE_IN.
+The imported data sets were validated before being added to the database to ensure they aligned with the nature of the keys and data type specified in the physical schema.
 
-The general validation processes that were performed to check on the data quality for all entities included:
+The following data quality checks were performed in all entities included:
 
 1.  Check if the values of the primary key are unique
 2.  Check if there is any missing data in the attributes that should not have missing values
