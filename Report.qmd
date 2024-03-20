@@ -762,7 +762,7 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales),
 
 Figure 1 represents the profitability of individual products. The “Eclipse Yoga Mat” generates the highest profit for the company indicating a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the “Stellar Eyeshadow Palette” and “Fusion X Gaming Console” lead, suggesting they are popular among customers. Some products are both popular and profitable implying a successful product strategy. However, there are also noticeable discrepancies. For example, “QuantumX Gaming Mouse” appears as a top seller, yet it’s absent from the most profitable items, implying a lower profit margin. In contrast, “Nebula Smart LED Bulbs” are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
 
-The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
+The e-commerce company could focus on marketing strategies for high revenue generating products to boost their volume of sales, increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
 
 Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or discontinuing them if they do not contribute significantly to overall profits.
 
@@ -779,7 +779,6 @@ time_period_sales<- RSQLite::dbGetQuery(connect,'SELECT ORDITM.order_id,
                                         ORDER_DETAIL ORDDET INNER JOIN 
                                         ORDER_ITEM ORDITM ON ORDITM.order_id =
                                         ORDDET.order_id')
-#test
 
 #Conversion of order_date field to appropiate format
 time_period_sales$order_date <- as.Date(time_period_sales$order_date, 
@@ -812,9 +811,9 @@ xlab('Time Period(year/month)')+ylab('Quantity Sold'))+
 theme(axis.text.x=element_text(angle=45,hjust = 1))
 ```
 
-*Figure 4: Time Series Graph to depict the seasonal trends in sales*
+*Figure 2: Time Series Graph to depict the seasonal trends in sales*
 
-Figure 4 helps us understand the purchase patterns of the customers over different periods of time. Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 1 illustrates that the sales were maximum in September and December months over the time period from 2022 to 2023. Hence, appropriate pricing strategies could be deployed to increase revenue from top-selling products. Also, a sharp decline in sales was identified in October, which was later followed by an increase in succeeding months. This study could help maintain efficient inventory management for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
+Figure 2 helps us understand the purchase patterns of the customers over different periods of time. Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 1 illustrates that the sales were maximum in September and December months over the time period from 2022 to 2023. Hence, appropriate pricing strategies could be deployed to increase revenue from top-selling products. Also, a sharp decline in sales was identified in October, which was later followed by an increase in succeeding months. This study could help maintain efficient inventory management for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
 
 ### Analysis 3: Comparison of sales and revenue across different cities
 
@@ -921,16 +920,18 @@ summarise(rev= sum(revenue))
 
 #Table to show the products that are 
 #sold for the top 2 revenue producing cities
-(top_5_products_region <- top_5_products_region %>% 
-filter(city %in% head(top_5_revenue_per_region$city,2))
-%>% select(product_name))
+top_5_products_region <- top_5_products_region %>% 
+filter(city %in% head(top_5_revenue_per_region$city,2))%>% 
+select(product_name)
 
 grid.arrange(ggplot1,ggplot2)
+
+head(top_5_products_region,5)
 ```
 
-*Figure 5: Top 10 cities with maximum revenue and sales*
+*Figure 3: Top 10 cities with maximum revenue and sales*
 
-Figure 5 gives a crucial insight into cities that generated significant revenue with a lesser quantity of products sold. Top Products from these cities could be identified as shown in Table 1, as their sales could primarily improve revenue. Also, cities like Ford, Manchester, and Milton generated outstanding revenue despite limited sales. This indicates that customers in this region had a good willingness to pay, which could be capitalised by targeted marketing.
+Figure 3 gives a crucial insight into cities that generated significant revenue with a lesser quantity of products sold. Top Products from these cities could be identified as shown as examples in the table above and its sales could primarily improve revenue. Also, cities like Charlton and Milton generated outstanding revenue despite limited sales. This indicates that customers in this region had a good willingness to pay, which could be capitalised by targeted marketing.
 
 ### Analysis 4: Comparison of advertisements effectivenes
 
@@ -999,7 +1000,7 @@ panel.background = element_rect(fill = "white", colour = "grey50"))
 
 ```
 
-*Figure 6: Sales of products per 1 advertisement of each type*
+*Figure 4: Sales of products per 1 advertisement of each type*
 
 We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Footer ads, on average, have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign a price for ads to be charged from suppliers.
 
@@ -1063,7 +1064,7 @@ ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
 
 ```
 
-*Figure 7: Comparing Marketplace fees to the sales in each Category of products*
+*Figure 5: Comparing Marketplace fees to the sales in each Category of products*
 
 High sales in the category relate to a higher Marketplace fee. Increasing fees for the categories with higher sales and decreasing fees for the categories with low sales will maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular categories. Sports Equipment has the highest sales in terms of money. However, as we will see later, most units are sold in the Electronics category.
 
@@ -1092,6 +1093,6 @@ ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
   scale_y_continuous(name = "Total Sales in Units")
 ```
 
-*Figure 8: Average customers' rating for the category and category's sales in units*
+*Figure 6: Average customers' rating for the category and category's sales in units*
 
 Categories that have products with higher ratings have lower sales in units. This means that with the increase in sales, the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
