@@ -413,7 +413,8 @@ check_missing_values <- function(df, columns_to_skip, table_name) {
   columns <- setdiff(names(df), columns_to_skip)
   missing <- sapply(df[columns], function(x) any(is.na(x) | x == ""))
   if (table_name == "ORDER_DETAIL") {
-    missing["promo_code"] <- FALSE  # Allow missing values in "promo_code" for "ORDER_DETAIL" table
+    missing["promo_code"] <- FALSE 
+    # Allow missing values in "promo_code" for "ORDER_DETAIL" table
   }
   return(missing)
 }
@@ -424,9 +425,12 @@ columns_to_skip <- c("gender", "product_description", "product_rating", "main_pr
 ## Apply the function for each data frame
 for (table_name in names(data_frames)) {
   if (table_name %in% names(primary_keys)) {
-    missing_values <- check_missing_values(data_frames[[table_name]], columns_to_skip, table_name)
+    missing_values <- check_missing_values(data_frames[[table_name]],
+                                           columns_to_skip, table_name)
     if (any(missing_values)) {
-      empty_row_indices <- apply(data_frames[[table_name]][, -which(names(data_frames[[table_name]]) %in% columns_to_skip)], 1, function(row) any(row == "" | is.na(row)))
+      empty_row_indices <- apply(data_frames[[table_name]][,
+                                                           -which(names(data_frames[[table_name]]) %in% columns_to_skip)], 1, function(row) any(row == "" |
+                                                                                                                                                  is.na(row)))
       data_frames[[table_name]] <- data_frames[[table_name]][!empty_row_indices, ]
     }
   }
@@ -439,41 +443,78 @@ for (table_name in names(data_frames)) {
 ```{r}
 # Foreign key check
 ##CUSTOMER - ADDRESS
-invalid_address_fk <- data_frames$CUSTOMER[!data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
-data_frames$CUSTOMER <- data_frames$CUSTOMER[data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
+invalid_address_fk <- data_frames$CUSTOMER[
+  !data_frames$CUSTOMER$address_id %in%
+    data_frames$ADDRESS$address_id, ]
+data_frames$CUSTOMER <- data_frames$CUSTOMER[
+  data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
 
 ##PRODUCT - CATEGORY
-invalid_category_fk <- data_frames$PRODUCT[!data_frames$PRODUCT$category_id %in% data_frames$CATEGORY$category_id, ]
-data_frames$PRODUCT <- data_frames$PRODUCT[data_frames$PRODUCT$category_id %in% data_frames$CATEGORY$category_id, ]
+invalid_category_fk <- data_frames$PRODUCT[
+  !data_frames$PRODUCT$category_id %in% 
+    data_frames$CATEGORY$category_id, ]
+data_frames$PRODUCT <- data_frames$PRODUCT[
+  data_frames$PRODUCT$category_id %in% 
+    data_frames$CATEGORY$category_id, ]
 
 ##PRODUCT - SUPPLIER
-invalid_supplier_fk <- data_frames$PRODUCT[!data_frames$PRODUCT$supplier_id %in% data_frames$SUPPLIER$supplier_id, ]
-data_frames$PRODUCT <- data_frames$PRODUCT[data_frames$PRODUCT$supplier_id %in% data_frames$SUPPLIER$supplier_id, ]
+invalid_supplier_fk <- data_frames$PRODUCT[
+  !data_frames$PRODUCT$supplier_id %in%
+    data_frames$SUPPLIER$supplier_id, ]
+data_frames$PRODUCT <- data_frames$PRODUCT[
+  data_frames$PRODUCT$supplier_id %in% 
+    data_frames$SUPPLIER$supplier_id, ]
 
 ##ORDER_DETAIL - CUSTOMER
-invalid_customer_fk <- data_frames$ORDER_DETAIL[!data_frames$ORDER_DETAIL$customer_id %in% data_frames$CUSTOMER$customer_id, ]
-data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[data_frames$ORDER_DETAIL$customer_id %in% data_frames$CUSTOMER$customer_id, ]
+invalid_customer_fk <- data_frames$ORDER_DETAIL[
+  !data_frames$ORDER_DETAIL$customer_id %in% 
+    data_frames$CUSTOMER$customer_id, ]
+data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[
+  data_frames$ORDER_DETAIL$customer_id %in% 
+    data_frames$CUSTOMER$customer_id, ]
 
 ##ORDER_DETAIL - DISCOUNT
-discounted_order <- data_frames$ORDER_DETAIL[!is.na(data_frames$ORDER_DETAIL$promo_code) & trimws(data_frames$ORDER_DETAIL$promo_code) != "", ]
-invalid_promo_fk <- discounted_order[!discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
-data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[is.na(data_frames$ORDER_DETAIL$promo_code) | trimws(data_frames$ORDER_DETAIL$promo_code) == "" | discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
+discounted_order <- data_frames$ORDER_DETAIL[
+  !is.na(data_frames$ORDER_DETAIL$promo_code)
+  & trimws(data_frames$ORDER_DETAIL$promo_code) != "", ]
+invalid_promo_fk <- discounted_order[
+  !discounted_order$promo_code %in%
+    data_frames$DISCOUNT$promo_code, ]
+data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[
+  is.na(data_frames$ORDER_DETAIL$promo_code) | 
+    trimws(data_frames$ORDER_DETAIL$promo_code) == "" |
+    discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
 
 ##ORDER_ITEM - PRODUCT
-invalid_product_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
-data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
+invalid_product_fk <- data_frames$ORDER_ITEM[
+  !data_frames$ORDER_ITEM$product_id %in% 
+    data_frames$PRODUCT$product_id, ]
+data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[
+  data_frames$ORDER_ITEM$product_id %in% 
+    data_frames$PRODUCT$product_id, ]
 
 ##ORDER_ITEM - ORDER_DETAIL
-invalid_order_fk       <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
-data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[ data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
+invalid_order_fk       <- data_frames$ORDER_ITEM[
+  !data_frames$ORDER_ITEM$order_id %in% 
+    data_frames$ORDER_DETAIL$order_id, ]
+data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[
+  data_frames$ORDER_ITEM$order_id %in% 
+    data_frames$ORDER_DETAIL$order_id, ]
 
 ##ADVERTISE_IN - ADVERTISEMENT
-invalid_ad_fk <- data_frames$ADVERTISE_IN[!data_frames$ADVERTISE_IN$ad_id %in% data_frames$ADVERTISEMENT$ad_id, ]
-data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[data_frames$ADVERTISE_IN$ad_id %in% data_frames$ADVERTISEMENT$ad_id, ]
+invalid_ad_fk <- data_frames$ADVERTISE_IN[
+  !data_frames$ADVERTISE_IN$ad_id %in% 
+    data_frames$ADVERTISEMENT$ad_id, ]
+data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[
+  data_frames$ADVERTISE_IN$ad_id %in% 
+    data_frames$ADVERTISEMENT$ad_id, ]
 
 ##ADVERTISE_IN - PRODUCT
-invalid_adproduct_fk <- data_frames$ADVERTISE_IN[!data_frames$ADVERTISE_IN$product_id %in% data_frames$PRODUCT$product_id, ]
-data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[data_frames$ADVERTISE_IN$product_id %in% data_frames$PRODUCT$product_id, ]
+invalid_adproduct_fk <- data_frames$ADVERTISE_IN[
+  !data_frames$ADVERTISE_IN$product_id %in% 
+    data_frames$PRODUCT$product_id, ]
+data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[
+  data_frames$ADVERTISE_IN$product_id %in% data_frames$PRODUCT$product_id, ]
 ```
 
 4.  CUSTOMER: Remove customer name Remove name that does not match pattern
@@ -481,10 +522,12 @@ data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[data_frames$ADVERTISE_IN$pr
 ```{r}
 # Check name format
 ## Function to check for invalid name format in columns
-check_name_format <- function(df) {
+check_name_format <- function(df) 
+  {
   invalid_format <- rep(FALSE, nrow(df))
   for (i in 1:nrow(df)) {
-    if (!grepl("^[A-Z][a-z]*$", df[i, "first_name"]) || !grepl("^[A-Z][a-z]*$", df[i, "last_name"])) {
+    if (!grepl("^[A-Z][a-z]*$", df[i, "first_name"]) ||
+        !grepl("^[A-Z][a-z]*$", df[i, "last_name"])) {
       invalid_format[i] <- TRUE
     }
   }
@@ -509,7 +552,8 @@ if ("CUSTOMER" %in% names(data_frames)) {
 # Check product/category/supplier name
 ## Function to keep records if the specified column matches the regex pattern
 naming_format <- function(df, column_to_check, regex_pattern) {
-  matching_records <- grepl(regex_pattern, df[[column_to_check]], perl = TRUE)
+  matching_records <- grepl(regex_pattern, 
+                            df[[column_to_check]], perl = TRUE)
   return(df[matching_records, ])
 }
 
@@ -518,15 +562,18 @@ regex_pattern <- "^[A-Za-z,.-]+( [A-Za-z,.-]+)*$"
 
 ## Apply the function for the specified columns in the respective tables
 if ("CATEGORY" %in% names(data_frames)) {
-  data_frames[["CATEGORY"]] <- naming_format(data_frames[["CATEGORY"]], "category_name", regex_pattern)
+  data_frames[["CATEGORY"]] <- naming_format(
+    data_frames[["CATEGORY"]], "category_name", regex_pattern)
 }
 
 if ("SUPPLIER" %in% names(data_frames)) {
-  data_frames[["SUPPLIER"]] <- naming_format(data_frames[["SUPPLIER"]], "supplier_name", regex_pattern)
+  data_frames[["SUPPLIER"]] <- naming_format(
+    data_frames[["SUPPLIER"]], "supplier_name", regex_pattern)
 }
 
 if ("PRODUCT" %in% names(data_frames)) {
-  data_frames[["PRODUCT"]] <- naming_format(data_frames[["PRODUCT"]], "product_name", regex_pattern)
+  data_frames[["PRODUCT"]] <- naming_format(
+    data_frames[["PRODUCT"]], "product_name", regex_pattern)
 }
 ```
 
@@ -541,18 +588,22 @@ check_email_format <- function(email) {
 
 ##Check email format for CUSTOMER table
 if ("CUSTOMER" %in% names(data_frames)) {
-  invalid_emails_customer <- !sapply(data_frames$CUSTOMER$customer_email, check_email_format)
+  invalid_emails_customer <- !sapply(
+    data_frames$CUSTOMER$customer_email, check_email_format)
   if (any(invalid_emails_customer)) {
-    data_frames$CUSTOMER <- data_frames$CUSTOMER[!invalid_emails_customer, ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[
+      !invalid_emails_customer, ]
     data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER$customer_email), ]
   }
 }
 
 ##Check email format for SUPPLIER table
 if ("SUPPLIER" %in% names(data_frames)) {
-  invalid_emails_supplier <- !sapply(data_frames$SUPPLIER$supplier_email, check_email_format)
+  invalid_emails_supplier <- !sapply(
+    data_frames$SUPPLIER$supplier_email, check_email_format)
   if (any(invalid_emails_supplier)) {
-    data_frames$SUPPLIER <- data_frames$SUPPLIER[!invalid_emails_supplier, ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[
+      !invalid_emails_supplier, ]
     data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER$supplier_email), ]
   }
 }
@@ -569,19 +620,25 @@ check_mobile_format <- function(mobile) {
 
 ##Check mobile format for CUSTOMER table
 if ("CUSTOMER" %in% names(data_frames)) {
-  invalid_mobiles_customer <- !sapply(data_frames$CUSTOMER$customer_mobile, check_mobile_format)
+  invalid_mobiles_customer <- !sapply(
+    data_frames$CUSTOMER$customer_mobile, check_mobile_format)
   if (any(invalid_mobiles_customer)) {
-    data_frames$CUSTOMER <- data_frames$CUSTOMER[!invalid_mobiles_customer, ]
-    data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER$customer_mobile), ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[
+      !invalid_mobiles_customer, ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[
+      !duplicated(data_frames$CUSTOMER$customer_mobile), ]
   }
 }
 
 ##Check mobile format for SUPPLIER table
 if ("SUPPLIER" %in% names(data_frames)) {
-  invalid_mobiles_supplier <- !sapply(data_frames$SUPPLIER$supplier_mobile, check_mobile_format)
+  invalid_mobiles_supplier <- !sapply(
+    data_frames$SUPPLIER$supplier_mobile, check_mobile_format)
   if (any(invalid_mobiles_supplier)) {
-    data_frames$SUPPLIER <- data_frames$SUPPLIER[!invalid_mobiles_supplier, ]
-    data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER$supplier_mobile), ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[
+      !invalid_mobiles_supplier, ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[
+      !duplicated(data_frames$SUPPLIER$supplier_mobile), ]
   }
 }
 ```
@@ -590,11 +647,15 @@ if ("SUPPLIER" %in% names(data_frames)) {
 
 ```{r}
 # Check self reference product
-invalid_main_product <- data_frames$PRODUCT[!is.na(data_frames$PRODUCT$main_product_id) & 
-                                              !(data_frames$PRODUCT$main_product_id %in% data_frames$PRODUCT$product_id & 
-                                                  data_frames$PRODUCT$main_product_id != data_frames$PRODUCT$product_id) &
-                                              trimws(data_frames$PRODUCT$main_product_id) != "", ]
-data_frames$PRODUCT <- data_frames$PRODUCT[!row.names(data_frames$PRODUCT) %in% row.names(invalid_main_product), ]
+invalid_main_product <- data_frames$PRODUCT[!is.na(
+  data_frames$PRODUCT$main_product_id) & 
+  !(data_frames$PRODUCT$main_product_id %in% 
+      data_frames$PRODUCT$product_id & 
+    data_frames$PRODUCT$main_product_id 
+    != data_frames$PRODUCT$product_id) &
+trimws(data_frames$PRODUCT$main_product_id) != "", ]
+data_frames$PRODUCT <- data_frames$PRODUCT[
+  !row.names(data_frames$PRODUCT) %in% row.names(invalid_main_product), ]
 
 ```
 
@@ -602,8 +663,10 @@ Once the dataset was validated, it checks if records exits in database before wr
 
 ```{r message=FALSE}
 # Define table names
-table_names <- c("CUSTOMER", "PRODUCT", "ADDRESS", "DISCOUNT", "SUPPLIER", 
-                 "CATEGORY", "ADVERTISEMENT", "ADVERTISE_IN", "ORDER_ITEM", "ORDER_DETAIL")
+table_names <- c("CUSTOMER", "PRODUCT", "ADDRESS", 
+                 "DISCOUNT", "SUPPLIER", 
+                 "CATEGORY", "ADVERTISEMENT", "ADVERTISE_IN", 
+                 "ORDER_ITEM", "ORDER_DETAIL")
 
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
@@ -623,7 +686,8 @@ for (table_name in table_names) {
   
   # Write new records to the database
   if (nrow(new_records) > 0) {
-    dbWriteTable(connect, table_name, new_records, append = TRUE, row.names = FALSE)
+    dbWriteTable(connect, table_name, new_records, append = TRUE,
+                 row.names = FALSE)
   }
 }
 
@@ -652,16 +716,16 @@ Workflow file **etl.yaml** was created in the **.github/workflows** directory in
 
 ## Task 3.2: GitHub Actions for Continuous Integration
 
-Workflow was designed to execute a task named “ETL workflow for group 3”, after a trigger by pushing events to the ‘main’ branch. Sequence of steps were executed on the latest version of Ubuntu: 
+Workflow was designed to execute a task named "ETL workflow for group 3", after a trigger by pushing events to the 'main' branch. Sequence of steps were executed on the latest version of Ubuntu: 
 
 1.  Use GitHub Actions checkout action to check out code into the working directory. 
-2.  Set up R environment and specify the R version as ‘4.3.3’. 
+2.  Set up R environment and specify the R version as '4.3.3'. 
 3.  Cache R packages to avoid reinstalling them on each run. 
 4.  Install required packages if the cache misses. 
 5.  Run database_schema.R to render database schema. 
 6.  Run data_validation_and_load.R to render validation and load data into database. 
 7.  Run data_analysis.R to render data analysis. 
-8.  Utilize an authentication token to push changes to the ‘main’ branch. 
+8.  Utilize an authentication token to push changes to the 'main' branch. 
 
 # Part 4: Data Analysis and Reporting with Quarto in R
 
@@ -757,7 +821,7 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales),
         plot.title = element_text(hjust = 0.5))
 ```
 
-Figure 1 represents the profitability of individual products. The “Eclipse Yoga Mat” generates the highest profit for the company indicating a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the “Stellar Eyeshadow Palette” and “Fusion X Gaming Console” lead, suggesting they are popular among customers. Some products are both popular and profitable implying a successful product strategy. However, there are also noticeable discrepancies. For example, “QuantumX Gaming Mouse” appears as a top seller, yet it’s absent from the most profitable items, implying a lower profit margin. In contrast, “Nebula Smart LED Bulbs” are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
+Figure 1 represents the profitability of individual products. The "Eclipse Yoga Mat" generates the highest profit for the company indicating a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are popular among customers. Some products are both popular and profitable implying a successful product strategy. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
 
 The e-commerce company could focus on marketing strategies for high revenue generating products to boost their volume of sales, increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
 
