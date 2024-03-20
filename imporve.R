@@ -211,137 +211,39 @@ if ("SUPPLIER" %in% names(data_frames)) {
   }
 }
 
-# Check for negative fee/price
-##Function to check for negative numbers
-check_negative <- function(df, table_columns) {
-  negative_values <- logical(0)
-  for (table_name in names(table_columns)) {
-    if (table_name %in% names(df)) {
-      table_df <- df[[table_name]]
-      columns_to_check <- table_columns[[table_name]]
-      for (col in columns_to_check) {
-        if (col %in% names(table_df)) {
-          negative_values <- negative_values | (table_df[[col]] < 0)
-        }
-      }
-    }
-  }
-  return(negative_values)
-}
-
-##Define the list of tables and corresponding columns to check
-## Define the list of tables and corresponding columns to check
-table_columns <- list(
-  "CATEGORY" = c("category_fee"),
-  "DISCOUNT" = c("discount_percent"),
-  "PRODUCT" = c("unit_price", "stock_on_hand"),
-  "ORDER_DETAIL" = c("delivery_fee"),
-  "ORDER_ITEM" = c("order_quantity"),
-  "ADVERTISEMENT" = c("ad_frequency", "ad_price")
-)
-
-##Check for negative numbers in the specified columns of the specified tables
-negative_values <- check_negative(data_frames, table_columns)
-
-
 # Check self reference product
-invalid_main_product_ids <- product[!is.na(product$main_product_id) & 
-                                      !(product$main_product_id %in% product$product_id & 
-                                          product$main_product_id != product$product_id), c("product_id", "main_product_id")]
+invalid_main_product <- data_frames$PRODUCT[!is.na(data_frames$PRODUCT$main_product_id) & 
+                                              !(data_frames$PRODUCT$main_product_id %in% data_frames$PRODUCT$product_id & 
+                                                  data_frames$PRODUCT$main_product_id != data_frames$PRODUCT$product_id) &
+                                              trimws(data_frames$PRODUCT$main_product_id) != "", ]
+data_frames$PRODUCT <- data_frames$PRODUCT[!row.names(data_frames$PRODUCT) %in% row.names(invalid_main_product), ]
 
 
-
-
-
-
-
-##Assign data from "data_frame" into respective name
-address <- data_frames$ADDRESS
-discount <- data_frames$DISCOUNT
-supplier <- data_frames$SUPPLIER
-category <- data_frames$CATEGORY
-advertisement <- data_frames$ADVERTISEMENT
-customer <- data_frames$CUSTOMER
-product <- data_frames$PRODUCT
-advertise_in <- data_frames$ADVERTISE_IN
-order_detail <- data_frames$ORDER_DETAIL
-order_item <- data_frames$ORDER_ITEM
-
+# Define table names
+table_names <- c("CUSTOMER", "PRODUCT", "ADDRESS", "DISCOUNT", "SUPPLIER", 
+                 "CATEGORY", "ADVERTISEMENT", "ADVERTISE_IN", "ORDER_ITEM", "ORDER_DETAIL")
 
 # Connect to the database
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 
-# Retrieve existing db records from the database
-db_customer <- dbGetQuery(connect, "SELECT * FROM CUSTOMER")
-db_product <- dbGetQuery(connect, "SELECT * FROM PRODUCT")
-db_address <- dbGetQuery(connect, "SELECT * FROM ADDRESS")
-db_discount <- dbGetQuery(connect, "SELECT * FROM DISCOUNT")
-db_supplier <- dbGetQuery(connect, "SELECT * FROM SUPPLIER")
-db_category <- dbGetQuery(connect, "SELECT * FROM CATEGORY")
-db_advertisment <- dbGetQuery(connect, "SELECT * FROM ADVERTISEMENT")
-db_advertise_in <- dbGetQuery(connect, "SELECT * FROM ADVERTISE_IN")
-db_order_item <- dbGetQuery(connect, "SELECT * FROM ORDER_ITEM")
-db_order_detail <- dbGetQuery(connect, "SELECT * FROM ORDER_DETAIL")
-
-
-# Compare db and new data 
-new_customer <- customer[!customer$customer_id %in% db_customer$customer_id, ]
-new_product <- product[!product$product_id %in% db_product$product_id, ]
-new_address <- address[!address$address_id %in% db_address$address_id, ]
-new_discount <- discount[!discount$promo_code %in% db_discount$promo_code, ]
-new_supplier <- supplier[!supplier$supplier_id %in% db_supplier$supplier_id, ]
-new_category <- category[!category$category_id %in% db_category$category_id, ]
-new_advertisement <- advertisement[!advertisement$ad_id %in% db_advertisment$ad_id, ]
-new_order_detail <- order_detail[!order_detail$order_id %in% db_order_detail$order_id, ]
-
-db_advertise_in_composite <- paste(db_advertise_in$ad_id, db_advertise_in$product_id)
-advertise_in_composite <- paste(advertise_in$ad_id, advertise_in$product_id)
-new_advertise_in <- advertise_in[!advertise_in_composite %in% db_advertise_in_composite, ]
-
-db_order_item_composite <- paste(db_order_item$order_id, db_order_item$product_id)
-order_item_composite <- paste(order_item$order_id, order_item$product_id)
-new_order_item <- order_item[!order_item_composite %in% db_order_item_composite, ]
-
-# Write into the db
-if (nrow(new_customer) > 0) {
-  dbWriteTable(connect, "CUSTOMER", new_customer, append = TRUE, row.names = FALSE)
+# Iterate over table names
+for (table_name in table_names) {
+  # Get data frame from data_frames list
+  df <- data_frames[[table_name]]
+  
+  # Retrieve existing records from the database
+  db_data <- dbGetQuery(connect, paste("SELECT * FROM", table_name))
+  
+  # Compare and find new records
+  new_records <- df[!df[, 1] %in% db_data[, 1], ]
+  
+  # Write new records to the database
+  if (nrow(new_records) > 0) {
+    dbWriteTable(connect, table_name, new_records, append = TRUE, row.names = FALSE)
+  }
 }
 
-if (nrow(new_product) > 0) {
-  dbWriteTable(connect, "PRODUCT", new_product, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_address) > 0) {
-  dbWriteTable(connect, "ADDRESS", new_address, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_discount) > 0) {
-  dbWriteTable(connect, "DISCOUNT", new_discount, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_supplier) > 0) {
-  dbWriteTable(connect, "SUPPLIER", new_supplier, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_category) > 0) {
-  dbWriteTable(connect, "CATEGORY", new_category, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_advertisement) > 0) {
-  dbWriteTable(connect, "ADVERTISEMENT", new_advertisement, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_order_detail) > 0) {
-  dbWriteTable(connect, "ORDER_DETAIL", new_order_detail, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_advertise_in) > 0) {
-  dbWriteTable(connect, "ADVERTISE_IN", new_advertise_in, append = TRUE, row.names = FALSE)
-}
-
-if (nrow(new_order_item) > 0) {
-  dbWriteTable(connect, "ORDER_ITEM", new_order_item, append = TRUE, row.names = FALSE)
-}
 
 # Disconnect from the database
 dbDisconnect(connect)
+
