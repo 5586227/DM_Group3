@@ -244,8 +244,10 @@ table_columns <- list(
 negative_values <- check_negative(data_frames, table_columns)
 
 
-
-#C
+# Check self reference product
+invalid_main_product_ids <- product[!is.na(product$main_product_id) & 
+                                      !(product$main_product_id %in% product$product_id & 
+                                          product$main_product_id != product$product_id), c("product_id", "main_product_id")]
 
 
 
