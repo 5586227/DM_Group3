@@ -88,7 +88,7 @@ duplicate_supplier_id <- supplier[duplicated(supplier$supplier_id), "supplier_id
 supplier <- supplier[!supplier$supplier_id %in% duplicate_supplier_id, ]
 
 #Check supplier (can contain alphabets, comma, hyphen, dot)
-#supplier <- supplier[grepl("^[a-zA-Z,.-]+$", supplier$supplier_name), ]
+supplier <- supplier[grepl("^[a-zA-Z,.-]+$", supplier$supplier_name), ]
 
 #Check email format
 supplier <- supplier[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", supplier$supplier_email), ]
@@ -137,7 +137,7 @@ duplicate_emails <- customer[duplicated(customer$customer_email), "customer_emai
 customer <- customer[!customer$customer_email %in% duplicate_emails, ]
 
 #Check format of first and last name (1st alphabet is uppercase, rest is lowercase)
-#customer <- customer[grepl("^[A-Z][a-z]$", customer$first_name) & grepl("^[A-Z][a-z]$", customer$last_name), ]
+customer <- customer[grepl("^[A-Z][a-z]$", customer$first_name) & grepl("^[A-Z][a-z]$", customer$last_name), ]
 
 #Check email format
 customer <- customer[grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", customer$customer_email), ]
@@ -185,7 +185,7 @@ order_detail <- order_detail[complete.cases(order_detail), ]
 
 #Check duplicate order_id
 #duplicate_order_id <- order_detail[duplicated(order_detail$order_id), "order_id"]
-#order_detail <- order_detail[!order_detail$order_id %in% duplicate_order_id, ]
+order_detail <- order_detail[!order_detail$order_id %in% duplicate_order_id, ]
 
 #Check if customer_id exists in the CUSTOMER table
 order_detail <- order_detail[order_detail$customer_id %in% customer$customer_id, ]

@@ -153,8 +153,8 @@ data_frames$ORDER_DETAIL <- discounted_order[is.na(data_frames$ORDER_DETAIL$prom
 invalid_product_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
 data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
 
-invalid_order_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
-data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
+invalid_order_fk       <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
+data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[ data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
 
 unique_order_ids_item <- unique(data_frames$ORDER_ITEM$order_id)
 num_unique_order_ids <- length(unique_order_ids_item)
