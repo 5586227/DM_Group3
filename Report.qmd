@@ -243,7 +243,7 @@ Then, we created entities that are children entities and entities that have refe
 
 Synthetic data from the normalized schema was created for each table using Mockaroo, a mock data generator platform. Data was initially generated for the parent entities to ensure that the referential integrity exists on the children entities or entities that need a reference for foreign keys from parent entities. The number of observations are as follows:
 
-![](images/TABLE%20(1).png) 
+![](images/WhatsApp Image 2024-03-20 at 5.51.12 AM.jpeg){width="319"}
 
 **Data generation for parent entities**
 
@@ -438,7 +438,7 @@ for (table_name in names(data_frames)) {
         1, function(row) any(row == "" |
          is.na(row)))
       data_frames[[table_name]] <- 
-        data_frames[[table_name]][
+        data_frame[[table_name]][
         !empty_row_indices, ]
     }
   }
