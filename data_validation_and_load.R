@@ -1,6 +1,5 @@
 library(DBI)
 
-# Function to read csv files from directory
 read_csv_files <- function(directory) {
   csv_files <- list.files(directory, pattern = "\\.csv$", full.names = TRUE)
   data_frames <- list()
@@ -9,16 +8,18 @@ read_csv_files <- function(directory) {
     # Extract the base file name without extension
     file_name <- tools::file_path_sans_ext(basename(csv_file))
     
+    stem <- gsub("\\d+$", "", file_name)
+    
     # Read the CSV file
     data <- read.csv(csv_file)
     
     # Check if data frame already exists
-    if (file_name %in% names(data_frames)) {
+    if (stem %in% names(data_frames)) {
       # If exists, append data to existing data frame
-      data_frames[[file_name]] <- rbind(data_frames[[file_name]], data)
+      data_frames[[stem]] <- rbind(data_frames[[stem]], data)
     } else {
       # Otherwise, create new data frame
-      data_frames[[file_name]] <- data
+      data_frames[[stem]] <- data
     }
   }
   return(data_frames)
