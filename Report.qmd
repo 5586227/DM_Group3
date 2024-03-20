@@ -431,11 +431,14 @@ for (table_name in names(data_frames)) {
       data_frames[[table_name]],
       columns_to_skip, table_name)
     if (any(missing_values)) {
-      empty_row_indices <- apply(data_frames[[table_name]][,
-                                                           -which(names(data_frames[[table_name]]) %in% columns_to_skip)], 1, function(row) 
-                                                             any(row == "" |
-                                                                                                                                                  is.na(row)))
-      data_frames[[table_name]] <- data_frames[[table_name]][
+      empty_row_indices <- apply(
+        data_frames [[table_name]][, -which(names(
+          data_frames[[table_name]]) %in% 
+            columns_to_skip)], 
+        1, function(row) any(row == "" |
+         is.na(row)))
+      data_frames[[table_name]] <- 
+        data_frames[[table_name]][
         !empty_row_indices, ]
     }
   }
@@ -611,7 +614,8 @@ if ("SUPPLIER" %in% names(data_frames)) {
   if (any(invalid_emails_supplier)) {
     data_frames$SUPPLIER <- data_frames$SUPPLIER[
       !invalid_emails_supplier, ]
-    data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER$supplier_email), ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[
+      !duplicated(data_frames$SUPPLIER$supplier_email), ]
   }
 }
 ```
