@@ -399,7 +399,8 @@ remove_duplicate_primary_keys <- function(df, primary_key_cols) {
 ## Apply the function for each data frame
 for (table_name in names(data_frames)) {
   if (table_name %in% names(primary_keys)) {
-    data_frames[[table_name]] <- remove_duplicate_primary_keys(data_frames[[table_name]], primary_keys[[table_name]])
+    data_frames[[table_name]] <- remove_duplicate_primary_keys(
+      data_frames[[table_name]], primary_keys[[table_name]])
   }
 }
 ```
@@ -420,18 +421,22 @@ check_missing_values <- function(df, columns_to_skip, table_name) {
 }
 
 ## Columns to skip
-columns_to_skip <- c("gender", "product_description", "product_rating", "main_product_id")
+columns_to_skip <- c("gender", "product_description", "product_rating",
+                     "main_product_id")
 
 ## Apply the function for each data frame
 for (table_name in names(data_frames)) {
   if (table_name %in% names(primary_keys)) {
-    missing_values <- check_missing_values(data_frames[[table_name]],
-                                           columns_to_skip, table_name)
+    missing_values <- check_missing_values(
+      data_frames[[table_name]],
+      columns_to_skip, table_name)
     if (any(missing_values)) {
       empty_row_indices <- apply(data_frames[[table_name]][,
-                                                           -which(names(data_frames[[table_name]]) %in% columns_to_skip)], 1, function(row) any(row == "" |
+                                                           -which(names(data_frames[[table_name]]) %in% columns_to_skip)], 1, function(row) 
+                                                             any(row == "" |
                                                                                                                                                   is.na(row)))
-      data_frames[[table_name]] <- data_frames[[table_name]][!empty_row_indices, ]
+      data_frames[[table_name]] <- data_frames[[table_name]][
+        !empty_row_indices, ]
     }
   }
 }
@@ -593,14 +598,16 @@ if ("CUSTOMER" %in% names(data_frames)) {
   if (any(invalid_emails_customer)) {
     data_frames$CUSTOMER <- data_frames$CUSTOMER[
       !invalid_emails_customer, ]
-    data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER$customer_email), ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[
+      !duplicated(data_frames$CUSTOMER$customer_email), ]
   }
 }
 
 ##Check email format for SUPPLIER table
 if ("SUPPLIER" %in% names(data_frames)) {
   invalid_emails_supplier <- !sapply(
-    data_frames$SUPPLIER$supplier_email, check_email_format)
+    data_frames$SUPPLIER$supplier_email,
+    check_email_format)
   if (any(invalid_emails_supplier)) {
     data_frames$SUPPLIER <- data_frames$SUPPLIER[
       !invalid_emails_supplier, ]
