@@ -245,12 +245,6 @@ for (table_name in table_names) {
   }
 }
 
-
-
-##test
-
-
-
 # Disconnect from the database
 dbDisconnect(connect)
 
