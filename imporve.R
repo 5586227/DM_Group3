@@ -147,7 +147,7 @@ data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[data_frames$ORDER_DETAIL$cu
 
 discounted_order <- data_frames$ORDER_DETAIL[!is.na(data_frames$ORDER_DETAIL$promo_code) & trimws(data_frames$ORDER_DETAIL$promo_code) != "", ]
 invalid_promo_fk <- discounted_order[!discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
-data_frames$ORDER_DETAIL <- discounted_order[is.na(data_frames$ORDER_DETAIL$promo_code) | trimws(data_frames$ORDER_DETAIL$promo_code) == "" | discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
+data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[is.na(data_frames$ORDER_DETAIL$promo_code) | trimws(data_frames$ORDER_DETAIL$promo_code) == "" | discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
 
 ##ORDER_ITEM - PRODUCT - ORDER_DETAIL
 invalid_product_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
@@ -155,14 +155,6 @@ data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$product_
 
 invalid_order_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
 data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
-
-unique_order_ids_item <- unique(data_frames$ORDER_ITEM$order_id)
-num_unique_order_ids <- length(unique_order_ids_item)
-
-unique_order_ids_detail <- unique(data_frames$ORDER_DETAIL$order_id)
-num_unique_order_ide <- length(unique_order_ids_detail)
-
-invalid_order_fk <- order_item[!order_item$order_id %in% order_detail$order_id, c("order_id", "product_id")]
 
 ##ADVERTISE_IN - ADVERTISEMENT - PRODUCT
 invalid_ad_fk <- data_frames$ADVERTISE_IN[!data_frames$ADVERTISE_IN$ad_id %in% data_frames$ADVERTISEMENT$ad_id, ]
@@ -181,11 +173,8 @@ check_email_format <- function(email) {
 if ("CUSTOMER" %in% names(data_frames)) {
   invalid_emails_customer <- !sapply(data_frames$CUSTOMER$customer_email, check_email_format)
   if (any(invalid_emails_customer)) {
-    cat("Invalid email format found in CUSTOMER table\n")
-    # Remove records with invalid email format
     data_frames$CUSTOMER <- data_frames$CUSTOMER[!invalid_emails_customer, ]
-    # Keep only the first occurrence of each unique row
-    data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER), ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER$customer_email), ]
   }
 }
 
@@ -193,23 +182,66 @@ if ("CUSTOMER" %in% names(data_frames)) {
 if ("SUPPLIER" %in% names(data_frames)) {
   invalid_emails_supplier <- !sapply(data_frames$SUPPLIER$supplier_email, check_email_format)
   if (any(invalid_emails_supplier)) {
-    cat("Invalid email format found in SUPPLIER table\n")
-    # Remove records with invalid email format
     data_frames$SUPPLIER <- data_frames$SUPPLIER[!invalid_emails_supplier, ]
-    # Keep only the first occurrence of each unique row
-    data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER), ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER$supplier_email), ]
   }
 }
 
+# Mobile number check
+##Define a function to check mobile format
+check_mobile_format <- function(mobile) {
+  grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", mobile)
+}
 
+##Check mobile format for CUSTOMER table
+if ("CUSTOMER" %in% names(data_frames)) {
+  invalid_mobiles_customer <- !sapply(data_frames$CUSTOMER$customer_mobile, check_mobile_format)
+  if (any(invalid_mobiles_customer)) {
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[!invalid_mobiles_customer, ]
+    data_frames$CUSTOMER <- data_frames$CUSTOMER[!duplicated(data_frames$CUSTOMER$customer_mobile), ]
+  }
+}
 
+##Check mobile format for SUPPLIER table
+if ("SUPPLIER" %in% names(data_frames)) {
+  invalid_mobiles_supplier <- !sapply(data_frames$SUPPLIER$supplier_mobile, check_mobile_format)
+  if (any(invalid_mobiles_supplier)) {
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[!invalid_mobiles_supplier, ]
+    data_frames$SUPPLIER <- data_frames$SUPPLIER[!duplicated(data_frames$SUPPLIER$supplier_mobile), ]
+  }
+}
 
-#Check format of mobile number (+xx xxx xxx xxxx)
-invalid_customer_mobile <- customer[!grepl("^\\+\\d{1,3}\\s[0-9]{3}\\s[0-9]{3}\\s[0-9]{4}$", customer$customer_mobile), c("customer_id", "customer_mobile")]
+# Check for negative fee/price
+##Function to check for negative numbers
+check_negative <- function(df, table_columns) {
+  negative_values <- logical(0)
+  for (table_name in names(table_columns)) {
+    if (table_name %in% names(df)) {
+      table_df <- df[[table_name]]
+      columns_to_check <- table_columns[[table_name]]
+      for (col in columns_to_check) {
+        if (col %in% names(table_df)) {
+          negative_values <- negative_values | (table_df[[col]] < 0)
+        }
+      }
+    }
+  }
+  return(negative_values)
+}
 
-#Check duplicate mobile
-duplicate_customer_mobile <- customer[duplicated(customer$customer_mobile), c("customer_id", "customer_mobile")]
+##Define the list of tables and corresponding columns to check
+## Define the list of tables and corresponding columns to check
+table_columns <- list(
+  "CATEGORY" = c("category_fee"),
+  "DISCOUNT" = c("discount_percent"),
+  "PRODUCT" = c("unit_price", "stock_on_hand"),
+  "ORDER_DETAIL" = c("delivery_fee"),
+  "ORDER_ITEM" = c("order_quantity"),
+  "ADVERTISEMENT" = c("ad_frequency", "ad_price")
+)
 
+##Check for negative numbers in the specified columns of the specified tables
+negative_values <- check_negative(data_frames, table_columns)
 
 
 
