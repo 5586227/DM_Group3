@@ -8,9 +8,7 @@ editor: visual
 
 # Introduction
 
-There are two common workflows for data integration: ELT (Extract, Load, Transform) and ETL (Extract, Transform, Load) 
-
-In ELT , normalization and data validation are performed after the data is injected into the database whereas in the ETL both transformations are performed after data injection. In our work, we chose ETL workflow and used SQL and R interchangeably to perform transformations. 
+There are two common workflows for data integration: ELT (Extract, Load, Transform) and ETL (Extract, Transform, Load)  In ELT , normalization and data validation are performed after the data is injected into the database whereas in the ETL both transformations are performed after data injection. In our work, we chose ETL workflow and used SQL and R interchangeably to perform transformations. 
 
 # Part 1: Database Design and Implementation
 
@@ -439,7 +437,6 @@ for (table_name in names(data_frames)) {
 3.  Check if there are any values of a foreign key in the children table that do not exist in the parent table
 
 ```{r}
-
 # Foreign key check
 ##CUSTOMER - ADDRESS
 invalid_address_fk <- data_frames$CUSTOMER[!data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
