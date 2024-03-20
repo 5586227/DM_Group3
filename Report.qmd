@@ -6,11 +6,11 @@ format:
 editor: visual
 ---
 
-There are two common workflows for data integration: ELT(Extract, Load, Transform) and ETL (Extract, Transform, Load)
+# Introduction
 
-The major difference between ELT and ETL is that in the ELT stage, normalization is performed after the datasets are imported into the database. In the ETL stage, the data is normalized and transformed before it is loaded into the database.
+There are two common workflows for data integration: ELT (Extract, Load, Transform) and ETL (Extract, Transform, Load) 
 
-In our work, we chose ETL (Extract, Transform, Load) instead of ELT as our workflow and used SQL and R interchangeably to perform transformations. This is because we have found that ETL workflow is more suitable for small data sets, so we thought that it would be more compromised with our work.
+In ELT process, normalization and data validation are performed after the data is ingested into the database whereas in the ETL process both transformations are done after data ingestion. In our work, we chose ETL (Extract, Transform, Load) instead of ELT workflow and used SQL and R interchangeably to perform transformations. 
 
 # Part 1: Database Design and Implementation
 
@@ -18,37 +18,51 @@ In our work, we chose ETL (Extract, Transform, Load) instead of ELT as our workf
 
 **Entities**
 
-Our E-R Diagram for an E-commerce database consisted of five main entities:
+Our E-R Diagram for an E-commerce database consisted of five main entities: 
 
-1.  CUSTOMER: Represents details of individuals or entities who purchase products, including attributes such as customer ID, customer name, contact information, and gender. 
-2.  PRODUCT: Represents details of items available for sale, including attributes such as product ID, product name, description, rating, price, and available stock. 
-3.  ADVERTISEMENT: Represents details of promotional activities used to advertise products, including attributes such as advertisement ID, number of times the advertisement is shown, cost of the advertisement, and the place the advertisement was placed. 
-4.  SUPPLIER: Represents details of entities providing products to businesses or customers, including attributes such as supplier ID, supplier name, and contact information. 
-5.  CATEGORY: Represents product classifications or groupings, including attributes such as category unique ID, name, and fee amount as a percentage.
+1.  CUSTOMER: Details of buyers, including attributes such as customer ID, customer name, contact information, and gender. 
+
+```{=html}
+<!-- -->
+```
+2.  PRODUCT: Details of sale items, including product ID, product name, description, rating, price, and available stock. 
+
+```{=html}
+<!-- -->
+```
+3.  ADVERTISEMENT: Details of promotional activities used to advertise products, including advertisement ID, number of times the advertisement is shown, cost of the advertisement, and advertisement placement. 
+
+```{=html}
+<!-- -->
+```
+4.  SUPPLIER: Details of product providers including supplier ID, supplier name, and contact information. 
+
+```{=html}
+<!-- -->
+```
+5.  CATEGORY: Represents product classifications, including category ID, name, and fee percentage. 
 
 **Relationships**
 
 The relationships among these entities are as follows: 
 
--   CUSTOMER and PRODUCT have an M-N relationship meaning one customer can order many products, and one product can be ordered by many customers.
-
-    The relationship is shown as ORDER, representing a customer placing an order to purchase products. It also contains some attributes to store the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee.
+-   CUSTOMER and PRODUCT entities have an M-N relationship where one customer can order many products, and one product can be ordered by many customers. This relationship is represented as ORDER, which contains the details of each order, including order ID, order date, order status, order quantity, promo code, payment method, and delivery fee. 
 
     ![](images/Customer-Product%20relationship.drawio.png){width="416"}
 
--   PRODUCT has a self-referencing relationship of 1 to many. The relationship is shown as Sold_Together, indicating that one product can be sold together with others as a bundle.
+-   PRODUCT entity has a self-referencing relationship Sold_Together of 1 to many. The relationship indicates that one product can be sold together with others as a bundle. 
 
     ![](images/Product%20Self-reference%20Relationship.drawio.png){width="416"}
 
--   PRODUCT and ADVERTISEMENT have an M-N relationship. This relationship is shown as ADVERTISE_IN to reflect products presented in the advertisements, meaning multiple advertisements can promote one product, and one advertisement can promote multiple products. 
+-   PRODUCT and ADVERTISEMENT have an M-N relationship. ADVERTISE_IN represents this relationship where multiple advertisements can promote one product, and one advertisement can promote multiple products.  
 
     ![](images/Product-Advertisement%20relationship.drawio.png){width="416"}
 
--   PRODUCT and SUPPLIER have an N-1 relationship, indicating that one product can be supplied by only one supplier, but one supplier can provide multiple products. 
+-   PRODUCT and SUPPLIER have an N-1 relationship, indicating that one product can be supplied by only one supplier, but one supplier can provide multiple products.  
 
     ![](images/Product-Supplier%20relationship.drawio.png){width="416"}
 
--   CATEGORY and PRODUCT have an 1-N relationship, meaning one product can belong to only one category, but one category can contain multiple products. 
+-   CATEGORY and PRODUCT have 1-N relationship, where one product belongs to one category, but one category can contain multiple products.  
 
     ![](images/Category-Product%20Relationship.drawio%20(1).png){width="416"}
 
@@ -60,9 +74,7 @@ As a result, this is our E-R diagram.
 
 **Normalization:**
 
-According to our first draft of the E-R diagram, two main adjustments were made in order to comply with 3NF
-
-The first adjustment was on the ORDER table. After reviewing the order of normal forms, it was found that the ORDER entity still did not comply with 3NF.
+Our initial ER Diagram required two updates for 3NF compliance. The first adjustment was on the Order table, which initially did not adhere to 3NF. 
 
 Functional Dependency:
 
@@ -70,13 +82,21 @@ Functional Dependency:
 
 -   {promo_code} -\> { discount_amount}
 
-As we assumed that order_id could be duplicated to represent products ordered by the same customer simultaneously, there would be UPDATE anomalies. If there is an update on any attributes, such as payment_methods, we must alter more than one row in case there is more than one product in that order_id. In addition, discount_amount is also transitively dependent on promo_code.
+Assuming order_id duplication for simultaneous customer orders led to UPDATE anomalies. If there is an update on any attributes, such as payment_methods, we must alter more than one row in case there is more than one product in that order_id. Additonally, discount_amount is also transitively dependent on promo_code. 
 
-Therefore, we separated the ORDER table into three entities including:
+Therefore, we divided the ORDER table into three entities: 
 
-1.  ORDER_DETAIL is similar to the ORDER table but has fewer attributes to contain each order's details. It has product_id as a primary key, customer_id and promo_code as foreign keys, and other attributes like order_date, order_status, and payment_method.
-2.  ORDER_ITEM contains product IDs and the quantities ordered in each order. The table has order_id and product_id as foreign keys and a composite primary key, and quantity as another attribute.
-3.  DISCOUNT is created to store the data of available promotional discounts, which consists of promo_code as a primary key and discount_amount.
+1.  ORDER_DETAIL holds individual order details with attributes including product_id (primary key), customer_id and promo_code (foreign keys), order_date, order_status, and payment_method. 
+
+```{=html}
+<!-- -->
+```
+2.  ORDER_ITEM contains product IDs and the quantities per order using order_id and product_id as foreign keys and a composite primary key, and quantity. 
+
+```{=html}
+<!-- -->
+```
+3.  DISCOUNT stores promotional discount data, with promo_code as the primary key and discount_amount. 
 
 The next adjustment was on the CUSTOMER table, which was initially on 2NF. Based on its function dependency, street, city, and country can also be determined by postcode and customer_id.
 
@@ -251,17 +271,15 @@ Then, we created entities that are children entities and entities that have refe
 
 ## Task 2.1: Synthetic Data Generation
 
-The synthetic data of each table was created based on the normalised schema using Mockaroo, a mock data generator platform. We first generated the data for the parent entities to ensure that the referential integrity exists on the children entities or the entities that need a reference for foreign keys from parent entities
+Synthetic data from the normalized schema was created for each table was using Mockaroo, a mock data generator platform. Data was generated for the parent entities initially to ensure that the referential integrity exists on the children entities or the entities that need a reference for foreign keys from parent entities 
 
 **Data generation for parent entities**
 
 1\. ADDRESS
 
-50 observations for the ADDRESS table were created using the following setting:
-
 ![](images/ADDRESS%20data%20gen.png)
 
-As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
+50 observations for the ADDRESS table were created. As we would like to focus on the customers who live in the United Kingdom, the generated address information will only be in the United Kingdom.
 
 In addition, we have set the address_id, which is the primary of the table, to start with 'ADDR' and followed by a number.
 
@@ -269,23 +287,17 @@ In addition, we have set the address_id, which is the primary of the table, to s
 
 2\. DISCOUNT
 
-5 observations for the DISCOUNT table were created using the following setting:
-
-![](images/CUSTOMER%20DATA%20GEN.png)
-
 ![](images/DISCOUNT%20DATA%20GEN.png)
 
-For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
+5 observations for the DISCOUNT table were created. For the promo_code, which is a primary key, the values are created using an AI generator, and the values of the discount_percent, which stores the discount amount as percentages stores, are assigned manually to particular promo_code using this formula:
 
 ![](images/DISCOUNT%202%20DATA%20GEN.png)
 
 3\. ADVERTISEMENT
 
-5 observations for the ADVERTISEMENT table were created using the following setting:
-
 ![](images/ADVERTISEMENT%20DATA%20GEN.png)
 
-We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
+5 observations for the ADVERTISEMENT table were created. We set the condition for the primary key, ad_id, to start with 'AD' followed by a number. For the ad_place attribute, we used an AI generator to generate places where advertisements can be shown. We assumed that different places would cause different amounts of ad_price, so we manually assigned ad_price values based on different ad_place with the formula attached below.
 
 ![](images/ADVERTISEMENT%202%20DATA%20GEN.png)
 
@@ -293,21 +305,17 @@ We set the condition for the primary key, ad_id, to start with 'AD' followed by 
 
 4\. SUPPLIER
 
-50 observations for the SUPPLIER table were created using the following setting:
-
 ![](images/SUPPLIER%20DATA%20GEN.png)
 
-We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
+50 observations for the SUPPLIER table were created. We have set the supplier_id, which is the primary of the table, to start with 'SUP' and then follow with a number.
 
 ![](images/SUPPLIER%202%20DATA%20GEN.png)
 
 5\. CATEGORY
 
-5 observations for the CATEGORY table were created using the following setting:
-
 ![](images/CATEGORY%20DATA%20GEN.png)
 
-We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
+5 observations for the CATEGORY table were created. We have set the category_id, which is the primary of the table, to start with 'CATG' and then follow with a number.
 
 ![](images/CATEGORY%202%20DATA%20GEN.png)
 
@@ -315,11 +323,9 @@ We have set the category_id, which is the primary of the table, to start with 'C
 
 6\. CUSTOMER
 
-50 observations for the CUSTOMER table were created using the following setting:
-
 ![](images/CUSTOMER%20DATA%20GEN-01.png)
 
-There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
+50 observations for the CUSTOMER table were created. There were additional constraints that we set in the formula. Firstly, we set to condition the customer_id to start with 'CUS' and followed by a number. Moreover, we gave a condition on customer_mobile to start with +44, which is the United Kingdom country code, before generating the rest of the numbers to comply with our focus on United Kingdom customers only. The formulas for those conditions are as followed
 
 ![](images/CUSTOMER%202%20DATA%20GEN-01.png)
 
@@ -327,11 +333,9 @@ There were additional constraints that we set in the formula. Firstly, we set to
 
 7\. PRODUCT
 
-50 observations for the PRODUCT table were created using the following setting:
-
 ![](images/PRODUCT%20DATA%20GEN.png)
 
-There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
+50 observations for the PRODUCT table were created. There were two conditions we set in this table. The first condition is on the primary key, product_id, to start the value with 'PROD' and then a number. The second condition is on product_name. To ensure consistency between the products and categories, we manually assigned the values of product_name to the categories they were supposed to belong to. These formulas were used to set those conditions.
 
 ![](images/PRODUCT%202%20DATA%20GEN.png)
 
@@ -339,25 +343,23 @@ There were two conditions we set in this table. The first condition is on the pr
 
 8\. ORDER_DETAIL
 
-100 observations for the ORDER_DETAIL table were created using the following setting:
-
 ![](images/ORDER_DETAIL%20DATA%20GEN.png)
 
-We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
+100 observations for the ORDER_DETAIL table were created. We have set the order_id, which is the primary of the table, to start with 'ORD' and then follow with a number.
 
 ![](images/ORDER_DETAIL%202%20DATA%20GEN.png)
 
 9\. ORDER_ITEM
 
-100 observations for the ORDER_ITEM table were created using the following setting:
-
 ![](images/ORDER_ITEM%20DATA%20GEN.png)
+
+100 observations for the ORDER_ITEM table were created.
 
 10\. ADVERTISE_IN
 
-50 observations for the ADVERTISE_IN table were created using the following setting:
-
 ![](images/ADVERTISE_IN%20DATA%20GEN.png)
+
+50 observations for the ADVERTISE_IN table were created.
 
 ## Task 2.2: Data Import and Quality Assurance
 
@@ -971,31 +973,80 @@ for (i in seq_along(tables)) {
 
 ## Task 3.1: GitHub Repository and Workflow Setup
 
-We first created a new public repository named **DM_Group3** on GitHub and created the following files:
+Repository named **DM_Group3** was createdon GitHub with public access and following files were created: 
 
-1.  **README** file to include all student ID numbers of our group.
-2.  **database_schema** file to create a database and build the database schema.
-3.  **data_validation_and_load** file to create code for validating data and loading the cleaned data into the database.
-4.  **data_analysis** file to perform data analysis and visualise essential results.
-5.  two folders, named **data_upload** to store 10 datasets generated by Mockaroo, and **images** to store E-R diagrams.
-6.  **Report** as a qmd. file to report the tasks and how they were done.
+1.  **README:** Includes all student ID numbers of our group. 
 
-Secondly, we create a new project in RStudio and connect it to Git for version control to manage code in a local development environment, leading to easier tracking of changes, creating branches, merging code, etc.
+```{=html}
+<!-- -->
+```
+2.  **database_schema.R :** R Script to create a database and build the database schema. 
 
-For setting up workflow, as GitHub Actions can automate workflows, such as running tests, building, and deploying tasks after pushing code, which can improve development efficiency and ensure code stability, we created the **.github/workflows** directory and an **etl.yaml** file within it.
+```{=html}
+<!-- -->
+```
+3.  **data_validation_and_load.R:** R Script for data validation and data ingestion into the database. 
+
+```{=html}
+<!-- -->
+```
+4.  **data_analysis.R:** R script to perform data analysis for necessary data visualizations  
+
+```{=html}
+<!-- -->
+```
+5.  **data_upload and images:** Folders to store 10 datasets generated by Mockaroo, and 
+
+images to store E-R diagrams. 
+
+6.  **Report:** Quarto Markdown file to report the execution of tasks. 
+
+New project was created in RStudio for each user. Github was used for version control to track changes, create branches, merge codes,etc. 
+
+Github actions were utilized to automate the entire ETL workflow process such as running tests, building, and deploying tasks after pushing code, which can improve development eﬀiciency and ensure code stability 
+
+Workflow file **etl.yaml** was created in the **.github/workflows** directory in **DM_Group3** repository. 
 
 ## Task 3.2: GitHub Actions for Continuous Integration
 
-Our GitHub Actions workflow was designed to execute a task named "ETL workflow for group 3.", triggering by pushing events to the 'main' branch. In this part, we defined a sequence of steps to be executed on the latest version of Ubuntu:
+Workflow was designed to execute a task named “ETL workflow for group 3”, after a trigger by pushing events to the ‘main’ branch. Sequence of steps were executed on the latest version of Ubuntu: 
 
-1.  Use GitHub Actions checkout action to check out code into the working directory.
-2.  Set up R environment and specify the R version as '4.3.3'.
-3.  Cache R packages to avoid reinstalling them on each run.
-4.  Install required packages if the cache misses.
-5.  Run database_schema.Rmd to render database schema.
-6.  Run data_validation_and_load.Rmd to render validation and load data into database.
-7.  Run data_analysis.Rmd to render data analysis.
-8.  Utilize an authentication token to push changes to the 'main' branch.
+1.  Use GitHub Actions checkout action to check out code into the working directory. 
+
+```{=html}
+<!-- -->
+```
+2.  Set up R environment and specify the R version as ‘4.3.3’. 
+
+```{=html}
+<!-- -->
+```
+3.  Cache R packages to avoid reinstalling them on each run. 
+
+```{=html}
+<!-- -->
+```
+4.  Install required packages if the cache misses. 
+
+```{=html}
+<!-- -->
+```
+5.  Run database_schema.Rmd to render database schema. 
+
+```{=html}
+<!-- -->
+```
+6.  Run data_validation_and_load.Rmd to render validation and load data into database. 
+
+```{=html}
+<!-- -->
+```
+7.  Run data_analysis.Rmd to render data analysis. 
+
+```{=html}
+<!-- -->
+```
+8.  Utilize an authentication token to push changes to the ‘main’ branch. 
 
 # Part 4: Data Analysis and Reporting with Quarto in R
 
@@ -1092,13 +1143,11 @@ ggplot(top_selling_products, aes(x = reorder(product_id, Total_Sales),
         plot.title = element_text(hjust = 0.5))
 ```
 
-Figure 1 represents the profitability of individual products sold by the e-commerce company. The "Eclipse Yoga Mat" generates the highest profit for the company among the assortment. This could indicate a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the "Stellar Eyeshadow Palette" and "Fusion X Gaming Console" lead, suggesting they are favored choices among consumers.
+Figure 1 represents the profitability of individual products. The “Eclipse Yoga Mat” generates the highest profit for the company indicating a higher margin or a premium pricing strategy. Conversely, Figure 2 illustrates sales volume, where items like the “Stellar Eyeshadow Palette” and “Fusion X Gaming Console” lead, suggesting they are popular among customers. Some products are both popular and profitable implying a successful product strategy. However, there are also noticeable discrepancies. For example, “QuantumX Gaming Mouse” appears as a top seller, yet it’s absent from the most profitable items, implying a lower profit margin. In contrast, “Nebula Smart LED Bulbs” are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
 
-Some products, including the "Aurora Weightlifting Gloves", "Cosmic Compression Socks" and "Tranquility Scented Candles," appear in both graphs, showcasing their strength in both popularity and profitability. This dual presence is indicative of a successful product strategy by the company. However, there are also noticeable discrepancies. For example, "QuantumX Gaming Mouse" appears as a top seller, yet it's absent from the most profitable items, implying a lower profit margin. In contrast, "Nebula Smart LED Bulbs" are among the most profitable but not the top sellers, suggesting a high margin compensating for lesser sales.
+The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
 
-The e-commerce company could focus on marketing strategies for high-margin products to boost their volume of sales, thus increasing overall profitability. For products that sell well but are less profitable, the company may need to assess whether they can improve margins through better supplier negotiations.
-
-Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or even discontinuing them if they do not contribute significantly to overall profits.
+Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or discontinuing them if they do not contribute significantly to overall profits.
 
 ```{r}
 #Report 2
@@ -1148,9 +1197,9 @@ ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold,
 
 *Figure 3*
 
-As the table shows, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. Individual products slightly outperform bundled products (499 vs 491). This suggests that the e-commerce company's bundling strategy to boost sales was not as effective as anticipated. However, it is difficult to conclude the efficacy of this deal based solely on the volume of sales.
+As the table shows, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. This suggests that the e-commerce company’s bundling strategy to boost sales was not as effective. However, it is diﬀicult to conclude the eﬀicacy of this deal based solely on the volume of sales.
 
-Optimizing bundle offerings by analyzing and aligning them with customer preferences, based on the average product ratings, can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer some flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal considering the inventory turnover and profit margins.
+Optimizing bundle offerings by analyzing and aligning them with customer preferences based on product ratings can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal, considering the inventory turnover and profit margins.
 
 ```{r Report 3}
 
@@ -1198,9 +1247,9 @@ theme(axis.text.x=element_text(angle=45,hjust = 1))
 
 *Figure 4: Time Series Graph to depict the seasonal trends in sales*
 
-Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 4 illustrates that the sales was maximum at September and December months over the time-period from 2022 to 2023. Hence appropriate pricing strategies could be deployed to increase revenue from top selling products. Also, a sharp decline in sales is identified in October month which is later followed by an increase in succeeding months. This study could help in an efficient inventory management in place for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
+Figure 4 helps us understand the purchase patterns of the customers over different periods of time. Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 1 illustrates that the sales were maximum in September and December months over the time period from 2022 to 2023. Hence, appropriate pricing strategies could be deployed to increase revenue from top-selling products. Also, a sharp decline in sales was identified in October, which was later followed by an increase in succeeding months. This study could help maintain efficient inventory management for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 #Report 4:
 
 #SQL query to join customer and order tables to get the sales for each city
@@ -1312,7 +1361,7 @@ grid.arrange(ggplot1,ggplot2)
 
 *Figure 5: Top 10 cities with maximum revenue and sales*
 
-Figure 5 gives a crucial insight of cities that generated significant revenue with lesser quantity of products sold. Top Products from these cities could be identified as shown in table 1 as their sales could improvise revenue to a great extent. Also, cities like Ford, Manchester and Milton generated outstanding revenue even though their sales were limited.
+Figure 5 gives a crucial insight into cities that generated significant revenue with a lesser quantity of products sold. Top Products from these cities could be identified as shown in Table 1, as their sales could primarily improve revenue. Also, cities like Ford, Manchester, and Milton generated outstanding revenue despite limited sales. This indicates that customers in this region had a good willingness to pay, which could be capitalised by targeted marketing.
 
 ```{r}
 #Report 5
@@ -1376,16 +1425,14 @@ panel.grid.major = element_blank(),
 panel.grid.minor = element_blank(),
 # Remove minor grid lines
 panel.background = element_rect(fill = "white", colour = "grey50"))
-#Style panel background
-
 
 ```
 
 *Figure 6: Sales of products per 1 advertisement of each type*
 
-We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Figure 6 shows that Footer ads on average have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign higher price for more efficient advertisement types to be charged from suppliers.
+We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Footer ads, on average, have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign a price for ads to be charged from suppliers.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 #Report 6
 
 ## Calculating Average Review for each category
@@ -1445,9 +1492,7 @@ ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
 
 *Figure 7: Comparing Marketplace fees to the sales in each Category of products*
 
-The marketplace is the mediator between the customer and seller, allowing convenience for both. This service is not free. Sellers pay fees for each transaction. These fees and advertisements make the marketplace profit. The fee varies depending on the category of goods. We compared the combined amount of fees for each sold item by category to find out which category brings the Marketplace more profit.
-
-On Figure 7 we see that the higher the sales of the Category, the more fees Marketplace earns on it. We consider increasing fees for the categories with higher sales and decreasing fees for the categories with low sales to maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular ones. Sports Equipment has the highest sales in terms of money, however, as we will see later most units are sold in the Electronics category.
+High sales in the category relate to a higher Marketplace fee. Increasing fees for the categories with higher sales and decreasing fees for the categories with low sales will maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular categories. Sports Equipment has the highest sales in terms of money. However, as we will see later, most units are sold in the Electronics category.
 
 ```{r}
 #Report 7
@@ -1474,8 +1519,4 @@ ggplot(category_fee, aes(x = reorder(category_name, -Average_Rating))) +
 
 *Figure 8: Average customers' rating for the category and category's sales in units*
 
-It was found that categories that have products with higher ratings have lower sales in units. This may appear wrong but most likely with the increase in sales the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
-
-```{r}
-#pdf("Report.pdf",width=20,height = 8)
-```
+Categories that have products with higher ratings have lower sales in units. This means that with the increase in sales, the number of negative reviews increases at a higher rate. Marketplace may want to reconsider suppliers for the categories with lower average ratings.
