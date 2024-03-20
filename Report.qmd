@@ -683,9 +683,9 @@ library(dplyr)
 connect <- dbConnect(RSQLite::SQLite(), "database.db")
 ```
 
-```{r}
-# Report 1
+### Analysis 1: Comparison of sales and revenue between products
 
+```{r}
 # Top 10 products based on the Profit Generated
 
 # Getting the tables from the database
@@ -766,57 +766,7 @@ The e-commerce company could focus on marketing strategies for high-margin produ
 
 Products that are both top sellers and highly profitable should be kept in optimum stock to avoid lost sales opportunities. For less profitable items, the company may consider keeping lower stock levels or discontinuing them if they do not contribute significantly to overall profits.
 
-```{r}
-#Report 2
-
-# Bundles vs Individual products Comparison by Sales Volume
-
-# Join product with order item 
-product_order_item <- order_item %>%
-  inner_join(product, by = "product_id")
-
-# Calculate total quantity sold for bundled products
-bundled_sales <- product_order_item %>%
-  filter(!is.na(main_product_id)) %>%
-  group_by(main_product_id) %>%
-  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(Product_Type = "Bundled")
-
-# Calculate total quantity sold for individual products
-individual_sales <- product_order_item %>%
-  filter(is.na(main_product_id)) %>%
-  group_by(product_id) %>%
-  summarise(Total_Quantity_Sold = sum(order_quantity, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(Product_Type = "Individual")
-
-# Combining the results
-total_sales_by_type <- bind_rows(bundled_sales, individual_sales) %>%
-  group_by(Product_Type) %>%
-  summarise(Total_Quantity_Sold = sum(Total_Quantity_Sold, na.rm = TRUE)) %>%
-  ungroup()
-
-print(total_sales_by_type)
-
-# Visualizing the results
-ggplot(total_sales_by_type, aes(x = Product_Type, y = Total_Quantity_Sold,
-                                fill = Product_Type)) +
-  geom_bar(stat = "identity", width = 0.5) +  # Adjust width here
-  scale_fill_manual(values = c("Bundled" = "skyblue",
-                               "Individual" = "salmon")) +
-  labs(title = "Total Quantity Sold by Product Type",
-       x = "Product Type",
-       y = "Total Quantity Sold") +
-  theme_minimal() +
-  theme(legend.position = "none") 
-```
-
-*Figure 3*
-
-As the table shows, the total sales for individual products (products sold without bundles) and bundled products yield nearly equal quantities sold. This suggests that the e-commerce company’s bundling strategy to boost sales was not as effective. However, it is diﬀicult to conclude the eﬀicacy of this deal based solely on the volume of sales.
-
-Optimizing bundle offerings by analyzing and aligning them with customer preferences based on product ratings can significantly enhance their appeal. Experimenting with different bundle types and conducting a cost-benefit analysis might uncover ways to refine the strategy. The results (Figure 3) suggest a market demand for both types of products, indicating that customers prefer flexibility in their buying options. Rather than discontinuing the bundle products, the company should look deeper into the performance metrics of this deal, considering the inventory turnover and profit margins.
+### Analysis 2: Time Series graph of sales
 
 ```{r Report 3}
 
@@ -865,6 +815,8 @@ theme(axis.text.x=element_text(angle=45,hjust = 1))
 *Figure 4: Time Series Graph to depict the seasonal trends in sales*
 
 Figure 4 helps us understand the purchase patterns of the customers over different periods of time. Purchase pattern analysis is significant for an e-commerce company as different strategies could be deployed to maximize sales and revenue. Figure 1 illustrates that the sales were maximum in September and December months over the time period from 2022 to 2023. Hence, appropriate pricing strategies could be deployed to increase revenue from top-selling products. Also, a sharp decline in sales was identified in October, which was later followed by an increase in succeeding months. This study could help maintain efficient inventory management for perishable products. Overall, this variation in sales across different seasons provides important insights for better management decisions.
+
+### Analysis 3: Comparison of sales and revenue across different cities
 
 ```{r warning=FALSE, message=FALSE}
 #Report 4:
@@ -980,6 +932,8 @@ grid.arrange(ggplot1,ggplot2)
 
 Figure 5 gives a crucial insight into cities that generated significant revenue with a lesser quantity of products sold. Top Products from these cities could be identified as shown in Table 1, as their sales could primarily improve revenue. Also, cities like Ford, Manchester, and Milton generated outstanding revenue despite limited sales. This indicates that customers in this region had a good willingness to pay, which could be capitalised by targeted marketing.
 
+### Analysis 4: Comparison of advertisements effectivenes
+
 ```{r}
 #Report 5
 # Joining Product with advertise_in and advertisement to get advertisement 
@@ -1049,6 +1003,8 @@ panel.background = element_rect(fill = "white", colour = "grey50"))
 
 We analysed 3 types of advertisements on the Marketplace to find that Products that are advertised with the Footer ads, on average, have higher sales in units. The intention was to compare the number of units sold depending on the type of advertisement this product was in. This finding can be used to assign a price for ads to be charged from suppliers.
 
+### Analysis 5: Analysis for Marketplace profit by category of products
+
 ```{r warning=FALSE, message=FALSE}
 #Report 6
 
@@ -1110,6 +1066,8 @@ ggplot(category_fee, aes(x = reorder(category_name, -total_fee))) +
 *Figure 7: Comparing Marketplace fees to the sales in each Category of products*
 
 High sales in the category relate to a higher Marketplace fee. Increasing fees for the categories with higher sales and decreasing fees for the categories with low sales will maximise Marketplace profit by selling more in less popular categories and getting higher fees for already popular categories. Sports Equipment has the highest sales in terms of money. However, as we will see later, most units are sold in the Electronics category.
+
+### Analysis 6: Analysis for product rating effect on sales
 
 ```{r}
 #Report 7
