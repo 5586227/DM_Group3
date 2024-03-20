@@ -135,32 +135,36 @@ if ("PRODUCT" %in% names(data_frames)) {
 invalid_address_fk <- data_frames$CUSTOMER[!data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
 data_frames$CUSTOMER <- data_frames$CUSTOMER[data_frames$CUSTOMER$address_id %in% data_frames$ADDRESS$address_id, ]
 
-##PRODUCT - CATEGORY - SUPPLIER
+##PRODUCT - CATEGORY
 invalid_category_fk <- data_frames$PRODUCT[!data_frames$PRODUCT$category_id %in% data_frames$CATEGORY$category_id, ]
 data_frames$PRODUCT <- data_frames$PRODUCT[data_frames$PRODUCT$category_id %in% data_frames$CATEGORY$category_id, ]
 
+##PRODUCT - SUPPLIER
 invalid_supplier_fk <- data_frames$PRODUCT[!data_frames$PRODUCT$supplier_id %in% data_frames$SUPPLIER$supplier_id, ]
 data_frames$PRODUCT <- data_frames$PRODUCT[data_frames$PRODUCT$supplier_id %in% data_frames$SUPPLIER$supplier_id, ]
 
-##ORDER_DETAIL - CUSTOMER - DISCOUNT
+##ORDER_DETAIL - CUSTOMER
 invalid_customer_fk <- data_frames$ORDER_DETAIL[!data_frames$ORDER_DETAIL$customer_id %in% data_frames$CUSTOMER$customer_id, ]
 data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[data_frames$ORDER_DETAIL$customer_id %in% data_frames$CUSTOMER$customer_id, ]
 
+##ORDER_DETAIL - DISCOUNT
 discounted_order <- data_frames$ORDER_DETAIL[!is.na(data_frames$ORDER_DETAIL$promo_code) & trimws(data_frames$ORDER_DETAIL$promo_code) != "", ]
 invalid_promo_fk <- discounted_order[!discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
 data_frames$ORDER_DETAIL <- data_frames$ORDER_DETAIL[is.na(data_frames$ORDER_DETAIL$promo_code) | trimws(data_frames$ORDER_DETAIL$promo_code) == "" | discounted_order$promo_code %in% data_frames$DISCOUNT$promo_code, ]
 
-##ORDER_ITEM - PRODUCT - ORDER_DETAIL
+##ORDER_ITEM - PRODUCT
 invalid_product_fk <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
 data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[data_frames$ORDER_ITEM$product_id %in% data_frames$PRODUCT$product_id, ]
 
+##ORDER_ITEM - ORDER_DETAIL
 invalid_order_fk       <- data_frames$ORDER_ITEM[!data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
 data_frames$ORDER_ITEM <- data_frames$ORDER_ITEM[ data_frames$ORDER_ITEM$order_id %in% data_frames$ORDER_DETAIL$order_id, ]
 
-##ADVERTISE_IN - ADVERTISEMENT - PRODUCT
+##ADVERTISE_IN - ADVERTISEMENT
 invalid_ad_fk <- data_frames$ADVERTISE_IN[!data_frames$ADVERTISE_IN$ad_id %in% data_frames$ADVERTISEMENT$ad_id, ]
 data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[data_frames$ADVERTISE_IN$ad_id %in% data_frames$ADVERTISEMENT$ad_id, ]
 
+##ADVERTISE_IN - PRODUCT
 invalid_adproduct_fk <- data_frames$ADVERTISE_IN[!data_frames$ADVERTISE_IN$product_id %in% data_frames$PRODUCT$product_id, ]
 data_frames$ADVERTISE_IN <- data_frames$ADVERTISE_IN[data_frames$ADVERTISE_IN$product_id %in% data_frames$PRODUCT$product_id, ]
 
